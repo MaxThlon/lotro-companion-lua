@@ -1,0 +1,75 @@
+import "Turbine.Type"
+import "Turbine"
+
+require "metalua.compiler.globals"
+local pp = require 'metalua.pprint'
+-{ extension ("match", ...) }
+
+local inspect = import "inspect"
+
+Translate = class();
+
+function Translate:Constructor()
+end
+
+function Translate:readFile(fileName)
+  local fileHandle, err = io.open(fileName,"rt")
+  local luaSource = fileHandle:read("*all")
+  fileHandle:close()
+  return luaSource, err
+end
+
+function Translate:Save(data)
+  local file, e = io.open("meu.lua", "w")
+  if not file then
+    return error(e)
+  end
+
+  file:write(pickle(data))
+
+  file:close()
+end
+
+function Translate:Parse(fileName)
+  print("load: " .. fileName)
+  local script, err = self:readFile(fileName)
+  if not script then
+    print("err: " .. err)
+  end
+
+  -- Check code validity
+  local status, err = loadstring(script, "isCodeValid")
+  if not status then
+    print("err: " .. err)
+  end
+
+  local metaluaCompiler = require "metalua.compiler".new()
+
+  local ast = metaluaCompiler:src_to_ast(script)
+  
+  LotroCompanion.Activate({Turbine.Language.English, Turbine.Language.French, Turbine.Language.German})
+  self:PopulateTreeView(script, ast)
+
+  -- local formatter = require 'FormatLua.formatter'
+  
+  -- print(formatter.indentcode(script, ast, '\n', true, '    '))
+  -- print(metaluaCompiler:ast_to_src(ast))
+end
+
+function Translate:PopulateTreeView(script, ast)
+  --print(inspect(ast))
+  local treeQuery = require "metalua.treequery"
+  treeQuery.debug = true
+  
+  treeQuery(ast):filter "Set":foreach(function (node, x_parent)
+     pp.printf("traverse %s", node)
+     match node with
+      | `Set{ { `Index{refTable, `String{translateId}}} , {`String{translateValue}} } -> 
+          --print(refTable[1].."["..translateId.."] = "..translateValue)
+          LotroCompanion.AddTranslation(Turbine.Language.English, translateId, translateValue)
+      | _ -> assert(false) -- impossible, pred filtered those out
+      end
+  end) 
+  
+  --print(inspect(matchNodes))
+end
