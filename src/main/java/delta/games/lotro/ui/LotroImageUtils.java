@@ -3,14 +3,9 @@ package delta.games.lotro.ui;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
-import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.spi.IIORegistry;
-import javax.imageio.stream.ImageInputStream;
 
 import org.apache.log4j.Logger;
 
@@ -18,7 +13,7 @@ import delta.common.ui.ImageUtils;
 
 /**
  * Image-related utilities.
- * @author DAM
+ * @author MaxThlon
  */
 public class LotroImageUtils extends ImageUtils
 {

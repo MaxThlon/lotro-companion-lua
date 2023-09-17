@@ -45,7 +45,7 @@ import delta.games.lotro.lua.turbine.ui.tree.LuaTreeSelectionListener;
 
 /**
  * LuaControl library for lua scripts.
- * @author DAM
+ * @author MaxThlon
  */
 public abstract class LuaControl {
 
@@ -326,7 +326,7 @@ public abstract class LuaControl {
     return Constants.NIL;
   }
 
-  public static LuaValue GetParent(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue GetParent(LuaState state, LuaValue self) {
     //Container container = Turbine.objectSelf(state, self, JComponent.class).getParent();
     //container.getClientProperty();
     return Constants.NIL; //Turbine.luaValueFromObject(container);
@@ -354,11 +354,11 @@ public abstract class LuaControl {
     return Constants.NIL;
   }
 
-  public static LuaTable GetControls(LuaState state, LuaValue self) throws LuaError {
+  public static LuaTable GetControls(LuaState state, LuaValue self) {
     return tableOf();
   }
 
-  public static LuaValue Focus(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue Focus(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
@@ -420,9 +420,8 @@ public abstract class LuaControl {
     
     if (JInternalFrame.class.isAssignableFrom(component.getClass())) {
       return valueOf(component.getPreferredSize().getWidth());
-    } else {
-      return valueOf(component.getWidth());
     }
+    return valueOf(component.getWidth());
   }
 
   public static LuaValue SetWidth(LuaState state, LuaValue self, LuaValue width) throws LuaError {
@@ -443,9 +442,8 @@ public abstract class LuaControl {
 
     if (JInternalFrame.class.isAssignableFrom(component.getClass())) {
       return valueOf(component.getPreferredSize().getHeight());
-    } else {
-      return valueOf(component.getHeight());
     }
+    return valueOf(component.getHeight());
   }
   
   public static LuaValue SetHeight(LuaState state, LuaValue self, LuaValue height) throws LuaError {
@@ -488,11 +486,11 @@ public abstract class LuaControl {
     return Constants.NIL;
   }
   
-  public static LuaValue GetBlendMode(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue GetBlendMode(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetBlendMode(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue SetBlendMode(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
 
@@ -508,31 +506,31 @@ public abstract class LuaControl {
     return UI.colorToLuaColor(jComponent.getBackground());
   }
   
-  public static LuaNumber GetBackColorBlendMode(LuaState state, LuaValue self) throws LuaError {
+  public static LuaNumber GetBackColorBlendMode(LuaState state, LuaValue self) {
     return Constants.ZERO;
   }
   
-  public static LuaValue GetBackground(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue GetBackground(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetBackground(LuaState state, LuaValue self, LuaValue backgroundImage) throws LuaError {
+  public static LuaValue SetBackground(LuaState state, LuaValue self, LuaValue backgroundImage) {
     return Constants.NIL;
   }
   
-  public static LuaNumber GetOpacity(LuaState state, LuaValue self) throws LuaError {
+  public static LuaNumber GetOpacity(LuaState state, LuaValue self) {
     return Constants.ZERO;
   }
 
-  public static LuaValue GetStretchMode(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue GetStretchMode(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetMouseVisible(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetMouseVisible(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaBoolean IsMouseVisible(LuaState state, LuaValue self) throws LuaError {
+  public static LuaBoolean IsMouseVisible(LuaState state, LuaValue self) {
     return Constants.FALSE;
   }
   
@@ -543,15 +541,15 @@ public abstract class LuaControl {
     return varargsOf(valueOf(point.x), valueOf(point.y));
   }
 
-  public static LuaBoolean GetAllowDrop(LuaState state, LuaValue self) throws LuaError {
+  public static LuaBoolean GetAllowDrop(LuaState state, LuaValue self) {
     return Constants.FALSE;
   }
   
-  public static LuaBoolean GetWantsUpdates(LuaState state, LuaValue self) throws LuaError {
+  public static LuaBoolean GetWantsUpdates(LuaState state, LuaValue self) {
     return Constants.FALSE;
   }
   
-  public static LuaBoolean SetWantsUpdates(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaBoolean SetWantsUpdates(LuaState state, LuaValue self, LuaValue value) {
     return Constants.FALSE;
   }
 

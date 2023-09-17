@@ -14,9 +14,13 @@ import javax.swing.JInternalFrame;
 import javax.swing.plaf.ComponentUI;
 
 import com.formdev.flatlaf.ui.FlatInternalFrameUI;
-import com.formdev.flatlaf.ui.FlatStylingSupport.StyleableBorder;
 import com.formdev.flatlaf.util.SoftCache;
 
+/**
+ * LotroInternalFrameUI extends {@link javax.swing.plaf.InternalFrameUI InternalFrameUI}
+ * for custom design of {@link javax.swing.JInternalFrame JInternalFrame}
+ * @author MaxThlon
+ */
 public class LotroInternalFrameUI extends FlatInternalFrameUI {
   //private static final SoftCache<String, BufferedImage> imageCache = new SoftCache<>();
   
@@ -38,7 +42,6 @@ public class LotroInternalFrameUI extends FlatInternalFrameUI {
     super.installUI( c );
   }
   
-  @SuppressWarnings("serial")
   public static class LotroInternalFrameBorder extends FlatInternalFrameBorder {
     private static final SoftCache<String, BufferedImage> imageCache = new SoftCache<>();
     

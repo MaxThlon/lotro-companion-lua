@@ -14,7 +14,6 @@ import java.util.Set;
  * LOG.error("Some error occurred: {}", new TruncatedError(error));
  * }</pre>
  *
- * @param error The error to wrap.
  */
 public class SanitisedError extends Throwable {
   private static final long serialVersionUID = -5250215591874653608L;

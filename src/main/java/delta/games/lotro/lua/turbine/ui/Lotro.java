@@ -10,8 +10,8 @@ import org.squiddev.cobalt.UnwindThrowable;
 import org.squiddev.cobalt.function.LuaFunction;
 
 /**
- * Lotro library for luaJ scripts.
- * @author DAM
+ * Lotro library for lua scripts.
+ * @author MaxThlon
  */
 public abstract class Lotro {
 

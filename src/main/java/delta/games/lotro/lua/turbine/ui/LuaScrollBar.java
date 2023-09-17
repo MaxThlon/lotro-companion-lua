@@ -18,8 +18,8 @@ import org.squiddev.cobalt.function.RegisteredFunction;
 import delta.games.lotro.lua.turbine.Turbine;
 
 /**
- * UI library for luaJ scripts.
- * @author DAM
+ * UI library for lua scripts.
+ * @author MaxThlon
  */
 public abstract class LuaScrollBar {
 
@@ -93,19 +93,19 @@ public abstract class LuaScrollBar {
     return Constants.NIL;
   }
   
-  public static LuaNumber GetSmallChange(LuaState state, LuaValue self) throws LuaError {
+  public static LuaNumber GetSmallChange(LuaState state, LuaValue self) {
     return Constants.ZERO;
   }
   
-  public static LuaValue SetSmallChange(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetSmallChange(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaNumber GetLargeChange(LuaState state, LuaValue self) throws LuaError {
+  public static LuaNumber GetLargeChange(LuaState state, LuaValue self) {
     return Constants.ZERO;
   }
   
-  public static LuaValue SetLargeChange(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetLargeChange(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
@@ -118,27 +118,27 @@ public abstract class LuaScrollBar {
     return Constants.NIL;
   }
   
-  public static LuaValue GetDecrementButton(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue GetDecrementButton(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetDecrementButton(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetDecrementButton(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue GetIncrementButton(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue GetIncrementButton(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetIncrementButton(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetIncrementButton(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue GetThumbButton(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue GetThumbButton(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetThumbButton(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetThumbButton(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
 }

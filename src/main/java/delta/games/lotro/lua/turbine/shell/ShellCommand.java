@@ -13,7 +13,7 @@ import org.squiddev.cobalt.function.RegisteredFunction;
 
 /**
  * ShellCommand for lua scripts.
- * @author DAM
+ * @author MaxThlon
  */
 public abstract class ShellCommand {
 
@@ -32,17 +32,17 @@ public abstract class ShellCommand {
     luaTurbine.rawset("ShellCommand", luaShellCommandClass);
   }
   
-  public static LuaValue Execute(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
+  public static LuaValue Execute(LuaState state, LuaValue self) {
 
     return Constants.NIL;
   }
   
-  public static LuaString GetHelp(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
+  public static LuaString GetHelp(LuaState state, LuaValue self) {
 
     return Constants.EMPTYSTRING;
   }
 
-  public static LuaString GetShortHelp(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
+  public static LuaString GetShortHelp(LuaState state, LuaValue self) {
 
     return Constants.EMPTYSTRING;
   }

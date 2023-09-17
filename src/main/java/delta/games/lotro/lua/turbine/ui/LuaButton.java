@@ -15,8 +15,8 @@ import org.squiddev.cobalt.function.RegisteredFunction;
 import delta.common.ui.swing.GuiFactory;
 
 /**
- * UI library for luaJ scripts.
- * @author DAM
+ * UI library for lua scripts.
+ * @author MaxThlon
  */
 public abstract class LuaButton {
 

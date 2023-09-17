@@ -1,6 +1,5 @@
 package delta.games.lotro.ui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -19,7 +18,10 @@ import com.formdev.flatlaf.ui.FlatUIUtils;
 import com.formdev.flatlaf.util.SoftCache;
 import com.formdev.flatlaf.util.UIScale;
 
-@SuppressWarnings("serial")
+/**
+ * LotroInternalFrameTitlePane used inside {@link delta.games.lotro.ui.LotroInternalFrameUI LotroInternalFrameUI}.
+ * @author MaxThlon
+ */
 public class LotroInternalFrameTitlePane extends BasicInternalFrameTitlePane {
   private static final SoftCache<String, BufferedImage> imageCache = new SoftCache<>();
 

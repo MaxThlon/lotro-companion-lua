@@ -24,7 +24,7 @@ import delta.games.lotro.lua.turbine.Turbine;
 
 /**
  * LuaWindow library for lua scripts.
- * @author DAM
+ * @author MaxThlon
  */
 public abstract class LuaWindow {
 
@@ -169,11 +169,11 @@ public abstract class LuaWindow {
     return Constants.NIL;
   }
   
-  public static LuaNumber GetRotation(LuaState state, LuaValue self) throws LuaError {
+  public static LuaNumber GetRotation(LuaState state, LuaValue self) {
     return Constants.ZERO;
   }
   
-  public static LuaValue SetRotation(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue SetRotation(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   

@@ -4,12 +4,15 @@ import org.squiddev.cobalt.LuaTable;
 import org.squiddev.cobalt.ValueFactory;
 
 /**
- * Engine library for luaJ scripts.
- * @author DAM
+ * Engine library for lua scripts.
+ * @author MaxThlon
  */
 public class Engine {
   public LuaTable _engine = ValueFactory.tableOf();
   
+  /**
+   * Constructor.
+   */
   public Engine() {
   }
 /*

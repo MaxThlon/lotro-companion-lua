@@ -15,29 +15,33 @@ import org.squiddev.cobalt.UnwindThrowable;
 
 import delta.games.lotro.lua.turbine.ui.LuaControl;
 
+/**
+ * LuaTreeSelectionListener library for lua scripts.
+ * @author MaxThlon
+ */
 public class LuaTreeSelectionListener implements TreeSelectionListener  {
-  private JTree jTree;
-  private LuaState state;
-  private LuaTable luaTreeview;
-  public LuaValue luaSelectedNodeChanged;
+  private JTree _jTree;
+  private LuaState _state;
+  private LuaTable _luaTreeview;
+  public LuaValue _luaSelectedNodeChanged;
 
   public LuaTreeSelectionListener(JTree jTree, LuaState state, LuaTable luaTreeview, LuaValue luaSelectedNodeChanged) {
-    this.jTree = jTree;
-    this.state = state;
-    this.luaTreeview = luaTreeview;
-    this.luaSelectedNodeChanged = luaSelectedNodeChanged;
+    this._jTree = jTree;
+    this._state = state;
+    this._luaTreeview = luaTreeview;
+    this._luaSelectedNodeChanged = luaSelectedNodeChanged;
   }
 
   @Override
   public void valueChanged(TreeSelectionEvent event) {
-    DefaultMutableTreeNode node = (DefaultMutableTreeNode)jTree.getLastSelectedPathComponent();
+    DefaultMutableTreeNode node = (DefaultMutableTreeNode)_jTree.getLastSelectedPathComponent();
 
     try {
-      if (this.luaSelectedNodeChanged != Constants.NIL)
+      if (this._luaSelectedNodeChanged != Constants.NIL)
           OperationHelper.call(
-              state,
-              this.luaSelectedNodeChanged,
-              luaTreeview, 
+              _state,
+              this._luaSelectedNodeChanged,
+              _luaTreeview, 
               (node == null)?Constants.NIL : LuaControl.findluaObjectFromObject(node),
               Constants.NIL
           );

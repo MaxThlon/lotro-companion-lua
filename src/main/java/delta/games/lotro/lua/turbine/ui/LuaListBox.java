@@ -18,7 +18,7 @@ import delta.common.ui.swing.GuiFactory;
 
 /**
  * LuaListBox library for lua scripts.
- * @author DAM
+ * @author MaxThlon
  */
 public abstract class LuaListBox {
 

@@ -27,11 +27,10 @@ import com.eleet.dragonconsole.DragonConsole;
 import delta.games.lotro.lua.turbine.Turbine;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeNode;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeNodeList;
-import delta.games.lotro.ui.flatlaf.FlatLotroLaf;
 
 /**
- * UI library for luaJ scripts.
- * @author DAM
+ * UI library for lua scripts.
+ * @author MaxThlon
  */
 public abstract class UI {
   public static JFrame frame = null;
@@ -45,9 +44,9 @@ public abstract class UI {
     } catch (Throwable e) {
         e.printStackTrace();
     }*/
-    FlatLotroLaf.setup();
+    //FlatLotroLaf.setup();
 
-    JFrame frame=new JFrame("Lotro companion lua");
+    frame=new JFrame("Lotro companion lua");
     frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     frame.setPreferredSize(new Dimension(1024, 768));
     
@@ -171,7 +170,7 @@ public abstract class UI {
     );
   }
   
-  public static LuaValue colorToLuaColor(Color color) throws LuaError {
+  public static LuaValue colorToLuaColor(Color color) {
     float[] compArray = color.getRGBComponents(null);
     return listOf(
         valueOf("A"), valueOf(compArray[3]),
@@ -181,7 +180,7 @@ public abstract class UI {
     );
   }
 
-  public static LuaValue ColorConstructor(LuaState state, Varargs varargs) throws LuaError, UnwindThrowable {
+  public static LuaValue ColorConstructor(LuaState state, Varargs varargs) throws LuaError {
     LuaTable self = varargs.first().checkTable();
     Turbine.ObjectConstructor(state, self);
 

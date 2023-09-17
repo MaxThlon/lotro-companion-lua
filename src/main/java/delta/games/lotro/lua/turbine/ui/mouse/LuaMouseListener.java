@@ -15,6 +15,10 @@ import org.squiddev.cobalt.UnwindThrowable;
 
 import delta.games.lotro.lua.turbine.ui.LuaControl;
 
+/**
+ * LuaMouseListener library for lua scripts.
+ * @author MaxThlon
+ */
 public abstract class LuaMouseListener implements MouseListener {
   
   public LuaValue luaMouseDown = null,

@@ -14,7 +14,7 @@ import org.squiddev.cobalt.function.RegisteredFunction;
 
 /**
  * LuaTextBox library for lua scripts.
- * @author DAM
+ * @author MaxThlon
  */
 public abstract class LuaTextBox {
 

@@ -25,7 +25,7 @@ import delta.games.lotro.lua.turbine.ui.tree.LuaTreeViewTreeCellRenderer;
 
 /**
  * LuaTreeView library for lua scripts.
- * @author DAM
+ * @author MaxThlon
  */
 public abstract class LuaTreeView {
 
@@ -80,19 +80,19 @@ public abstract class LuaTreeView {
     return Constants.NIL;
   }
   
-  public static LuaNumber GetIndentationWidth(LuaState state, LuaValue self) throws LuaError {
+  public static LuaNumber GetIndentationWidth(LuaState state, LuaValue self) {
     return Constants.ZERO;
   }
   
-  public static LuaValue SetIndentationWidth(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetIndentationWidth(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue ExpandAll(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue ExpandAll(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue CollapseAll(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue CollapseAll(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
@@ -109,31 +109,31 @@ public abstract class LuaTreeView {
     return LuaControl.findluaObjectFromObject(LuaTreeView.jTreeSelf(state, self).getLastSelectedPathComponent());
   }
   
-  public static LuaValue SetSelectedNode(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetSelectedNode(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue GetItemAt(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue GetItemAt(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue GetFilter(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue GetFilter(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetFilter(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetFilter(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue GetSortMethod(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue GetSortMethod(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetSortMethod(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetSortMethod(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue Refresh(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue Refresh(LuaState state, LuaValue self) {
     return Constants.NIL;
   }  
 }

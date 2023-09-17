@@ -5,8 +5,8 @@ import org.squiddev.cobalt.LuaValue;
 import org.squiddev.cobalt.ValueFactory;
 
 /**
- * Gameplay library for luaJ scripts.
- * @author DAM
+ * Gameplay library for lua scripts.
+ * @author MaxThlon
  */
 public class Gameplay {
   public LuaTable _gameplay = ValueFactory.tableOf();

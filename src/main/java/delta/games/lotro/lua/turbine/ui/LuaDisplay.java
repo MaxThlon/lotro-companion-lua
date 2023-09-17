@@ -8,7 +8,6 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Toolkit;
 
-import org.squiddev.cobalt.LuaError;
 import org.squiddev.cobalt.LuaNumber;
 import org.squiddev.cobalt.LuaState;
 import org.squiddev.cobalt.LuaTable;
@@ -16,13 +15,13 @@ import org.squiddev.cobalt.Varargs;
 import org.squiddev.cobalt.function.RegisteredFunction;
 
 /**
- * UI library for luaJ scripts.
- * @author DAM
+ * LuaDisplay library for lua scripts.
+ * @author MaxThlon
  */
 public abstract class LuaDisplay {
 
   public static void add(LuaState state,
-                         LuaTable uiMetatable) throws LuaError {
+                         LuaTable uiMetatable) {
 
     LuaTable luaDisplay = RegisteredFunction.bind(new RegisteredFunction[]{
         RegisteredFunction.of("GetWidth", LuaDisplay::GetWidth),
@@ -36,28 +35,28 @@ public abstract class LuaDisplay {
     uiMetatable.rawset("Display", luaDisplay);
   }
 
-  public static LuaNumber GetWidth(LuaState state) throws LuaError {
+  public static LuaNumber GetWidth(LuaState state) {
     return valueOf(Toolkit.getDefaultToolkit().getScreenSize().width);
   }
   
-  public static LuaNumber GetHeight(LuaState state) throws LuaError {
+  public static LuaNumber GetHeight(LuaState state) {
     return valueOf(Toolkit.getDefaultToolkit().getScreenSize().height);
   }
   
-  public static Varargs GetSize(LuaState state, Varargs varargs) throws LuaError {
+  public static Varargs GetSize(LuaState state, Varargs varargs) {
     Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
     return varargsOf(valueOf(dimension.width), valueOf(dimension.height));
   }
   
-  public static LuaNumber GetMouseX(LuaState state) throws LuaError {
+  public static LuaNumber GetMouseX(LuaState state) {
     return valueOf(MouseInfo.getPointerInfo().getLocation().x);
   }
 
-  public static LuaNumber GetMouseY(LuaState state) throws LuaError {
+  public static LuaNumber GetMouseY(LuaState state) {
     return valueOf(MouseInfo.getPointerInfo().getLocation().y);
   }
   
-  public static Varargs GetMousePosition(LuaState state, Varargs varargs) throws LuaError {
+  public static Varargs GetMousePosition(LuaState state, Varargs varargs) {
     Point location = MouseInfo.getPointerInfo().getLocation();
     
     return varargsOf(valueOf(location.x), valueOf(location.y));

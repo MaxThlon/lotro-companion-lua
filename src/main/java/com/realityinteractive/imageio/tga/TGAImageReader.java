@@ -71,7 +71,8 @@ public class TGAImageReader extends ImageReader
     /**
      * @see ImageReader#ImageReader(ImageReaderSpi)
      */
-    public TGAImageReader(final ImageReaderSpi originatingProvider)
+    public TGAImageReader(@SuppressWarnings("hiding")
+    final ImageReaderSpi originatingProvider)
     {
         super(originatingProvider);
     }
@@ -86,8 +87,11 @@ public class TGAImageReader extends ImageReader
     // NOTE:  can't read the header in here as there would be no place for
     //        exceptions to go.  It must be read lazily.
     @Override
-    public void setInput(final Object input, final boolean seekForwardOnly,
-                         final boolean ignoreMetadata)
+    public void setInput(@SuppressWarnings("hiding")
+    final Object input, @SuppressWarnings("hiding")
+    final boolean seekForwardOnly,
+                         @SuppressWarnings("hiding")
+                        final boolean ignoreMetadata)
     {
         // delegate to the parent
         super.setInput(input, seekForwardOnly, ignoreMetadata);
@@ -172,6 +176,7 @@ public class TGAImageReader extends ImageReader
         checkImageIndex(imageIndex);
 
         // read / get the header
+        @SuppressWarnings("hiding")
         final TGAHeader header = getHeader();
 
         if (header.getImageType() == TGAConstants.RLE_MONO && header.getBitsPerPixel() == 1) {
@@ -321,6 +326,7 @@ public class TGAImageReader extends ImageReader
         }
 
         // read and get the header
+        @SuppressWarnings("hiding")
         final TGAHeader header = getHeader();
 
         // ensure that the ImageReadParam hasn't been set to other than the
@@ -632,7 +638,8 @@ public class TGAImageReader extends ImageReader
      * @return             true if input signaled EOF and therefore no bytes could be read
      * @throws IOException if there is an I/O error while reading the input
      */
-    private boolean checkFillBuffer(ImageInputStream input, ByteBuffer buffer, int minRemaining)
+    private boolean checkFillBuffer(@SuppressWarnings("hiding")
+    ImageInputStream input, ByteBuffer buffer, int minRemaining)
         throws IOException
     {
         final int remaining = buffer.remaining();
@@ -665,7 +672,7 @@ public class TGAImageReader extends ImageReader
      *         if the image does not contain a color map
      * @throws IOException if there is an I/O error while reading the color map
      */
-    private int[] readColorMap(final TGAHeader header)
+    private int[] readColorMap(@SuppressWarnings("hiding")final TGAHeader header)
         throws IOException
     {
         // determine if the image contains a color map.  If not, return null
@@ -759,7 +766,7 @@ public class TGAImageReader extends ImageReader
      *         values
      */
     private void checkImageReadParam(final ImageReadParam param,
-                                     final TGAHeader header)
+                                     @SuppressWarnings("hiding")final TGAHeader header)
         throws IOException
     {
         if(param != null)

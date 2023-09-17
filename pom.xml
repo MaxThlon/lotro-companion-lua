@@ -3,13 +3,24 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>delta-lotro-companion-lua</artifactId>
   <packaging>jar</packaging>
-  <version>20.9</version>
-  <name>lotro-tools</name>
+  <version>1.0</version>
+  <name>lotro-companion-lua</name>
   <parent>
     <groupId>com.dam.delta4j</groupId>
     <artifactId>maven-definitions</artifactId>
     <version>2.0</version>
+    <relativePath>../delta-misc/maven/maven-definitions/2.0</relativePath>
   </parent>
+  <build>
+    <resources>
+      <resource>
+          <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+          <directory>src/main/lua</directory>
+      </resource>
+    </resources>
+  </build>
   <repositories>
     <repository>
         <id>org.squiddev</id>
@@ -18,6 +29,11 @@
     </repository>
   </repositories>
     <dependencies>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <version>3.0.2</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
@@ -28,25 +44,10 @@
       <artifactId>commons-io</artifactId>
       <version>2.13.0</version>
     </dependency>
-	  <dependency>
+    <dependency>
       <groupId>com.dam.delta4j</groupId>
       <artifactId>delta-common</artifactId>
       <version>1.10</version>
-    </dependency>
-    <dependency>
-        <groupId>jfree</groupId>
-        <artifactId>jfreechart</artifactId>
-        <version>1.0.13</version>
-    </dependency>
-    <dependency>
-        <groupId>com.github.trilarion</groupId>
-        <artifactId>java-vorbis-support</artifactId>
-        <version>1.2.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.squiddev</groupId>
-      <artifactId>Cobalt</artifactId>
-      <version>0.7.3</version>
     </dependency>
     <dependency>
       <groupId>com.dam.delta4j</groupId>
@@ -54,14 +55,19 @@
       <version>1.25</version>
     </dependency>
     <dependency>
+      <groupId>com.dam.delta4j</groupId>
+      <artifactId>delta-lotro-core</artifactId>
+      <version>20.11</version>
+    </dependency>
+    <dependency>
+      <groupId>org.squiddev</groupId>
+      <artifactId>Cobalt</artifactId>
+      <version>0.7.3</version>
+    </dependency>
+    <dependency>
       <groupId>com.eleet</groupId>
       <artifactId>dragonconsole</artifactId>
       <version>3.0.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>com.formdev</groupId>
-      <artifactId>flatlaf</artifactId>
-      <version>3.2.1</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>

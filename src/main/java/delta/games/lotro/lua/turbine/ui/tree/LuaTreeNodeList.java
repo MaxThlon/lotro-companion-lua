@@ -26,7 +26,7 @@ import delta.games.lotro.lua.utils.LuaTools;
 
 /**
  * LuaTreeNodeList library for lua scripts.
- * @author DAM
+ * @author MaxThlon
  */
 public abstract class LuaTreeNodeList {
 
@@ -115,27 +115,28 @@ public abstract class LuaTreeNodeList {
     return Constants.NIL;
   }
   
+  @SuppressWarnings("cast")
   public static LuaValue Get(LuaState state, LuaValue self, LuaValue index) throws LuaError {
     return LuaControl.findluaObjectFromObject((DefaultMutableTreeNode)rootNodeSelf(state, self).getChildAt(index.checkInteger()));
   }
   
-  public static LuaValue Contains(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue Contains(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue IndexOf(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue IndexOf(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue Remove(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue Remove(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue RemoveAt(LuaState state, LuaValue self, LuaValue index) throws LuaError {
+  public static LuaValue RemoveAt(LuaState state, LuaValue self, LuaValue index) {
     return Constants.NIL;
   }
   
-  public static LuaValue Clear(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue Clear(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
 }

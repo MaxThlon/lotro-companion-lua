@@ -7,7 +7,10 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
-@SuppressWarnings("serial")
+/**
+ * LuaListCellRenderer library for lua scripts.
+ * @author MaxThlon
+ */
 public class LuaListCellRenderer extends DefaultListCellRenderer {
 
   @Override
@@ -17,11 +20,12 @@ public class LuaListCellRenderer extends DefaultListCellRenderer {
                                                 boolean isSelected,
                                                 boolean cellHasFocus) {
     Component component = this;
-    
-    if (list.getModel().getElementAt(index) instanceof JPanel jPanel) {
+    Object object=list.getModel().getElementAt(index);
+    JPanel jPanel=(object instanceof JPanel)?(JPanel)object:null;
+    if (jPanel != null) {
       component = jPanel;
     } else {
-      component = (JLabel)super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+      component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
       //l.setFont(tree.getFont().deriveFont(leaf ? 16f : 48f));
       //height = tree.getRowHeight();
       //height = leaf ? 20 : 60;

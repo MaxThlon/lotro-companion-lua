@@ -17,7 +17,7 @@ import delta.games.lotro.lua.turbine.Turbine;
 
 /**
  * LuaScrollableControl library for lua scripts.
- * @author DAM
+ * @author MaxThlon
  */
 public abstract class LuaScrollableControl {
 

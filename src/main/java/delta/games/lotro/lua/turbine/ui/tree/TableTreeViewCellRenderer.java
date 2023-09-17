@@ -14,24 +14,28 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import org.squiddev.cobalt.LuaError;
 import org.squiddev.cobalt.LuaValue;
 
-@SuppressWarnings("serial")
+/**
+ * TableTreeViewCellRenderer library for lua scripts.
+ * @author MaxThlon
+ */
 public class TableTreeViewCellRenderer extends DefaultTreeCellRenderer {
 
-  private int columnCount;
+  private int _columnCount;
   private JTable table;
 
   public TableTreeViewCellRenderer(int columnCount) {
-    this.columnCount = columnCount;
+    this._columnCount = columnCount;
     this.table = new JTable();
     JScrollPane scrollPane = new JScrollPane(this.table);
     add(scrollPane);
   }
 
-  public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected,
-                                                boolean expanded, boolean leaf, int row, boolean hasFocus) {
+  public Component getTreeCellRendererComponent(JTree tree, Object value, boolean xselected,
+                                                boolean expanded, boolean leaf, int row, boolean xhasFocus) {
     Component component = this;
     DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
-    if (node.getUserObject() instanceof List list) {
+    if (node.getUserObject() instanceof List) {
+      List<?> list=(List<?>)node.getUserObject();
       //final String v = (String) ((DefaultMutableTreeNode) value).getUserObject();
       component = table;
       table.setModel(new DefaultTableModel() {
@@ -41,19 +45,22 @@ public class TableTreeViewCellRenderer extends DefaultTreeCellRenderer {
         }
         @Override
         public int getColumnCount() {
-          return columnCount;
+          return _columnCount;
         }
         @Override
-        public Object getValueAt(int row, int column) {
-          String value = "";
+        public Object getValueAt(int atRow, int atColumn) {
+          String atValue = "";
           try {
-            if (list.get(row) instanceof LuaValue[] translations)
-              value = translations[column].optString("");
+            Object object=list.get(atRow);
+            if (object instanceof LuaValue[]) {
+              LuaValue[] translations=(LuaValue[])object;
+              atValue = translations[atColumn].optString("");
+            }
           } catch (LuaError e) {
             e.printStackTrace();
           }
           
-          return value;
+          return atValue;
         }
       });
       table.setPreferredScrollableViewportSize(table.getPreferredSize());

@@ -23,6 +23,7 @@ import javax.imageio.stream.ImageInputStream;
  * @version $Id: TGAHeader.java,v 1.1 2005/04/12 11:23:53 ornedan Exp $
  * @since 1.0
  */
+@SuppressWarnings("javadoc")
 public class TGAHeader
 {
     /**

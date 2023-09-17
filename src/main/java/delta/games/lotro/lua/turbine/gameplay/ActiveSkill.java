@@ -1,8 +1,8 @@
 package delta.games.lotro.lua.turbine.gameplay;
 
 /**
- * ActiveSkill library for luaJ scripts.
- * @author DAM
+ * ActiveSkill library for lua scripts.
+ * @author MaxThlon
  */
 public class ActiveSkill {
   public ActiveSkill() {}

@@ -8,10 +8,13 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellEditor;
 
-@SuppressWarnings("serial")
+/**
+ * LuaTreeCellEditor library for lua scripts.
+ * @author MaxThlon
+ */
 public class LuaTreeCellEditor extends AbstractCellEditor implements TreeCellEditor {
 
-  private JPanel jPanel;
+  private JPanel jPanel=null;
 
   public LuaTreeCellEditor() {
   }
@@ -27,8 +30,8 @@ public class LuaTreeCellEditor extends AbstractCellEditor implements TreeCellEdi
     DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
     Component component = null;
 
-    if (node.getUserObject() instanceof JPanel jPanel) {
-      component = jPanel;
+    if (node.getUserObject() instanceof JPanel) {
+      component = (JPanel)node.getUserObject();
     }
 
     return component;

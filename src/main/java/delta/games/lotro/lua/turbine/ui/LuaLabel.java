@@ -25,8 +25,8 @@ import delta.common.ui.swing.labels.MultilineLabel;
 import delta.games.lotro.lua.turbine.Turbine;
 
 /**
- * UI library for lua scripts.
- * @author DAM
+ * LuaLabel library for lua scripts.
+ * @author MaxThlon
  */
 public abstract class LuaLabel {
 
@@ -88,63 +88,63 @@ public abstract class LuaLabel {
     return Constants.NIL;
   }
   
-  public static LuaBoolean IsMultiline(LuaState state, LuaValue self) throws LuaError {
+  public static LuaBoolean IsMultiline(LuaState state, LuaValue self) {
     return Constants.FALSE;
   }
   
-  public static LuaValue SetMultiline(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetMultiline(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
 
-  public static LuaBoolean IsMarkupEnabled(LuaState state, LuaValue self) throws LuaError {
+  public static LuaBoolean IsMarkupEnabled(LuaState state, LuaValue self) {
     return Constants.FALSE;
   }
   
   
-  public static LuaValue GetFont(LuaState state, LuaValue self) throws LuaError {  
+  public static LuaValue GetFont(LuaState state, LuaValue self) {  
     return Constants.NIL;
   }
 
-  public static LuaValue SetFont(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetFont(LuaState state, LuaValue self, LuaValue value) {
     //MultilineLabel2 multilineLabel = self.metatag(state, valueOf("objectSelf")).checkUserdata(MultilineLabel2.class);
     //multilineLabel.getDefaultStyle().getFont().    
     return Constants.NIL;
   }
   
-  public static LuaValue GetFontStyle(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue GetFontStyle(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetFontStyle(LuaState state, LuaValue self, LuaValue value) throws LuaError { 
+  public static LuaValue SetFontStyle(LuaState state, LuaValue self, LuaValue value) { 
     return Constants.NIL;
   }
   
-  public static LuaValue GetTextAlignment(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue GetTextAlignment(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetTextAlignment(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetTextAlignment(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue GetForeColor(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue GetForeColor(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetForeColor(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetForeColor(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue GetOutlineColor(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue GetOutlineColor(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetOutlineColor(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetOutlineColor(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
 
   
-  public static LuaNumber GetTextLength(LuaState state, LuaValue self) throws LuaError {
+  public static LuaNumber GetTextLength(LuaState state, LuaValue self) {
     return Constants.ZERO;
   }
   
@@ -170,55 +170,55 @@ public abstract class LuaLabel {
     return Constants.NIL;
   }
   
-  public static LuaValue AppendText(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue AppendText(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue InsertText(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue InsertText(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }  
   
-  public static LuaValue IsSelectable(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue IsSelectable(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetSelectable(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetSelectable(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue SelectAll(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue SelectAll(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue DeselectAll(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue DeselectAll(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetSelection(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue SetSelection(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaString GetSelectedText(LuaState state, LuaValue self) throws LuaError {
+  public static LuaString GetSelectedText(LuaState state, LuaValue self) {
     return Constants.EMPTYSTRING;
   }
   
-  public static LuaValue SetSelectedText(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetSelectedText(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaNumber GetSelectionLength(LuaState state, LuaValue self) throws LuaError {
+  public static LuaNumber GetSelectionLength(LuaState state, LuaValue self) {
     return Constants.ZERO;
   }
   
-  public static LuaValue SetSelectionLength(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetSelectionLength(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetSelectionStart(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue SetSelectionStart(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue GetSelectionStart(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue GetSelectionStart(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
 }

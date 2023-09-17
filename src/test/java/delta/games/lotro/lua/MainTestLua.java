@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
 import org.squiddev.cobalt.LuaError;
@@ -17,14 +16,14 @@ import delta.games.lotro.lua.utils.URLToolsLua;
 
 
 /**
- * Main test LuaJ.
- * @author DAM
+ * Main test Lua.
+ * @author MaxThlon
  */
 public class MainTestLua
 {
   private static Logger LOGGER = Logger.getLogger(MainTestLua.class);
   
-  private static void scriptSimpleTest() throws MalformedURLException, FileNotFoundException, IOException, LuaError, UnwindThrowable
+  public static void scriptSimpleTest() throws FileNotFoundException, IOException, LuaError
   {
     /*MockedStatic<URLToolsLuaJ> urlTools = mockStatic(URLToolsLuaJ.class);
 
@@ -34,7 +33,7 @@ public class MainTestLua
 */
     InputStream script = new FileInputStream(URLToolsLua.getFromClassPath("test/simple.lua"));
     
-    LuaJRunner luaJRunner = new LuaJRunner(script, valueOf("simple.lua"));
+    LuaRunner luaJRunner = new LuaRunner(script, valueOf("simple.lua"));
     try {
       luaJRunner.handleEvent(null, null);
     } catch (Exception exception){
@@ -42,11 +41,11 @@ public class MainTestLua
     }
   }
 
-  private static void scriptTranslateTest() throws MalformedURLException, FileNotFoundException, IOException, LuaError, UnwindThrowable
+  public static void scriptTranslateTest() throws FileNotFoundException, IOException, LuaError
   {
     InputStream script = new FileInputStream(URLToolsLua.getFromClassPath("test/translate-test.lua"));
     
-    LuaJRunner luaJRunner = new LuaJRunner(script, valueOf("translate-test.lua"));
+    LuaRunner luaJRunner = new LuaRunner(script, valueOf("translate-test.lua"));
     try {
       luaJRunner.handleEvent(null, null);
     } catch (Exception exception){
@@ -54,11 +53,11 @@ public class MainTestLua
     }
   }
 
-  private static void scriptUiTest() throws MalformedURLException, FileNotFoundException, IOException, LuaError, UnwindThrowable
+  public static void scriptUiTest() throws FileNotFoundException, IOException, LuaError
   {
     InputStream script = new FileInputStream(URLToolsLua.getFromClassPath("test/ui-test.lua"));
     
-    LuaJRunner luaJRunner = new LuaJRunner(script, valueOf("ui-test.lua"));
+    LuaRunner luaJRunner = new LuaRunner(script, valueOf("ui-test.lua"));
     try {
       luaJRunner.handleEvent(null, null);
     } catch (Exception exception){
@@ -69,12 +68,12 @@ public class MainTestLua
   }
 
   /**
-   * Method method for this game.
+   * main for UI tests.
    * @param args Not used.
    * @throws UnwindThrowable 
    * @throws LuaError 
    */
-  public static void main(String[] args) throws MalformedURLException, FileNotFoundException, IOException, LuaError, UnwindThrowable
+  public static void main(String[] args) throws LuaError, UnwindThrowable
   {
     //scriptSimpleTest();
     
@@ -82,11 +81,9 @@ public class MainTestLua
       public void run() {
         UI.buildUI();
         try {
-          
-
-          scriptTranslateTest();
-          //scriptUiTest();
-        } catch (IOException | LuaError | UnwindThrowable e) {
+          //scriptTranslateTest();
+          scriptUiTest();
+        } catch (IOException | LuaError e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }

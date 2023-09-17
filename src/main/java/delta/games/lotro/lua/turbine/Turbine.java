@@ -26,15 +26,14 @@ import delta.games.lotro.lua.turbine.ui.UI;
 import delta.games.lotro.lua.utils.LuaTools;
 import delta.games.lotro.lua.utils.URLToolsLua;
 
-
 /**
  * Turbine library for lua scripts.
- * @author DAM
+ * @author MaxThlon
  */
 public abstract class Turbine {
   private static Logger LOGGER = Logger.getLogger(Turbine.class);
 
-  public static void add(LuaState state, LuaTable env) throws LuaError {
+  public static void add(LuaState state, LuaTable env) {
     RegisteredFunction.bind(env, new RegisteredFunction[]{
         RegisteredFunction.of("import", Turbine::Import)
     });
@@ -117,7 +116,7 @@ public abstract class Turbine {
     );
   }
   
-  public static LuaValue ObjectConstructor(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue ObjectConstructor(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   

@@ -6,16 +6,15 @@ import org.squiddev.cobalt.LuaError;
 import org.squiddev.cobalt.LuaState;
 import org.squiddev.cobalt.LuaTable;
 import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.UnwindThrowable;
 import org.squiddev.cobalt.function.LibFunction;
 import org.squiddev.cobalt.function.RegisteredFunction;
 
 import delta.common.utils.url.URLTools;
-import delta.games.lotro.lua.LuaJRunner;
+import delta.games.lotro.lua.LuaRunner;
 
 /**
  * Tool methods related to URLs management of lua requires.
- * @author DAM
+ * @author MaxThlon
  */
 public abstract class URLToolsLua
 {
@@ -28,7 +27,7 @@ public abstract class URLToolsLua
   
   public static String getFromClassPath(String name)
   {
-    return URLToolsLua.getFromClassPath(name, LuaJRunner.class);
+    return URLToolsLua.getFromClassPath(name, LuaRunner.class);
   }
   
   public static String getFromClassPath(String name, Class<?> clazz)
@@ -36,7 +35,7 @@ public abstract class URLToolsLua
     return URLTools.getFromClassPath(name,clazz).getPath();
   }
   
-  public static LuaValue luaGetFromClassPath(LuaState state, LuaValue name) throws LuaError, UnwindThrowable {
+  public static LuaValue luaGetFromClassPath(LuaState state, LuaValue name) throws LuaError {
     return valueOf(getFromClassPath(name.checkString()));
   }
 }

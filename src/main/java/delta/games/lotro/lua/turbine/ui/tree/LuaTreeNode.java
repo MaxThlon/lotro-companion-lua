@@ -22,7 +22,7 @@ import delta.games.lotro.lua.turbine.ui.LuaControl;
 
 /**
  * LuaTreeNode library for lua scripts.
- * @author DAM
+ * @author MaxThlon
  */
 public abstract class LuaTreeNode {
 
@@ -50,7 +50,7 @@ public abstract class LuaTreeNode {
     uiMetatable.rawset("TreeNode", luaTreeNodeClass);
   }
   
-  public static void setObjectSelf(LuaState state, LuaValue self, DefaultTreeModel treeModel, DefaultMutableTreeNode treeNode) throws LuaError, UnwindThrowable {
+  public static void setObjectSelf(LuaState state, LuaValue self, DefaultTreeModel treeModel, DefaultMutableTreeNode treeNode) throws LuaError {
     LuaTable __objectSelf = self.metatag(state, valueOf("__objectSelf")).optTable(null);
     if (__objectSelf == null) {
       __objectSelf = tableOf();
@@ -65,14 +65,14 @@ public abstract class LuaTreeNode {
     );
   }
 
-  public static LuaValue Constructor(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
+  public static LuaValue Constructor(LuaState state, LuaValue self) throws LuaError {
     DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(new JPanel());
     LuaControl.ControlInheritedConstructor(state, self, treeNode);
     
     return Constants.NIL;
   }
   
-  public static LuaValue GetParentNode(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
+  public static LuaValue GetParentNode(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
@@ -84,31 +84,31 @@ public abstract class LuaTreeNode {
     );
   }
   
-  public static LuaValue IsSelected(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
+  public static LuaValue IsSelected(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue IsExpanded(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
+  public static LuaValue IsExpanded(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetExpanded(LuaState state, LuaValue self, LuaValue value) throws LuaError, UnwindThrowable {
+  public static LuaValue SetExpanded(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue Expand(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
+  public static LuaValue Expand(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue ExpandAll(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
+  public static LuaValue ExpandAll(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue Collapse(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
+  public static LuaValue Collapse(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue CollapseAll(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
+  public static LuaValue CollapseAll(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
 }
