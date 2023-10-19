@@ -28,10 +28,9 @@ public abstract class LuaTreeNode {
 
   public static void add(LuaState state,
                          LuaTable uiMetatable,
-                         LuaFunction luaClass,
                          LuaValue luaControlClass) throws LuaError, UnwindThrowable {
 
-    LuaTable luaTreeNodeClass = luaClass.call(state, luaControlClass).checkTable();
+    LuaTable luaTreeNodeClass = Turbine._luaClass.call(state, luaControlClass).checkTable();
     RegisteredFunction.bind(luaTreeNodeClass, new RegisteredFunction[]{
         RegisteredFunction.of("Constructor", LuaTreeNode::Constructor),
         
@@ -67,7 +66,7 @@ public abstract class LuaTreeNode {
 
   public static LuaValue Constructor(LuaState state, LuaValue self) throws LuaError {
     DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(new JPanel());
-    LuaControl.ControlInheritedConstructor(state, self, treeNode);
+    LuaControl.controlInheritedConstructor(state, self, treeNode);
     
     return Constants.NIL;
   }

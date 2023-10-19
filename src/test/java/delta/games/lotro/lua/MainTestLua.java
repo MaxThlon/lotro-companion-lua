@@ -1,16 +1,18 @@
 package delta.games.lotro.lua;
 
-import static org.squiddev.cobalt.ValueFactory.valueOf;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 
 import org.apache.log4j.Logger;
 import org.squiddev.cobalt.LuaError;
 import org.squiddev.cobalt.UnwindThrowable;
 
+import com.eleet.dragonconsole.CommandProcessor;
+
+import delta.common.utils.url.URLTools;
 import delta.games.lotro.lua.turbine.ui.UI;
 import delta.games.lotro.lua.utils.URLToolsLua;
 
@@ -23,48 +25,46 @@ public class MainTestLua
 {
   private static Logger LOGGER = Logger.getLogger(MainTestLua.class);
   
-  public static void scriptSimpleTest() throws FileNotFoundException, IOException, LuaError
+  public static void scriptSimpleTest(CommandProcessor commandProcessor) throws FileNotFoundException, IOException
   {
-    /*MockedStatic<URLToolsLuaJ> urlTools = mockStatic(URLToolsLuaJ.class);
-
-    urlTools.when(() -> URLToolsLuaJ.getFromClassPath(
-        anyString()
-    )).thenAnswer(invocation -> LuaValue.valueOf("file:src/main/resources/" + invocation.getArgument(0)));
-*/
     InputStream script = new FileInputStream(URLToolsLua.getFromClassPath("test/simple.lua"));
     
-    LuaRunner luaJRunner = new LuaRunner(script, valueOf("simple.lua"));
+    LuaRunner luaRunner = new LuaRunner(commandProcessor);
     try {
-      luaJRunner.handleEvent(null, null);
+      luaRunner.initPackageLib(Paths.get(URLTools.getFromClassPath("test", LuaRunner.class).toURI()));
+      luaRunner.bootstrapLotro("simple.lua", script);
+      luaRunner.handleEvent(null);
     } catch (Exception exception){
       LOGGER.error("Exception Error: ", exception);
     }
   }
 
-  public static void scriptTranslateTest() throws FileNotFoundException, IOException, LuaError
+  public static void scriptTranslateTest(CommandProcessor commandProcessor) throws FileNotFoundException, IOException
   {
     InputStream script = new FileInputStream(URLToolsLua.getFromClassPath("test/translate-test.lua"));
     
-    LuaRunner luaJRunner = new LuaRunner(script, valueOf("translate-test.lua"));
+    LuaRunner luaRunner = new LuaRunner(commandProcessor);
     try {
-      luaJRunner.handleEvent(null, null);
+      luaRunner.initPackageLib(Paths.get(URLTools.getFromClassPath("test", LuaRunner.class).toURI()));
+      luaRunner.bootstrapLotro("translate-test.lua", script);
+      luaRunner.handleEvent(null);
     } catch (Exception exception){
       LOGGER.error("Exception Error: ", exception);
     }
   }
 
-  public static void scriptUiTest() throws FileNotFoundException, IOException, LuaError
+  public static void scriptUiTest(CommandProcessor commandProcessor) throws FileNotFoundException, IOException
   {
     InputStream script = new FileInputStream(URLToolsLua.getFromClassPath("test/ui-test.lua"));
     
-    LuaRunner luaJRunner = new LuaRunner(script, valueOf("ui-test.lua"));
+    LuaRunner luaRunner = new LuaRunner(commandProcessor);
     try {
-      luaJRunner.handleEvent(null, null);
+      luaRunner.initPackageLib(Paths.get(URLTools.getFromClassPath("test", LuaRunner.class).toURI()));
+      luaRunner.bootstrapLotro("ui-test.lua", script);
+      luaRunner.handleEvent(null);
     } catch (Exception exception){
       LOGGER.error("Exception Error: ", exception);
     }
-    
-    
   }
 
   /**
@@ -80,10 +80,12 @@ public class MainTestLua
     javax.swing.SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         UI.buildUI();
+        CommandProcessor commandProcessor=new CommandProcessor();
+        commandProcessor.install(UI.dragonConsole);
         try {
           //scriptTranslateTest();
-          scriptUiTest();
-        } catch (IOException | LuaError e) {
+          scriptUiTest(commandProcessor);
+        } catch (IOException e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }

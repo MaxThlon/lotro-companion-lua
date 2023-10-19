@@ -25,10 +25,9 @@ public abstract class LuaScrollBar {
 
   public static void add(LuaState state,
                          LuaTable uiMetatable,
-                         LuaFunction luaClass,
                          LuaValue luaControlClass) throws LuaError, UnwindThrowable {
 
-    LuaTable luaScrollBarClass = OperationHelper.call(state, luaClass, luaControlClass).checkTable();
+    LuaTable luaScrollBarClass = OperationHelper.call(state, Turbine._luaClass, luaControlClass).checkTable();
     RegisteredFunction.bind(luaScrollBarClass, new RegisteredFunction[]{
         RegisteredFunction.of("Constructor", LuaScrollBar::Constructor),
         RegisteredFunction.of("GetOrientation", LuaScrollBar::GetOrientation),
@@ -60,7 +59,7 @@ public abstract class LuaScrollBar {
 
   public static LuaValue Constructor(LuaState state, LuaValue self) throws LuaError {
     JScrollBar jScrollBar = new JScrollBar();
-    LuaControl.ControlInheritedConstructor(state, self, jScrollBar);
+    LuaControl.controlInheritedConstructor(state, self, jScrollBar);
     return Constants.NIL;
   }
   

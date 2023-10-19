@@ -9,7 +9,6 @@
     <groupId>com.dam.delta4j</groupId>
     <artifactId>maven-definitions</artifactId>
     <version>2.0</version>
-    <relativePath>../delta-misc/maven/maven-definitions/2.0</relativePath>
   </parent>
   <build>
     <resources>
@@ -28,7 +27,7 @@
         <url>https://squiddev.cc/maven/</url>
     </repository>
   </repositories>
-    <dependencies>
+  <dependencies>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
@@ -60,14 +59,19 @@
       <version>20.11</version>
     </dependency>
     <dependency>
-      <groupId>org.squiddev</groupId>
-      <artifactId>Cobalt</artifactId>
-      <version>0.7.3</version>
+      <groupId>com.dam.delta4j</groupId>
+      <artifactId>delta-utils-jobs</artifactId>
+      <version>1.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.eleet</groupId>
       <artifactId>dragonconsole</artifactId>
       <version>3.0.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.squiddev</groupId>
+      <artifactId>Cobalt</artifactId>
+      <version>0.7.3</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>

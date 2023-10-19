@@ -6,10 +6,10 @@ import org.squiddev.cobalt.LuaState;
 import org.squiddev.cobalt.LuaString;
 import org.squiddev.cobalt.LuaTable;
 import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.OperationHelper;
 import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
 import org.squiddev.cobalt.function.RegisteredFunction;
+
+import delta.games.lotro.lua.turbine.Turbine;
 
 /**
  * ShellCommand for lua scripts.
@@ -18,18 +18,16 @@ import org.squiddev.cobalt.function.RegisteredFunction;
 public abstract class ShellCommand {
 
   public static void add(LuaState state,
-                         LuaTable luaTurbine,
-                         LuaFunction luaClass,
-                         LuaTable luaObjectClass) throws LuaError, UnwindThrowable {
+                         LuaTable turbine) throws LuaError, UnwindThrowable {
 
-    LuaTable luaShellCommandClass = OperationHelper.call(state, luaClass, luaObjectClass).checkTable();
+    LuaTable luaShellCommandClass = Turbine._luaClass.call(state, Turbine._luaObjectClass).checkTable();
     RegisteredFunction.bind(luaShellCommandClass, new RegisteredFunction[]{
         RegisteredFunction.of("Execute", ShellCommand::Execute),
         RegisteredFunction.of("GetHelp", ShellCommand::GetHelp),
         RegisteredFunction.of("GetShortHelp", ShellCommand::GetShortHelp)
     });
     
-    luaTurbine.rawset("ShellCommand", luaShellCommandClass);
+    turbine.rawset("ShellCommand", luaShellCommandClass);
   }
   
   public static LuaValue Execute(LuaState state, LuaValue self) {

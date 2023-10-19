@@ -13,7 +13,6 @@ import org.squiddev.cobalt.LuaValue;
 import org.squiddev.cobalt.function.LibFunction;
 import org.squiddev.cobalt.function.RegisteredFunction;
 
-import delta.games.lotro.gui.utils.translation.TranslationPanelController;
 import delta.games.lotro.lua.turbine.ui.UI;
 
 /**
@@ -24,11 +23,9 @@ public abstract class LuaLotroCompanion {
   
   // UI
   private static JInternalFrame jInternalFrame = null;
-  private static TranslationPanelController _translationPanelController;
+  //private static TranslationPanelController _translationPanelController;
 
   public LuaLotroCompanion() {}
-  
-
   
   public static void add(LuaState state, LuaTable env) throws LuaError {
     LibFunction.setGlobalLibrary(state, env, "LotroCompanion", RegisteredFunction.bind(new RegisteredFunction[]{
@@ -45,9 +42,9 @@ public abstract class LuaLotroCompanion {
     jInternalFrame.setOpaque(false);
     jInternalFrame.setPreferredSize(new Dimension(400,700));
     
-    _translationPanelController = new TranslationPanelController();
+    /*_translationPanelController = new TranslationPanelController();
     
-    jInternalFrame.add(_translationPanelController.getPanel());
+    jInternalFrame.add(_translationPanelController.getPanel());*/
 
     UI.jDesktopPane.add(jInternalFrame);
     jInternalFrame.pack();

@@ -12,6 +12,8 @@ import org.squiddev.cobalt.UnwindThrowable;
 import org.squiddev.cobalt.function.LuaFunction;
 import org.squiddev.cobalt.function.RegisteredFunction;
 
+import delta.games.lotro.lua.turbine.Turbine;
+
 /**
  * LuaTextBox library for lua scripts.
  * @author MaxThlon
@@ -20,10 +22,9 @@ public abstract class LuaTextBox {
 
   public static void add(LuaState state,
                          LuaTable uiMetatable,
-                         LuaFunction luaClass,
                          LuaValue luaLabelClass) throws LuaError, UnwindThrowable {
 
-    LuaTable luaTextBoxClass = OperationHelper.call(state, luaClass, luaLabelClass).checkTable();
+    LuaTable luaTextBoxClass = OperationHelper.call(state, Turbine._luaClass, luaLabelClass).checkTable();
     RegisteredFunction.bind(luaTextBoxClass, new RegisteredFunction[]{
         RegisteredFunction.of("Constructor", LuaTextBox::Constructor),
     });
@@ -33,7 +34,7 @@ public abstract class LuaTextBox {
 
   public static LuaValue Constructor(LuaState state, LuaValue self) throws LuaError {
     JTextArea jTextArea = new JTextArea();
-    LuaControl.ControlInheritedConstructor(state, self, jTextArea);
+    LuaControl.controlInheritedConstructor(state, self, jTextArea);
 
     return Constants.NIL;
   }

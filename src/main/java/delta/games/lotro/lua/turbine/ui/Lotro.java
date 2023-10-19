@@ -7,7 +7,6 @@ import org.squiddev.cobalt.LuaError;
 import org.squiddev.cobalt.LuaState;
 import org.squiddev.cobalt.LuaTable;
 import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
 
 /**
  * Lotro library for lua scripts.
@@ -17,9 +16,6 @@ public abstract class Lotro {
 
   public static void add(LuaState state) throws LuaError, UnwindThrowable {
     LuaTable globals = state.getMainThread().getfenv();
-    LuaFunction luaClass = globals.rawget("class").checkFunction();
-    //LuaTable luaObjectClass = globals.rawget("Turbine").checkTable().rawget("Object").checkTable();
-    
     LuaTable font = tableOf(
         valueOf("Verdana12"), valueOf("Verdana12"),
         valueOf("BookAntiqua12"), valueOf("BookAntiqua12"),
@@ -88,7 +84,7 @@ public abstract class Lotro {
         valueOf("ScrollBar"), uiMetatable.rawget("ScrollBar")
     );
     
-    LuaWindow.add(state, uiLotroMetatable, luaClass, luaControlClass);
+    LuaWindow.add(state, uiLotroMetatable, luaControlClass);
     
     uiMetatable.rawset("Lotro", uiLotroMetatable);
   }

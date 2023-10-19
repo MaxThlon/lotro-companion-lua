@@ -15,9 +15,9 @@ import delta.games.lotro.lua.turbine.ui.UI;
  */
 public abstract class Shell {
 
-  public static void add(LuaState state, LuaTable luaTurbine) {
+  public static void add(LuaState state, LuaTable turbine) {
     
-    LuaTable shellMetatable = RegisteredFunction.bind(new RegisteredFunction[]{
+    LuaTable shell = RegisteredFunction.bind(new RegisteredFunction[]{
         RegisteredFunction.of("WriteLine", Shell::WriteLine),
         RegisteredFunction.of("GetCommands", Shell::GetCommands),
         RegisteredFunction.of("AddCommand", Shell::AddCommand),
@@ -25,7 +25,7 @@ public abstract class Shell {
         RegisteredFunction.of("IsCommand", Shell::IsCommand)
     });
 
-    luaTurbine.rawset("Shell", shellMetatable);
+    turbine.rawset("Shell", shell);
   }
   
   public static LuaValue WriteLine(LuaState state, LuaValue self) throws LuaError {

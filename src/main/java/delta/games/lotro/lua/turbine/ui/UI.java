@@ -19,11 +19,11 @@ import org.squiddev.cobalt.LuaTable;
 import org.squiddev.cobalt.LuaValue;
 import org.squiddev.cobalt.UnwindThrowable;
 import org.squiddev.cobalt.Varargs;
-import org.squiddev.cobalt.function.LuaFunction;
 import org.squiddev.cobalt.function.RegisteredFunction;
 
 import com.eleet.dragonconsole.DragonConsole;
 
+import delta.common.ui.swing.GuiFactory;
 import delta.games.lotro.lua.turbine.Turbine;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeNode;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeNodeList;
@@ -45,7 +45,7 @@ public abstract class UI {
         e.printStackTrace();
     }*/
     //FlatLotroLaf.setup();
-
+    GuiFactory.init();
     frame=new JFrame("Lotro companion lua");
     frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     frame.setPreferredSize(new Dimension(1024, 768));
@@ -71,10 +71,8 @@ public abstract class UI {
 
   public static void add(LuaState state) throws LuaError, UnwindThrowable {
     LuaTable globals = state.getMainThread().getfenv();
-    LuaFunction luaClass = globals.rawget("class").checkFunction();
-    LuaTable luaObjectClass = globals.rawget("Turbine").checkTable().rawget("Object").checkTable();
-    
-    LuaTable luaColorClass = luaClass.call(state, luaObjectClass).checkTable();
+
+    LuaTable luaColorClass = Turbine._luaClass.call(state, Turbine._luaObjectClass).checkTable();
     RegisteredFunction.bind(luaColorClass, new RegisteredFunction[]{
         RegisteredFunction.ofV("Constructor", UI::ColorConstructor)
     });
@@ -142,19 +140,19 @@ public abstract class UI {
         valueOf("VerticalLayout"), luaVerticalLayout
     );
 
-    LuaTable luaControlClass = LuaControl.add(state, uiMetatable, luaClass, luaObjectClass);
+    LuaTable luaControlClass = LuaControl.add(state, uiMetatable, Turbine._luaClass, Turbine._luaObjectClass);
 
     LuaDisplay.add(state, uiMetatable);
-    LuaTable luaScrollableControlClass = LuaScrollableControl.add(state, uiMetatable, luaClass, luaControlClass);
-    LuaTable luaLabelClass = LuaLabel.add(state, uiMetatable, luaClass, luaScrollableControlClass);
-    LuaTextBox.add(state, uiMetatable, luaClass, luaLabelClass);
-    LuaButton.add(state, uiMetatable, luaClass, luaLabelClass);
-    LuaWindow.add(state, uiMetatable, luaClass, luaControlClass);
-    LuaListBox.add(state, uiMetatable, luaClass, luaScrollableControlClass);
-    LuaScrollBar.add(state, uiMetatable, luaClass, luaControlClass);
-    LuaTreeNode.add(state, uiMetatable, luaClass, luaControlClass);
-    LuaTreeNodeList.add(state, uiMetatable, luaClass, luaObjectClass);
-    LuaTreeView.add(state, uiMetatable, luaClass, luaScrollableControlClass);
+    LuaTable luaScrollableControlClass = LuaScrollableControl.add(state, uiMetatable, luaControlClass);
+    LuaTable luaLabelClass = LuaLabel.add(state, uiMetatable, Turbine._luaClass, luaScrollableControlClass);
+    LuaTextBox.add(state, uiMetatable, luaLabelClass);
+    LuaButton.add(state, uiMetatable, luaLabelClass);
+    LuaWindow.add(state, uiMetatable, luaControlClass);
+    LuaListBox.add(state, uiMetatable, luaScrollableControlClass);
+    LuaScrollBar.add(state, uiMetatable, luaControlClass);
+    LuaTreeNode.add(state, uiMetatable, luaControlClass);
+    LuaTreeNodeList.add(state, uiMetatable);
+    LuaTreeView.add(state, uiMetatable, luaScrollableControlClass);
 
     globals.rawget("Turbine").checkTable().rawset("UI", uiMetatable);
     
@@ -170,9 +168,9 @@ public abstract class UI {
     );
   }
   
-  public static LuaValue colorToLuaColor(Color color) {
+  public static LuaValue colorToLuaColor(Color color) throws LuaError {
     float[] compArray = color.getRGBComponents(null);
-    return listOf(
+    return tableOf(
         valueOf("A"), valueOf(compArray[3]),
         valueOf("R"), valueOf(compArray[0]),
         valueOf("G"), valueOf(compArray[1]),

@@ -83,7 +83,7 @@ public abstract class LuaLabel {
   public static LuaValue Constructor(LuaState state, LuaValue self) throws LuaError {
     //MultilineLabel label = new MultilineLabel();
     JLabel label = new JLabel();
-    LuaControl.ControlInheritedConstructor(state, self, label);
+    LuaControl.controlInheritedConstructor(state, self, label);
 
     return Constants.NIL;
   }

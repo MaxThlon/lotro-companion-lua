@@ -13,6 +13,8 @@ import org.squiddev.cobalt.LuaValue;
 import org.squiddev.cobalt.OperationHelper;
 import org.squiddev.cobalt.UnwindThrowable;
 
+import delta.common.framework.plugin.PluginManager;
+import delta.games.lotro.lua.turbine.Apartment;
 import delta.games.lotro.lua.turbine.ui.LuaControl;
 
 /**
@@ -21,22 +23,26 @@ import delta.games.lotro.lua.turbine.ui.LuaControl;
  */
 public abstract class LuaMouseListener implements MouseListener {
   
-  public LuaValue luaMouseDown = null,
-                  luaMouseClick = null,
-                  luaMouseUp = null,
-                  luaMouseEnter = null,
-                  luaMouseLeave = null;
+  public LuaValue _luaMouseDown = null,
+                  _luaMouseClick = null,
+                  _luaMouseUp = null,
+                  _luaMouseEnter = null,
+                  _luaMouseLeave = null;
   
   public static LuaMouseListener luaIndexMetaFunc(LuaState state, LuaValue self) throws LuaError {
-    Component component = LuaControl.findJComponentFromLuaObject(state, self);
-
-    return (LuaMouseListener)Arrays.stream(component.getMouseListeners()).findFirst().orElseGet(() -> {
+    Component component = LuaControl.findComponentFromLuaObject(state, self);
+    return Arrays.stream(component.getMouseListeners())
+                 .filter(LuaMouseListener.class::isInstance)
+                 .map(LuaMouseListener.class::cast)
+                 .findFirst().orElseGet(() -> {
       LuaMouseListener luaMouseListener = new LuaMouseListener() {
         @Override
         public void mousePressed(MouseEvent  mouseEvent) {
           try {
-            if (this.luaMouseDown != null) OperationHelper.call(state, this.luaMouseDown, self, tableOf());
-          } catch (LuaError | UnwindThrowable error) {
+            if (_luaMouseDown != null) {
+              PluginManager.getInstance().event("MouseDown", new Object[]{Apartment.findApartment(state), _luaMouseDown, self, tableOf()});
+            }
+          } catch (LuaError error) {
             error.printStackTrace();
           }
         }
@@ -44,8 +50,10 @@ public abstract class LuaMouseListener implements MouseListener {
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
           try {
-            if (this.luaMouseClick != null) OperationHelper.call(state, this.luaMouseClick, self, tableOf());
-          } catch (LuaError | UnwindThrowable error) {
+            if (_luaMouseClick != null) {
+              PluginManager.getInstance().event("MouseClick", new Object[]{Apartment.findApartment(state), _luaMouseClick, self, tableOf()});
+            }
+          } catch (LuaError error) {
             error.printStackTrace();
           }
         }
@@ -53,8 +61,10 @@ public abstract class LuaMouseListener implements MouseListener {
         @Override
         public void mouseReleased(MouseEvent mouseEvent) {
           try {
-            if (this.luaMouseUp != null) OperationHelper.call(state, this.luaMouseUp, self, tableOf());
-          } catch (LuaError | UnwindThrowable error) {
+            if (_luaMouseUp != null) {
+              PluginManager.getInstance().event("MouseUp", new Object[]{Apartment.findApartment(state), _luaMouseUp, self, tableOf()});
+            }
+          } catch (LuaError error) {
             error.printStackTrace();
           }
         }
@@ -62,8 +72,10 @@ public abstract class LuaMouseListener implements MouseListener {
         @Override
         public void mouseEntered(MouseEvent mouseEvent) {
           try {
-            if (this.luaMouseEnter != null) OperationHelper.call(state, this.luaMouseEnter, self, tableOf());
-          } catch (LuaError | UnwindThrowable error) {
+            if (_luaMouseEnter != null) {
+              PluginManager.getInstance().event("MouseEnter", new Object[]{Apartment.findApartment(state), _luaMouseEnter, self, tableOf()});
+            }
+          } catch (LuaError error) {
             error.printStackTrace();
           }
         }
@@ -71,8 +83,10 @@ public abstract class LuaMouseListener implements MouseListener {
         @Override
         public void mouseExited(MouseEvent mouseEvent) {
           try {
-            if (this.luaMouseLeave != null) OperationHelper.call(state, this.luaMouseLeave, self, tableOf());
-          } catch (LuaError | UnwindThrowable error) {
+            if (_luaMouseLeave != null) {
+              PluginManager.getInstance().event("MouseLeave", new Object[]{Apartment.findApartment(state), _luaMouseLeave, self, tableOf()});
+            }
+          } catch (LuaError error) {
             error.printStackTrace();
           }
         }

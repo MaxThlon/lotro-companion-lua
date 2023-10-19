@@ -4,9 +4,10 @@ import static org.squiddev.cobalt.ValueFactory.valueOf;
 import static org.squiddev.cobalt.ValueFactory.varargsOf;
 
 import java.awt.Dimension;
-import java.beans.PropertyVetoException;
 
+import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
+import javax.swing.JPanel;
 
 import org.squiddev.cobalt.Constants;
 import org.squiddev.cobalt.LuaError;
@@ -17,9 +18,10 @@ import org.squiddev.cobalt.LuaValue;
 import org.squiddev.cobalt.OperationHelper;
 import org.squiddev.cobalt.UnwindThrowable;
 import org.squiddev.cobalt.Varargs;
-import org.squiddev.cobalt.function.LuaFunction;
 import org.squiddev.cobalt.function.RegisteredFunction;
 
+import delta.common.ui.swing.Frame;
+import delta.common.ui.swing.windows.DefaultWindowController;
 import delta.games.lotro.lua.turbine.Turbine;
 
 /**
@@ -30,10 +32,9 @@ public abstract class LuaWindow {
 
   public static void add(LuaState state,
                          LuaTable uiMetatable,
-                         LuaFunction luaClass,
                          LuaValue luaControlClass) throws LuaError, UnwindThrowable {
 
-    LuaTable luaWindowClass = OperationHelper.call(state, luaClass, luaControlClass).checkTable();
+    LuaTable luaWindowClass = OperationHelper.call(state, Turbine._luaClass, luaControlClass).checkTable();
     RegisteredFunction.bind(luaWindowClass, new RegisteredFunction[]{
         RegisteredFunction.of("Constructor", LuaWindow::Constructor),
         RegisteredFunction.of("Activate", LuaWindow::Activate),
@@ -63,109 +64,120 @@ public abstract class LuaWindow {
     uiMetatable.rawset("Window", luaWindowClass);
   }
 
+  public static DefaultWindowController objectSelf(LuaState state, LuaValue self) throws LuaError {
+    return Turbine.objectSelf(state, self, DefaultWindowController.class);
+  }
+  
   public static LuaValue Constructor(LuaState state, LuaValue self) throws LuaError {
-    JInternalFrame jInternalFrame = new JInternalFrame();
-    jInternalFrame.setLayout(null);
-    jInternalFrame.setOpaque(false);
-    UI.jDesktopPane.add(jInternalFrame);
-    LuaControl.ControlInheritedConstructor(state, self, jInternalFrame);
+    DefaultWindowController defaultWindowController=new DefaultWindowController() {
+      @Override
+      protected Frame build() {
+        Frame frame=super.build();
+        frame.setLayout(null);
+        return frame;
+      }
+      @Override
+      protected JComponent buildContents() {
+        return null;
+      }
+    };
+    LuaControl.controlInheritedConstructor(state, self, defaultWindowController);
 
     return Constants.NIL;
   }
   
   public static LuaValue Activate(LuaState state, LuaValue self) throws LuaError {
-    JInternalFrame jInternalFrame = Turbine.objectSelf(state, self, JInternalFrame.class);
-    jInternalFrame.setVisible(true);
-    jInternalFrame.toFront();
+    DefaultWindowController windowController=objectSelf(state, self);
+    windowController.bringToFront();
     return Constants.NIL;
   }
 
   public static LuaValue Close(LuaState state, LuaValue self) throws LuaError {
-    try {
-      Turbine.objectSelf(state, self, JInternalFrame.class).setClosed(true);
+    /*try {
+      objectSelf(state, self).getFrame().setClosed(true);
     } catch (PropertyVetoException e) {
       e.printStackTrace();
-    }
+    }*/
     return Constants.NIL;
   }
 
   public static LuaNumber GetMinimumWidth(LuaState state, LuaValue self) throws LuaError {
-    return valueOf(Turbine.objectSelf(state, self, JInternalFrame.class).getMinimumSize().width);
+    return valueOf(objectSelf(state, self).getFrame().getMinimumSize().width);
   }
   
   public static LuaValue SetMinimumWidth(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    JInternalFrame jInternalFrame = Turbine.objectSelf(state, self, JInternalFrame.class);
-    Dimension dimension = jInternalFrame.getMinimumSize();
+    Frame frame = objectSelf(state, self).getFrame();
+    Dimension dimension = frame.getMinimumSize();
     dimension.width = value.checkInteger();
-    jInternalFrame.setMinimumSize(dimension);
+    frame.setMinimumSize(dimension);
     return Constants.NIL;
   }
   
   public static LuaNumber GetMinimumHeight(LuaState state, LuaValue self) throws LuaError {
-    return valueOf(Turbine.objectSelf(state, self, JInternalFrame.class).getMinimumSize().height);
+    return valueOf(objectSelf(state, self).getFrame().getMinimumSize().height);
   }
   
   public static LuaValue SetMinimumHeight(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    JInternalFrame jInternalFrame = Turbine.objectSelf(state, self, JInternalFrame.class);
-    Dimension dimension = jInternalFrame.getMinimumSize();
+    Frame frame = objectSelf(state, self).getFrame();
+    Dimension dimension = frame.getMinimumSize();
     dimension.height = value.checkInteger();
-    jInternalFrame.setMinimumSize(dimension);
+    frame.setMinimumSize(dimension);
     return Constants.NIL;
   }
   
   public static Varargs GetMinimumSize(LuaState state, Varargs varargs) throws LuaError {
-    JInternalFrame jInternalFrame = Turbine.objectSelf(state, varargs.first(), JInternalFrame.class);
-    Dimension dimension = jInternalFrame.getMinimumSize();
+    Frame frame = objectSelf(state, varargs.first()).getFrame();
+    Dimension dimension = frame.getMinimumSize();
     
     return varargsOf(valueOf(dimension.width), valueOf(dimension.height));
   }
   
   public static LuaValue SetMinimumSize(LuaState state, LuaValue self, LuaValue width, LuaValue height) throws LuaError {
-    JInternalFrame jInternalFrame = Turbine.objectSelf(state, self, JInternalFrame.class);
-    Dimension dimension = jInternalFrame.getMinimumSize();
+    Frame frame = objectSelf(state, self).getFrame();
+    Dimension dimension = frame.getMinimumSize();
     dimension.width = width.checkInteger();
     dimension.height = height.checkInteger();
-    jInternalFrame.setMinimumSize(dimension);
+    frame.setMinimumSize(dimension);
     return Constants.NIL;
   }
 
   public static LuaNumber GetMaximumWidth(LuaState state, LuaValue self) throws LuaError {
-    return valueOf(Turbine.objectSelf(state, self, JInternalFrame.class).getMaximumSize().width);
+    return valueOf(objectSelf(state, self).getFrame().getMaximumSize().width);
   }
   
   public static LuaValue SetMaximumWidth(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    JInternalFrame jInternalFrame = Turbine.objectSelf(state, self, JInternalFrame.class);
-    Dimension dimension = jInternalFrame.getMaximumSize();
+    Frame frame = objectSelf(state, self).getFrame();
+    Dimension dimension = frame.getMaximumSize();
     dimension.width = value.checkInteger();
-    jInternalFrame.setMaximumSize(dimension);
+    frame.setMaximumSize(dimension);
     return Constants.NIL;
   }
   
   public static LuaNumber GetMaximumHeight(LuaState state, LuaValue self) throws LuaError {
-    return valueOf(Turbine.objectSelf(state, self, JInternalFrame.class).getMaximumSize().height);
+    return valueOf(objectSelf(state, self).getFrame().getMaximumSize().height);
   }
   
   public static LuaValue SetMaximumHeight(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    JInternalFrame jInternalFrame = Turbine.objectSelf(state, self, JInternalFrame.class);
-    Dimension dimension = jInternalFrame.getMaximumSize();
+    Frame frame = objectSelf(state, self).getFrame();
+    Dimension dimension = frame.getMaximumSize();
     dimension.height = value.checkInteger();
-    jInternalFrame.setMaximumSize(dimension);
+    frame.setMaximumSize(dimension);
     return Constants.NIL;
   }
   
   public static Varargs GetMaximumSize(LuaState state, Varargs varargs) throws LuaError {
-    JInternalFrame jInternalFrame = Turbine.objectSelf(state, varargs.first(), JInternalFrame.class);
-    Dimension dimension = jInternalFrame.getMaximumSize();
+    Frame frame = objectSelf(state, varargs.first()).getFrame();
+    Dimension dimension = frame.getMaximumSize();
     
     return varargsOf(valueOf(dimension.width), valueOf(dimension.height));
   }
   
   public static LuaValue SetMaximumSize(LuaState state, LuaValue self, LuaValue width, LuaValue height) throws LuaError {
-    JInternalFrame jInternalFrame = Turbine.objectSelf(state, self, JInternalFrame.class);
-    Dimension dimension = jInternalFrame.getMaximumSize();
+    Frame frame = objectSelf(state, self).getFrame();
+    Dimension dimension = frame.getMaximumSize();
     dimension.width = width.checkInteger();
     dimension.height = height.checkInteger();
-    jInternalFrame.setMaximumSize(dimension);
+    frame.setMaximumSize(dimension);
     return Constants.NIL;
   }
   
@@ -178,11 +190,11 @@ public abstract class LuaWindow {
   }
   
   public static LuaValue GetText(LuaState state, LuaValue self) throws LuaError {
-    return valueOf(Turbine.objectSelf(state, self, JInternalFrame.class).getTitle());
+    return valueOf(objectSelf(state, self).getFrame().getTitle());
   }
   
   public static LuaValue SetText(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    Turbine.objectSelf(state, self, JInternalFrame.class).setTitle(value.checkString());
+    objectSelf(state, self).setTitle(value.checkString());
     return Constants.NIL;
   }
 }

@@ -31,10 +31,9 @@ public abstract class LuaTreeView {
 
   public static void add(LuaState state,
                          LuaTable uiMetatable,
-                         LuaFunction luaClass,
                          LuaValue luaScrollableControlClass) throws LuaError, UnwindThrowable {
 
-    LuaTable luaTreeViewClass = OperationHelper.call(state, luaClass, luaScrollableControlClass).checkTable();
+    LuaTable luaTreeViewClass = OperationHelper.call(state, Turbine._luaClass, luaScrollableControlClass).checkTable();
     RegisteredFunction.bind(luaTreeViewClass, new RegisteredFunction[]{
         RegisteredFunction.of("Constructor", LuaTreeView::Constructor),
         
@@ -106,7 +105,7 @@ public abstract class LuaTreeView {
   }
   
   public static LuaValue GetSelectedNode(LuaState state, LuaValue self) throws LuaError { 
-    return LuaControl.findluaObjectFromObject(LuaTreeView.jTreeSelf(state, self).getLastSelectedPathComponent());
+    return Turbine.findLuaObjectFromObject(LuaTreeView.jTreeSelf(state, self).getLastSelectedPathComponent());
   }
   
   public static LuaValue SetSelectedNode(LuaState state, LuaValue self, LuaValue value) {

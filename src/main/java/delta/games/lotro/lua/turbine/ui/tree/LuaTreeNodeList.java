@@ -31,11 +31,9 @@ import delta.games.lotro.lua.utils.LuaTools;
 public abstract class LuaTreeNodeList {
 
   public static void add(LuaState state,
-                         LuaTable uiMetatable,
-                         LuaFunction luaClass,
-                         LuaValue luaObjectClass) throws LuaError, UnwindThrowable {
+                         LuaTable uiMetatable) throws LuaError, UnwindThrowable {
 
-    LuaTable luaTreeNodeListClass = luaClass.call(state, luaObjectClass).checkTable();
+    LuaTable luaTreeNodeListClass = Turbine._luaClass.call(state, Turbine._luaObjectClass).checkTable();
     RegisteredFunction.bind(luaTreeNodeListClass, new RegisteredFunction[]{
         RegisteredFunction.of("Constructor", LuaTreeNodeList::Constructor),
         
@@ -54,7 +52,7 @@ public abstract class LuaTreeNodeList {
   }
 
   public static LuaTable newLuaTreeNodeList(LuaState state, JTree jtree, DefaultMutableTreeNode rootNode) throws LuaError, UnwindThrowable {
-    LuaTable globals = state.getCurrentThread().getfenv();
+    LuaTable globals = state.getMainThread().getfenv();
     LuaTable luaTreeNodeListClass = globals.rawget("Turbine").checkTable().rawget("UI").checkTable().rawget("TreeNodeList").checkTable();
     
     LuaTable luaTreeNodeList = OperationHelper.call(
@@ -117,7 +115,7 @@ public abstract class LuaTreeNodeList {
   
   @SuppressWarnings("cast")
   public static LuaValue Get(LuaState state, LuaValue self, LuaValue index) throws LuaError {
-    return LuaControl.findluaObjectFromObject((DefaultMutableTreeNode)rootNodeSelf(state, self).getChildAt(index.checkInteger()));
+    return Turbine.findLuaObjectFromObject((DefaultMutableTreeNode)rootNodeSelf(state, self).getChildAt(index.checkInteger()));
   }
   
   public static LuaValue Contains(LuaState state, LuaValue self, LuaValue value) {
