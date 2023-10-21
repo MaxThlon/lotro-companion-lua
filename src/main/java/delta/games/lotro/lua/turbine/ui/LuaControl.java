@@ -25,7 +25,6 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.RootPaneContainer;
-import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.apache.log4j.Logger;
 import org.squiddev.cobalt.Constants;
@@ -45,12 +44,11 @@ import org.squiddev.cobalt.function.RegisteredFunction;
 import delta.common.framework.plugin.PluginManager;
 import delta.common.ui.swing.Window;
 import delta.common.ui.swing.windows.WindowController;
-import delta.games.lotro.client.plugin.Plugin;
 import delta.games.lotro.lua.turbine.Apartment;
 import delta.games.lotro.lua.turbine.Turbine;
-import delta.games.lotro.lua.turbine.plugin.LuaPlugin;
 import delta.games.lotro.lua.turbine.ui.mouse.LuaMouseListener;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeSelectionListener;
+import delta.games.lotro.lua.utils.LuaTools;
 
 /**
  * LuaControl library for lua scripts.
@@ -63,7 +61,7 @@ public abstract class LuaControl {
   public static Object jComponentKey_luaEventsFunc = new Object();
 
   public static LuaTable add(LuaState state,
-                             LuaTable uiMetatable,
+                             LuaTable uiEnv,
                              LuaFunction luaClass,
                              LuaValue luaObjectClass) throws LuaError, UnwindThrowable {
 
@@ -114,13 +112,13 @@ public abstract class LuaControl {
         
     });
     
-    uiMetatable.rawset("Control", luaControlClass);
+    uiEnv.rawset("Control", luaControlClass);
     
     return luaControlClass;
   }
   
   public static Component findComponentFromLuaObject(LuaState state, LuaValue value) throws LuaError { 
-    return findComponentFromObject(Turbine.objectSelf(state, value));
+    return findComponentFromObject(LuaTools.objectSelf(state, value));
   }
 
   public static Component findComponentFromObject(Object objectSelf) {
@@ -128,8 +126,8 @@ public abstract class LuaControl {
 
     if (objectSelf instanceof Component) {
       component=(Component)objectSelf;
-    } else if (objectSelf instanceof DefaultMutableTreeNode) {
-      component=(Component)((DefaultMutableTreeNode)objectSelf).getUserObject();
+    /*} else if (objectSelf instanceof DefaultMutableTreeNode) {
+      component=(Component)((DefaultMutableTreeNode)objectSelf).getUserObject();*/
     } else if (objectSelf instanceof WindowController) {
       component=(Component)((WindowController)objectSelf).getWindow();
     }
@@ -149,7 +147,7 @@ public abstract class LuaControl {
   }
 
   public static Container findContainerFromLuaObject(LuaState state, LuaValue self) throws LuaError { 
-    Component component=findComponentFromObject(Turbine.objectSelf(state, self));
+    Component component=findComponentFromObject(LuaTools.objectSelf(state, self));
     if (component instanceof Container) {
       return (Container)component;
     }
@@ -157,7 +155,7 @@ public abstract class LuaControl {
   }
   
   public static Component findContentComponentFromLuaObject(LuaState state, LuaValue self) throws LuaError { 
-    Component viewComponent=findComponentFromObject(Turbine.objectSelf(state, self));
+    Component viewComponent=findComponentFromObject(LuaTools.objectSelf(state, self));
     if (viewComponent instanceof JScrollPane) {
       Component component = ((JScrollPane)viewComponent).getViewport().getView();
       if (component != null) viewComponent = component;
@@ -169,165 +167,167 @@ public abstract class LuaControl {
   }
 
   public static JComponent findJComponentFromLuaObject(LuaState state, LuaValue self) throws LuaError { 
-    return findJComponentFromObject(Turbine.objectSelf(state, self));
+    return findJComponentFromObject(LuaTools.objectSelf(state, self));
   }
 
   public static LuaValue luaNewIndexMetaFunc(LuaState state, LuaValue self, LuaValue key, LuaValue method) throws LuaError {
-    
-    switch(key.checkString()) {
-      case "Update": {
-        //JComponent jComponent = LuaControl.findJComponentFromLuaObject(state, self);
-        break;
-      }
-      case "PositionChanged": {
-        LuaControl.findComponentFromLuaObject(state, self).addComponentListener(new ComponentAdapter() {
-          public void componentMoved(ComponentEvent event) {
-            try {
-              OperationHelper.call(state, method, self, tableOf());
-            } catch (LuaError | UnwindThrowable error) {
-              LOGGER.error(error);
-            }
-          }
-        });
-        break;
-      }
-      case "SizeChanged": {
-        LuaControl.findComponentFromLuaObject(state, self).addComponentListener(new ComponentAdapter() {
-            public void componentResized(ComponentEvent event) {
+    Component component = LuaControl.findComponentFromLuaObject(state, self);
+    if (component != null) {
+      switch(key.checkString()) {
+        case "Update": {
+          //JComponent jComponent = LuaControl.findJComponentFromLuaObject(state, self);
+          break;
+        }
+        case "PositionChanged": {
+          component.addComponentListener(new ComponentAdapter() {
+            public void componentMoved(ComponentEvent event) {
               try {
                 OperationHelper.call(state, method, self, tableOf());
               } catch (LuaError | UnwindThrowable error) {
                 LOGGER.error(error);
               }
             }
-        });
-        break;
-      }
-      case "VisibleChanged": {
-        LuaControl.findComponentFromLuaObject(state, self).addComponentListener(new ComponentAdapter() {
-          public void componentShown(ComponentEvent event) {
-            try {
-              OperationHelper.call(state, method, self, tableOf());
-            } catch (LuaError | UnwindThrowable error) {
-              LOGGER.error(error);
+          });
+          break;
+        }
+        case "SizeChanged": {
+          component.addComponentListener(new ComponentAdapter() {
+              public void componentResized(ComponentEvent event) {
+                try {
+                  OperationHelper.call(state, method, self, tableOf());
+                } catch (LuaError | UnwindThrowable error) {
+                  LOGGER.error(error);
+                }
+              }
+          });
+          break;
+        }
+        case "VisibleChanged": {
+          component.addComponentListener(new ComponentAdapter() {
+            public void componentShown(ComponentEvent event) {
+              try {
+                OperationHelper.call(state, method, self, tableOf());
+              } catch (LuaError | UnwindThrowable error) {
+                LOGGER.error(error);
+              }
             }
-          }
-        });
-        break;
-      }
-      case "FocusGained": {
-        LuaControl.findComponentFromLuaObject(state, self).addFocusListener(new FocusAdapter() {
-          @Override
-          public void focusGained(FocusEvent event) {
-            try {
-              OperationHelper.call(state, method, self, tableOf());
-            } catch (LuaError | UnwindThrowable error) {
-              LOGGER.error(error);
+          });
+          break;
+        }
+        case "FocusGained": {
+          component.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent event) {
+              try {
+                OperationHelper.call(state, method, self, tableOf());
+              } catch (LuaError | UnwindThrowable error) {
+                LOGGER.error(error);
+              }
             }
-          }
-        });
-        break;
-      }
-      case "FocusLost": {
-        LuaControl.findComponentFromLuaObject(state, self).addFocusListener(new FocusAdapter() {
-          @Override
-          public void focusLost(FocusEvent event) {
-            try {
-              OperationHelper.call(state, method, self, tableOf());
-            } catch (LuaError | UnwindThrowable error) {
-              LOGGER.error(error);
+          });
+          break;
+        }
+        case "FocusLost": {
+          component.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent event) {
+              try {
+                OperationHelper.call(state, method, self, tableOf());
+              } catch (LuaError | UnwindThrowable error) {
+                LOGGER.error(error);
+              }
             }
-          }
-        });
-        break;
-      }
-
-      case "EnabledChanged":
+          });
+          break;
+        }
   
-      case "KeyDown":
-      case "KeyUp":
-        break;
-      case "MouseDown": {
-        LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(state, self);
-        mouseListener._luaMouseDown = method;
-        break;
-      }
-      case "MouseClick": {
-        LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(state, self);
-        mouseListener._luaMouseClick = method;
-        break;
-      }
-      case "MouseDoubleClick":
-        break;
-
-      case "MouseUp": {
-        LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(state, self);
-        mouseListener._luaMouseUp = method;
-        break;
-      }
+        case "EnabledChanged":
+    
+        case "KeyDown":
+        case "KeyUp":
+          break;
+        case "MouseDown": {
+          LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(state, component, self);
+          mouseListener._luaMouseDown = method;
+          break;
+        }
+        case "MouseClick": {
+          LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(state, component, self);
+          mouseListener._luaMouseClick = method;
+          break;
+        }
+        case "MouseDoubleClick":
+          break;
+  
+        case "MouseUp": {
+          LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(state, component, self);
+          mouseListener._luaMouseUp = method;
+          break;
+        }
+          
+        case "MouseEnter": {
+          LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(state, component, self);
+          mouseListener._luaMouseEnter = method;
+          break;
+        }
+        case "MouseLeave": {
+          LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(state, component, self);
+          mouseListener._luaMouseLeave = method;
+          break;
+        }
+        case "MouseHover": {
+          component.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent event) {
+                try {
+                  OperationHelper.call(state, method, self, tableOf());
+                } catch (LuaError | UnwindThrowable error) {
+                  LOGGER.error(error);
+                }
+            }
+          });
+          break;
+        }
+        case "MouseMove":
+          break;
+        case "MouseWheel": {
+          component.addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent event) {
+                try {
+                  OperationHelper.call(state, method, self, tableOf());
+                } catch (LuaError | UnwindThrowable e) {
+                  LOGGER.error(e);
+                }
+            }
+          });
+          break;
+        }
+        case "DragEnter":
+        case "DragLeave":
+        case "DragDrop":
+          break;
+        // Button
+        case "Click": {
+          LuaButton.jButtonSelf(state, self).addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                try {
+                  PluginManager.getInstance().event("Click", new Object[]{Apartment.findApartment(state), method, self, tableOf()});
+                } catch (LuaError e) {
+                  LOGGER.error(e);
+                }
+            }
+          });
+          break;
+        }
         
-      case "MouseEnter": {
-        LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(state, self);
-        mouseListener._luaMouseEnter = method;
-        break;
-      }
-      case "MouseLeave": {
-        LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(state, self);
-        mouseListener._luaMouseLeave = method;
-        break;
-      }
-      case "MouseHover": {
-        LuaControl.findComponentFromLuaObject(state, self).addMouseMotionListener(new MouseMotionAdapter() {
-          @Override
-          public void mouseMoved(MouseEvent event) {
-              try {
-                OperationHelper.call(state, method, self, tableOf());
-              } catch (LuaError | UnwindThrowable error) {
-                LOGGER.error(error);
-              }
-          }
-        });
-        break;
-      }
-      case "MouseMove":
-        break;
-      case "MouseWheel": {
-        LuaControl.findComponentFromLuaObject(state, self).addMouseWheelListener(new MouseWheelListener() {
-          @Override
-          public void mouseWheelMoved(MouseWheelEvent event) {
-              try {
-                OperationHelper.call(state, method, self, tableOf());
-              } catch (LuaError | UnwindThrowable e) {
-                LOGGER.error(e);
-              }
-          }
-        });
-        break;
-      }
-      case "DragEnter":
-      case "DragLeave":
-      case "DragDrop":
-        break;
-      // Button
-      case "Click": {
-        LuaButton.jButtonSelf(state, self).addActionListener(new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent event) {
-              try {
-                PluginManager.getInstance().event("Click", new Object[]{Apartment.findApartment(state), method, self, tableOf()});
-              } catch (LuaError e) {
-                LOGGER.error(e);
-              }
-          }
-        });
-        break;
-      }
-      
-      // TreeView
-      case "SelectedNodeChanged": {
-        JTree jTree = LuaTreeView.jTreeSelf(state, self);
-        jTree.addTreeSelectionListener(new LuaTreeSelectionListener(jTree, state, self.checkTable(), method));
-        break;
+        // TreeView
+        case "SelectedNodeChanged": {
+          JTree jTree = LuaTreeView.jTreeSelf(state, self);
+          jTree.addTreeSelectionListener(new LuaTreeSelectionListener(jTree, state, self.checkTable(), method));
+          break;
+        }
       }
     }
     self.checkTable().rawset(key, method);
@@ -376,7 +376,7 @@ public abstract class LuaControl {
   }
 
   public static LuaValue getParent(LuaState state, LuaValue self) {
-    //Container container = Turbine.objectSelf(state, self, JComponent.class).getParent();
+    //Container container = LuaTools.objectSelf(state, self, JComponent.class).getParent();
     //container.getClientProperty();
     return Constants.NIL; //Turbine.luaValueFromObject(container);
   }
@@ -386,7 +386,7 @@ public abstract class LuaControl {
 
     if ((component != null)
         && (!(component instanceof JScrollBar))) {
-      java.awt.Container container = LuaControl.findContainerFromLuaObject(state, parent);
+      Container container = LuaControl.findContainerFromLuaObject(state, parent);
 
       if (container != null) {
         if (container instanceof JScrollPane) {

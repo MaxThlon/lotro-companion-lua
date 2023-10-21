@@ -15,13 +15,13 @@ import delta.games.lotro.lua.turbine.Turbine;
  */
 public class PluginData
 {
-  public static void add(LuaState state, LuaTable turbine) {
+  public static void add(LuaState state, LuaTable turbineEnv) {
 
     LuaTable pluginData=RegisteredFunction.bind(new RegisteredFunction[]{
         RegisteredFunction.of("Load", PluginData::load),
         RegisteredFunction.of("Save", PluginData::save)
     });
-    turbine.rawset("PluginData", pluginData);
+    turbineEnv.rawset("PluginData", pluginData);
   }
   
   public static LuaValue load(LuaState state, LuaValue self) {

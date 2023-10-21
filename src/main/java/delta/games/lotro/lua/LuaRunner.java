@@ -1,8 +1,7 @@
 package delta.games.lotro.lua;
 
-import static org.squiddev.cobalt.ValueFactory.valueOf;
-import static org.squiddev.cobalt.ValueFactory.tableOf;
 import static org.squiddev.cobalt.ValueFactory.userdataOf;
+import static org.squiddev.cobalt.ValueFactory.valueOf;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -43,6 +42,7 @@ import delta.common.framework.plugin.TimeoutState;
 import delta.games.lotro.client.plugin.Plugin;
 import delta.games.lotro.lua.turbine.Turbine;
 import delta.games.lotro.lua.turbine.plugin.LuaPlugin;
+import delta.games.lotro.lua.utils.LuaTools;
 import delta.games.lotro.lua.utils.URLToolsLua;
 
 /**
@@ -217,7 +217,7 @@ public class LuaRunner implements PluginImpl {
     }
 
     if (object instanceof Plugin) {
-      LuaValue result = Turbine.findLuaObjectFromObject(object);
+      LuaValue result = LuaTools.findLuaObjectFromObject(object);
       if (result == null) {
         result = LuaPlugin.newLuaPlugin(_state, (Plugin)object);
       }

@@ -18,6 +18,7 @@ import org.squiddev.cobalt.function.RegisteredFunction;
 
 import delta.common.ui.swing.GuiFactory;
 import delta.games.lotro.lua.turbine.Turbine;
+import delta.games.lotro.lua.utils.LuaTools;
 
 /**
  * LuaListBox library for lua scripts.
@@ -26,7 +27,7 @@ import delta.games.lotro.lua.turbine.Turbine;
 public abstract class LuaListBox {
 
   public static void add(LuaState state,
-                         LuaTable uiMetatable,
+                         LuaTable uiEnv,
                          LuaValue luaScrollableControlClass) throws LuaError, UnwindThrowable {
 
     LuaTable luaListBoxClass = Turbine._luaClass.call(state, luaScrollableControlClass).checkTable();
@@ -59,12 +60,12 @@ public abstract class LuaListBox {
         RegisteredFunction.of("EnsureVisible", LuaListBox::ensureVisible),
     });
     
-    uiMetatable.rawset("ListBox", luaListBoxClass);
+    uiEnv.rawset("ListBox", luaListBoxClass);
   }
   
   @SuppressWarnings("unchecked")
   public static JList<JComponent> jListSelf(LuaState state, LuaValue self) throws LuaError {
-    return (JList<JComponent>)Turbine.objectSelf(state, self, JScrollPane.class).getViewport().getView();
+    return (JList<JComponent>)LuaTools.objectSelf(state, self, JScrollPane.class).getViewport().getView();
   }
 
   public static DefaultListModel<JComponent> jListModelSelf(LuaState state, LuaValue self) throws LuaError {
@@ -106,7 +107,7 @@ public abstract class LuaListBox {
   }
   
   public static LuaValue getItem(LuaState state, LuaValue self, LuaValue index) throws LuaError {
-    return Turbine.findLuaObjectFromObject(jListModelSelf(state, self).get(index.checkInteger()));
+    return LuaTools.findLuaObjectFromObject(jListModelSelf(state, self).get(index.checkInteger()));
   }
   
   public static LuaValue setItem(LuaState state, LuaValue self, LuaValue index, LuaValue value) throws LuaError {
@@ -137,7 +138,7 @@ public abstract class LuaListBox {
   }
   
   public static LuaValue getSelectedItem(LuaState state, LuaValue self) throws LuaError {
-    Turbine.findLuaObjectFromObject(jListSelf(state, self).getSelectedValue());
+    LuaTools.findLuaObjectFromObject(jListSelf(state, self).getSelectedValue());
     return Constants.NIL;
   }
   

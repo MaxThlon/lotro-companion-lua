@@ -14,11 +14,11 @@ import org.squiddev.cobalt.LuaState;
 import org.squiddev.cobalt.LuaTable;
 import org.squiddev.cobalt.LuaValue;
 import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
 import org.squiddev.cobalt.function.RegisteredFunction;
 
 import delta.games.lotro.lua.turbine.Turbine;
 import delta.games.lotro.lua.turbine.ui.LuaControl;
+import delta.games.lotro.lua.utils.LuaTools;
 
 /**
  * LuaTreeNode library for lua scripts.
@@ -27,26 +27,26 @@ import delta.games.lotro.lua.turbine.ui.LuaControl;
 public abstract class LuaTreeNode {
 
   public static void add(LuaState state,
-                         LuaTable uiMetatable,
+                         LuaTable uiEnv,
                          LuaValue luaControlClass) throws LuaError, UnwindThrowable {
 
     LuaTable luaTreeNodeClass = Turbine._luaClass.call(state, luaControlClass).checkTable();
     RegisteredFunction.bind(luaTreeNodeClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", LuaTreeNode::Constructor),
+        RegisteredFunction.of("Constructor", LuaTreeNode::constructor),
         
-        RegisteredFunction.of("GetParentNode", LuaTreeNode::GetParentNode),
-        RegisteredFunction.of("GetChildNodes", LuaTreeNode::GetChildNodes),
-        RegisteredFunction.of("IsSelected", LuaTreeNode::IsSelected),
+        RegisteredFunction.of("GetParentNode", LuaTreeNode::getParentNode),
+        RegisteredFunction.of("GetChildNodes", LuaTreeNode::getChildNodes),
+        RegisteredFunction.of("IsSelected", LuaTreeNode::isSelected),
         
-        RegisteredFunction.of("IsExpanded", LuaTreeNode::IsExpanded),
-        RegisteredFunction.of("SetExpanded", LuaTreeNode::SetExpanded),
-        RegisteredFunction.of("Expand", LuaTreeNode::Expand),
-        RegisteredFunction.of("ExpandAll", LuaTreeNode::ExpandAll),
-        RegisteredFunction.of("Collapse", LuaTreeNode::Collapse),
+        RegisteredFunction.of("IsExpanded", LuaTreeNode::isExpanded),
+        RegisteredFunction.of("SetExpanded", LuaTreeNode::setExpanded),
+        RegisteredFunction.of("Expand", LuaTreeNode::expand),
+        RegisteredFunction.of("ExpandAll", LuaTreeNode::expandAll),
+        RegisteredFunction.of("Collapse", LuaTreeNode::collapse),
         RegisteredFunction.of("CollapseAll", LuaTreeNode::CollapseAll)   
     });
     
-    uiMetatable.rawset("TreeNode", luaTreeNodeClass);
+    uiEnv.rawset("TreeNode", luaTreeNodeClass);
   }
   
   public static void setObjectSelf(LuaState state, LuaValue self, DefaultTreeModel treeModel, DefaultMutableTreeNode treeNode) throws LuaError {
@@ -64,46 +64,46 @@ public abstract class LuaTreeNode {
     );
   }
 
-  public static LuaValue Constructor(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue constructor(LuaState state, LuaValue self) throws LuaError {
     DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(new JPanel());
     LuaControl.controlInheritedConstructor(state, self, treeNode);
     
     return Constants.NIL;
   }
-  
-  public static LuaValue GetParentNode(LuaState state, LuaValue self) {
-    return Constants.NIL;
+
+  public static LuaValue getParentNode(LuaState state, LuaValue self) throws LuaError {
+    return LuaTools.findLuaObjectFromObject(LuaTools.objectSelf(state, self, DefaultMutableTreeNode.class).getParent()) ;
   }
   
-  public static LuaValue GetChildNodes(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
+  public static LuaValue getChildNodes(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
     return LuaTreeNodeList.newLuaTreeNodeList(
         state,
         null,
-        Turbine.objectSelf(state, self, DefaultMutableTreeNode.class)
+        LuaTools.objectSelf(state, self, DefaultMutableTreeNode.class)
     );
   }
   
-  public static LuaValue IsSelected(LuaState state, LuaValue self) {
+  public static LuaValue isSelected(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue IsExpanded(LuaState state, LuaValue self) {
+  public static LuaValue isExpanded(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetExpanded(LuaState state, LuaValue self, LuaValue value) {
+  public static LuaValue setExpanded(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue Expand(LuaState state, LuaValue self) {
+  public static LuaValue expand(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue ExpandAll(LuaState state, LuaValue self) {
+  public static LuaValue expandAll(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue Collapse(LuaState state, LuaValue self) {
+  public static LuaValue collapse(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   

@@ -12,10 +12,10 @@ import org.squiddev.cobalt.LuaTable;
 import org.squiddev.cobalt.LuaValue;
 import org.squiddev.cobalt.OperationHelper;
 import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
 import org.squiddev.cobalt.function.RegisteredFunction;
 
 import delta.games.lotro.lua.turbine.Turbine;
+import delta.games.lotro.lua.utils.LuaTools;
 
 /**
  * UI library for lua scripts.
@@ -24,120 +24,120 @@ import delta.games.lotro.lua.turbine.Turbine;
 public abstract class LuaScrollBar {
 
   public static void add(LuaState state,
-                         LuaTable uiMetatable,
+                         LuaTable uiEnv,
                          LuaValue luaControlClass) throws LuaError, UnwindThrowable {
 
     LuaTable luaScrollBarClass = OperationHelper.call(state, Turbine._luaClass, luaControlClass).checkTable();
     RegisteredFunction.bind(luaScrollBarClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", LuaScrollBar::Constructor),
-        RegisteredFunction.of("GetOrientation", LuaScrollBar::GetOrientation),
-        RegisteredFunction.of("SetOrientation", LuaScrollBar::SetOrientation),
+        RegisteredFunction.of("Constructor", LuaScrollBar::constructor),
+        RegisteredFunction.of("GetOrientation", LuaScrollBar::getOrientation),
+        RegisteredFunction.of("SetOrientation", LuaScrollBar::setOrientation),
         
-        RegisteredFunction.of("GetMinimum", LuaScrollBar::GetMinimum),
-        RegisteredFunction.of("SetMinimum", LuaScrollBar::SetMinimum),      
-        RegisteredFunction.of("GetMaximum", LuaScrollBar::GetMaximum),
-        RegisteredFunction.of("SetMaximum", LuaScrollBar::SetMaximum),
+        RegisteredFunction.of("GetMinimum", LuaScrollBar::getMinimum),
+        RegisteredFunction.of("SetMinimum", LuaScrollBar::setMinimum),      
+        RegisteredFunction.of("GetMaximum", LuaScrollBar::getMaximum),
+        RegisteredFunction.of("SetMaximum", LuaScrollBar::setMaximum),
         
-        RegisteredFunction.of("GetSmallChange", LuaScrollBar::GetSmallChange),
-        RegisteredFunction.of("SetSmallChange", LuaScrollBar::GetSmallChange),
-        RegisteredFunction.of("GetLargeChange", LuaScrollBar::GetLargeChange),
-        RegisteredFunction.of("SetLargeChange", LuaScrollBar::SetLargeChange),
+        RegisteredFunction.of("GetSmallChange", LuaScrollBar::getSmallChange),
+        RegisteredFunction.of("SetSmallChange", LuaScrollBar::setSmallChange),
+        RegisteredFunction.of("GetLargeChange", LuaScrollBar::getLargeChange),
+        RegisteredFunction.of("SetLargeChange", LuaScrollBar::setLargeChange),
         
-        RegisteredFunction.of("GetValue", LuaScrollBar::GetValue),
-        RegisteredFunction.of("SetValue", LuaScrollBar::SetValue),
+        RegisteredFunction.of("GetValue", LuaScrollBar::getValue),
+        RegisteredFunction.of("SetValue", LuaScrollBar::setValue),
         
-        RegisteredFunction.of("GetDecrementButton", LuaScrollBar::GetDecrementButton),
-        RegisteredFunction.of("SetDecrementButton", LuaScrollBar::SetDecrementButton),
-        RegisteredFunction.of("GetIncrementButton", LuaScrollBar::GetIncrementButton),
-        RegisteredFunction.of("SetIncrementButton", LuaScrollBar::SetIncrementButton),
-        RegisteredFunction.of("GetThumbButton", LuaScrollBar::GetThumbButton),
-        RegisteredFunction.of("SetThumbButton", LuaScrollBar::SetThumbButton)
+        RegisteredFunction.of("GetDecrementButton", LuaScrollBar::getDecrementButton),
+        RegisteredFunction.of("SetDecrementButton", LuaScrollBar::setDecrementButton),
+        RegisteredFunction.of("GetIncrementButton", LuaScrollBar::getIncrementButton),
+        RegisteredFunction.of("SetIncrementButton", LuaScrollBar::setIncrementButton),
+        RegisteredFunction.of("GetThumbButton", LuaScrollBar::getThumbButton),
+        RegisteredFunction.of("SetThumbButton", LuaScrollBar::setThumbButton)
     });
     
-    uiMetatable.rawset("ScrollBar", luaScrollBarClass);
+    uiEnv.rawset("ScrollBar", luaScrollBarClass);
   }
 
-  public static LuaValue Constructor(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue constructor(LuaState state, LuaValue self) throws LuaError {
     JScrollBar jScrollBar = new JScrollBar();
     LuaControl.controlInheritedConstructor(state, self, jScrollBar);
     return Constants.NIL;
   }
   
-  public static LuaNumber GetOrientation(LuaState state, LuaValue self) throws LuaError {
-    return valueOf(Turbine.objectSelf(state, self, JScrollBar.class).getOrientation());
+  public static LuaNumber getOrientation(LuaState state, LuaValue self) throws LuaError {
+    return valueOf(LuaTools.objectSelf(state, self, JScrollBar.class).getOrientation());
   }
 
-  public static LuaValue SetOrientation(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    Turbine.objectSelf(state, self, JScrollBar.class).setOrientation(value.checkInteger());
+  public static LuaValue setOrientation(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+    LuaTools.objectSelf(state, self, JScrollBar.class).setOrientation(value.checkInteger());
 
     return Constants.NIL;
   }
   
   
-  public static LuaNumber GetMinimum(LuaState state, LuaValue self) throws LuaError {
-    return valueOf(Turbine.objectSelf(state, self, JScrollBar.class).getMinimum());
+  public static LuaNumber getMinimum(LuaState state, LuaValue self) throws LuaError {
+    return valueOf(LuaTools.objectSelf(state, self, JScrollBar.class).getMinimum());
   }
   
-  public static LuaValue SetMinimum(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    Turbine.objectSelf(state, self, JScrollBar.class).setMinimum(value.checkInteger());
+  public static LuaValue setMinimum(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+    LuaTools.objectSelf(state, self, JScrollBar.class).setMinimum(value.checkInteger());
     return Constants.NIL;
   }
   
-  public static LuaNumber GetMaximum(LuaState state, LuaValue self) throws LuaError {
-    return valueOf(Turbine.objectSelf(state, self, JScrollBar.class).getMaximum());
+  public static LuaNumber getMaximum(LuaState state, LuaValue self) throws LuaError {
+    return valueOf(LuaTools.objectSelf(state, self, JScrollBar.class).getMaximum());
   }
   
-  public static LuaValue SetMaximum(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    Turbine.objectSelf(state, self, JScrollBar.class).setMaximum(value.checkInteger());
+  public static LuaValue setMaximum(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+    LuaTools.objectSelf(state, self, JScrollBar.class).setMaximum(value.checkInteger());
     return Constants.NIL;
   }
   
-  public static LuaNumber GetSmallChange(LuaState state, LuaValue self) {
+  public static LuaNumber getSmallChange(LuaState state, LuaValue self) {
     return Constants.ZERO;
   }
   
-  public static LuaValue SetSmallChange(LuaState state, LuaValue self, LuaValue value) {
+  public static LuaValue setSmallChange(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaNumber GetLargeChange(LuaState state, LuaValue self) {
+  public static LuaNumber getLargeChange(LuaState state, LuaValue self) {
     return Constants.ZERO;
   }
   
-  public static LuaValue SetLargeChange(LuaState state, LuaValue self, LuaValue value) {
+  public static LuaValue setLargeChange(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaNumber GetValue(LuaState state, LuaValue self) throws LuaError {
-    return valueOf(Turbine.objectSelf(state, self, JScrollBar.class).getValue());
+  public static LuaNumber getValue(LuaState state, LuaValue self) throws LuaError {
+    return valueOf(LuaTools.objectSelf(state, self, JScrollBar.class).getValue());
   }
   
-  public static LuaValue SetValue(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    Turbine.objectSelf(state, self, JScrollBar.class).setValue(value.checkInteger());
+  public static LuaValue setValue(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+    LuaTools.objectSelf(state, self, JScrollBar.class).setValue(value.checkInteger());
     return Constants.NIL;
   }
   
-  public static LuaValue GetDecrementButton(LuaState state, LuaValue self) {
+  public static LuaValue getDecrementButton(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetDecrementButton(LuaState state, LuaValue self, LuaValue value) {
+  public static LuaValue setDecrementButton(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue GetIncrementButton(LuaState state, LuaValue self) {
+  public static LuaValue getIncrementButton(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetIncrementButton(LuaState state, LuaValue self, LuaValue value) {
+  public static LuaValue setIncrementButton(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue GetThumbButton(LuaState state, LuaValue self) {
+  public static LuaValue getThumbButton(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetThumbButton(LuaState state, LuaValue self, LuaValue value) {
+  public static LuaValue setThumbButton(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
 }

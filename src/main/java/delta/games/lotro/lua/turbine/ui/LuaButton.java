@@ -16,6 +16,7 @@ import org.squiddev.cobalt.function.RegisteredFunction;
 
 import delta.common.ui.swing.GuiFactory;
 import delta.games.lotro.lua.turbine.Turbine;
+import delta.games.lotro.lua.utils.LuaTools;
 
 /**
  * UI library for lua scripts.
@@ -24,22 +25,22 @@ import delta.games.lotro.lua.turbine.Turbine;
 public abstract class LuaButton {
 
   public static void add(LuaState state,
-                         LuaTable uiMetatable,
+                         LuaTable uiEnv,
                          LuaValue luaLabelClass) throws LuaError, UnwindThrowable {
 
     LuaTable luaButtonClass = OperationHelper.call(state, Turbine._luaClass, luaLabelClass).checkTable();
     RegisteredFunction.bind(luaButtonClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", LuaButton::Constructor),
+        RegisteredFunction.of("Constructor", LuaButton::constructor),
     });
     
-    uiMetatable.rawset("Button", luaButtonClass);
+    uiEnv.rawset("Button", luaButtonClass);
   }
   
   public static JButton jButtonSelf(LuaState state, LuaValue self) throws LuaError {
-    return Turbine.objectSelf(state, self, JButton.class);
+    return LuaTools.objectSelf(state, self, JButton.class);
   }
 
-  public static LuaValue Constructor(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue constructor(LuaState state, LuaValue self) throws LuaError {
     JButton jButton = GuiFactory.buildButton("meu");
     
     LuaControl.controlInheritedConstructor(state, self, jButton);

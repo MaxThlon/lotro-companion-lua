@@ -21,7 +21,7 @@ import delta.games.lotro.lua.turbine.Turbine;
 public abstract class LuaTextBox {
 
   public static void add(LuaState state,
-                         LuaTable uiMetatable,
+                         LuaTable uiEnv,
                          LuaValue luaLabelClass) throws LuaError, UnwindThrowable {
 
     LuaTable luaTextBoxClass = OperationHelper.call(state, Turbine._luaClass, luaLabelClass).checkTable();
@@ -29,7 +29,7 @@ public abstract class LuaTextBox {
         RegisteredFunction.of("Constructor", LuaTextBox::Constructor),
     });
     
-    uiMetatable.rawset("TextBox", luaTextBoxClass);
+    uiEnv.rawset("TextBox", luaTextBoxClass);
   }
 
   public static LuaValue Constructor(LuaState state, LuaValue self) throws LuaError {

@@ -69,15 +69,16 @@ public abstract class UI {
     frame.setVisible(true);
   }
 
-  public static void add(LuaState state) throws LuaError, UnwindThrowable {
+  public static void add(LuaState state, LuaTable uiEnv) throws LuaError, UnwindThrowable {
     LuaTable globals = state.getMainThread().getfenv();
 
     LuaTable luaColorClass = Turbine._luaClass.call(state, Turbine._luaObjectClass).checkTable();
     RegisteredFunction.bind(luaColorClass, new RegisteredFunction[]{
         RegisteredFunction.ofV("Constructor", UI::ColorConstructor)
     });
+    uiEnv.rawset("Color", luaColorClass);
 
-    LuaTable luaBlendMode = tableOf(
+    uiEnv.rawset("BlendMode", tableOf(
         valueOf("Color"), valueOf("Color"),
         valueOf("Normal"), valueOf("Normal"),
         valueOf("Multiply"), valueOf("Multiply"),
@@ -87,9 +88,9 @@ public abstract class UI {
         valueOf("Screen"), valueOf("Screen"),
         valueOf("None"), valueOf("None"),
         valueOf("Undefined"), valueOf("Undefined")
-    );
+    ));
     
-    LuaTable luaContentAlignment = tableOf(
+    uiEnv.rawset("ContentAlignment", tableOf(
         valueOf("TopLeft"), valueOf(1),
         valueOf("TopCenter"), valueOf(2),
         valueOf("TopRight"), valueOf(3),
@@ -100,62 +101,48 @@ public abstract class UI {
         valueOf("BottomCenter"), valueOf(8),
         valueOf("BottomRight"), valueOf(9),
         valueOf("Undefined"), valueOf(0)
-    );
+    ));
     
     
-    LuaTable luaFontStyle = tableOf(
+    uiEnv.rawset("FontStyle", tableOf(
         valueOf("None"), valueOf("None"),
         valueOf("Outline"), valueOf("Outline")
-    );
+    ));
     
-    LuaTable luaMouseButton = tableOf(
+    uiEnv.rawset("MouseButton", tableOf(
         valueOf("Left"), valueOf(1),
         valueOf("Middle"), valueOf(4),
         valueOf("Right"), valueOf(2)
-    );
+    ));
     
-    LuaTable luaOrientation = tableOf(
+    uiEnv.rawset("Orientation" , tableOf(
         valueOf("Horizontal"), valueOf(0),
         valueOf("Vertical"), valueOf(1)
-    );
+    ));
     
-    LuaTable luaHorizontalLayout = tableOf(
+    uiEnv.rawset("HorizontalLayout", tableOf(
         valueOf("LeftToRight"), valueOf(0),
         valueOf("RightToLeft"), valueOf(1)
-    );
+    ));
 
-    LuaTable luaVerticalLayout = tableOf(
+    uiEnv.rawset("VerticalLayout", tableOf(
         valueOf("BottomToTop"), valueOf(1),
         valueOf("TopToBottom"), valueOf(0)
-    );
-    
-    LuaTable uiMetatable = tableOf(
-        valueOf("Color"), luaColorClass,
-        valueOf("BlendMode"), luaBlendMode,
-        valueOf("ContentAlignment"), luaContentAlignment,
-        valueOf("FontStyle"), luaFontStyle,
-        valueOf("MouseButton"), luaMouseButton,
-        valueOf("Orientation"), luaOrientation,
-        valueOf("HorizontalLayout"), luaHorizontalLayout,
-        valueOf("VerticalLayout"), luaVerticalLayout
-    );
+    ));
 
-    LuaTable luaControlClass = LuaControl.add(state, uiMetatable, Turbine._luaClass, Turbine._luaObjectClass);
+    LuaTable luaControlClass = LuaControl.add(state, uiEnv, Turbine._luaClass, Turbine._luaObjectClass);
 
-    LuaDisplay.add(state, uiMetatable);
-    LuaTable luaScrollableControlClass = LuaScrollableControl.add(state, uiMetatable, luaControlClass);
-    LuaTable luaLabelClass = LuaLabel.add(state, uiMetatable, Turbine._luaClass, luaScrollableControlClass);
-    LuaTextBox.add(state, uiMetatable, luaLabelClass);
-    LuaButton.add(state, uiMetatable, luaLabelClass);
-    LuaWindow.add(state, uiMetatable, luaControlClass);
-    LuaListBox.add(state, uiMetatable, luaScrollableControlClass);
-    LuaScrollBar.add(state, uiMetatable, luaControlClass);
-    LuaTreeNode.add(state, uiMetatable, luaControlClass);
-    LuaTreeNodeList.add(state, uiMetatable);
-    LuaTreeView.add(state, uiMetatable, luaScrollableControlClass);
-
-    globals.rawget("Turbine").checkTable().rawset("UI", uiMetatable);
-    
+    LuaDisplay.add(state, uiEnv);
+    LuaTable luaScrollableControlClass = LuaScrollableControl.add(state, uiEnv, luaControlClass);
+    LuaTable luaLabelClass = LuaLabel.add(state, uiEnv, Turbine._luaClass, luaScrollableControlClass);
+    LuaTextBox.add(state, uiEnv, luaLabelClass);
+    LuaButton.add(state, uiEnv, luaLabelClass);
+    LuaWindow.add(state, uiEnv, luaControlClass);
+    LuaListBox.add(state, uiEnv, luaScrollableControlClass);
+    LuaScrollBar.add(state, uiEnv, luaControlClass);
+    LuaTreeNode.add(state, uiEnv, luaControlClass);
+    LuaTreeNodeList.add(state, uiEnv);
+    LuaTreeView.add(state, uiEnv, luaScrollableControlClass);
   }
   
   public static Color luaColorToColor(LuaValue self) throws LuaError {

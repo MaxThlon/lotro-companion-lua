@@ -13,8 +13,7 @@ import org.squiddev.cobalt.LuaValue;
 import org.squiddev.cobalt.OperationHelper;
 import org.squiddev.cobalt.UnwindThrowable;
 
-import delta.games.lotro.lua.turbine.Turbine;
-import delta.games.lotro.lua.turbine.ui.LuaControl;
+import delta.games.lotro.lua.utils.LuaTools;
 
 /**
  * LuaTreeSelectionListener library for lua scripts.
@@ -43,7 +42,7 @@ public class LuaTreeSelectionListener implements TreeSelectionListener  {
               _state,
               this._luaSelectedNodeChanged,
               _luaTreeview, 
-              (node == null)?Constants.NIL : Turbine.findLuaObjectFromObject(node),
+              (node == null)?Constants.NIL : LuaTools.findLuaObjectFromObject(node),
               Constants.NIL
           );
     } catch (LuaError | UnwindThrowable error) {

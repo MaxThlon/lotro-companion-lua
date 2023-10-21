@@ -37,15 +37,15 @@ public class LuaPlugin
         RegisteredFunction.of("GetVersion", LuaPlugin::getVersion),
         RegisteredFunction.of("GetAuthor", LuaPlugin::getAuthor),
         RegisteredFunction.of("GetConfiguration", LuaPlugin::getConfiguration),
-        RegisteredFunction.of("Load", LuaPlugin::getConfiguration),
-        RegisteredFunction.of("Unload", LuaPlugin::getConfiguration),
-        RegisteredFunction.of("GetOptionsPanel", LuaPlugin::getConfiguration)
+        RegisteredFunction.of("Load", LuaPlugin::load),
+        RegisteredFunction.of("Unload", LuaPlugin::unload),
+        RegisteredFunction.of("getOptionsPanel", LuaPlugin::getConfiguration)
     });
     turbine.rawset("Plugin", _luaPluginClass);
   }
   
   public static Plugin pluginSelf(LuaState state, LuaValue self) throws LuaError {
-    return Turbine.objectSelf(state, self, Plugin.class);
+    return LuaTools.objectSelf(state, self, Plugin.class);
   }
 
   public static LuaTable newLuaPlugin(LuaState state, Plugin plugin) throws LuaError, UnwindThrowable {
@@ -70,22 +70,30 @@ public class LuaPlugin
   }
   
   public static LuaValue getName(LuaState state, LuaValue self) {
-
     return Constants.NIL;
   }
   
   public static LuaValue getVersion(LuaState state, LuaValue self) {
-
     return Constants.NIL;
   }
 
   public static LuaValue getAuthor(LuaState state, LuaValue self) {
-
     return Constants.NIL;
   }
   
   public static LuaValue getConfiguration(LuaState state, LuaValue self) {
-
+    return Constants.NIL;
+  }
+  
+  public static LuaValue load(LuaState state, LuaValue self) {
+    return Constants.NIL;
+  }
+  
+  public static LuaValue unload(LuaState state, LuaValue self) {
+    return Constants.NIL;
+  }
+  
+  public static LuaValue getOptionsPanel(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
 }

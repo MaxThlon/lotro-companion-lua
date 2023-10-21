@@ -13,6 +13,7 @@ import org.squiddev.cobalt.UnwindThrowable;
 import org.squiddev.cobalt.function.RegisteredFunction;
 
 import delta.games.lotro.lua.turbine.Turbine;
+import delta.games.lotro.lua.utils.LuaTools;
 
 /**
  * LuaScrollableControl library for lua scripts.
@@ -21,7 +22,7 @@ import delta.games.lotro.lua.turbine.Turbine;
 public abstract class LuaScrollableControl {
 
   public static LuaTable add(LuaState state,
-                             LuaTable uiMetatable,
+                             LuaTable uiEnv,
                              LuaValue luaControlClass) throws LuaError, UnwindThrowable {
 
     LuaTable luaScrollableControlClass = OperationHelper.call(state, Turbine._luaClass, luaControlClass).checkTable();
@@ -33,7 +34,7 @@ public abstract class LuaScrollableControl {
         RegisteredFunction.of("SetVerticalScrollBar", LuaScrollableControl::setVerticalScrollBar)
     });
     
-    uiMetatable.rawset("ScrollableControl", luaScrollableControlClass);
+    uiEnv.rawset("ScrollableControl", luaScrollableControlClass);
     
     return luaScrollableControlClass;
   }
@@ -50,26 +51,26 @@ public abstract class LuaScrollableControl {
   }
   
   public static LuaValue getHorizontalScrollBar(LuaState state, LuaValue self) throws LuaError {
-    return Turbine.findLuaObjectFromObject(Turbine.objectSelf(state, self, JScrollPane.class).getHorizontalScrollBar());
+    return LuaTools.findLuaObjectFromObject(LuaTools.objectSelf(state, self, JScrollPane.class).getHorizontalScrollBar());
   }
 
   public static LuaValue setHorizontalScrollBar(LuaState state, LuaValue self, LuaValue value) throws LuaError {
     if (value!=Constants.NIL) {
-      Turbine.objectSelf(state, self, JScrollPane.class).setHorizontalScrollBar(
-          Turbine.objectSelf(state, value, JScrollBar.class)
+      LuaTools.objectSelf(state, self, JScrollPane.class).setHorizontalScrollBar(
+          LuaTools.objectSelf(state, value, JScrollBar.class)
       );
     }
     return Constants.NIL;
   }
   
   public static LuaValue getVerticalScrollBar(LuaState state, LuaValue self) throws LuaError {
-    return Turbine.findLuaObjectFromObject(Turbine.objectSelf(state, self, JScrollPane.class).getVerticalScrollBar());
+    return LuaTools.findLuaObjectFromObject(LuaTools.objectSelf(state, self, JScrollPane.class).getVerticalScrollBar());
   }
   
   public static LuaValue setVerticalScrollBar(LuaState state, LuaValue self, LuaValue value) throws LuaError {
     if (value!=Constants.NIL) {
-      Turbine.objectSelf(state, self, JScrollPane.class).setVerticalScrollBar(
-          Turbine.objectSelf(state, value, JScrollBar.class)
+      LuaTools.objectSelf(state, self, JScrollPane.class).setVerticalScrollBar(
+          LuaTools.objectSelf(state, value, JScrollBar.class)
       );
     }
     return Constants.NIL;

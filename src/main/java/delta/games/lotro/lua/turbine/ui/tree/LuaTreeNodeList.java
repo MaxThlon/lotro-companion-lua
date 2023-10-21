@@ -17,11 +17,9 @@ import org.squiddev.cobalt.LuaTable;
 import org.squiddev.cobalt.LuaValue;
 import org.squiddev.cobalt.OperationHelper;
 import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
 import org.squiddev.cobalt.function.RegisteredFunction;
 
 import delta.games.lotro.lua.turbine.Turbine;
-import delta.games.lotro.lua.turbine.ui.LuaControl;
 import delta.games.lotro.lua.utils.LuaTools;
 
 /**
@@ -31,24 +29,24 @@ import delta.games.lotro.lua.utils.LuaTools;
 public abstract class LuaTreeNodeList {
 
   public static void add(LuaState state,
-                         LuaTable uiMetatable) throws LuaError, UnwindThrowable {
+                         LuaTable uiEnv) throws LuaError, UnwindThrowable {
 
     LuaTable luaTreeNodeListClass = Turbine._luaClass.call(state, Turbine._luaObjectClass).checkTable();
     RegisteredFunction.bind(luaTreeNodeListClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", LuaTreeNodeList::Constructor),
+        RegisteredFunction.of("Constructor", LuaTreeNodeList::constructor),
         
-        RegisteredFunction.of("GetCount", LuaTreeNodeList::GetCount),        
-        RegisteredFunction.of("Add", LuaTreeNodeList::Add),
-        RegisteredFunction.of("Get", LuaTreeNodeList::Get),
-        RegisteredFunction.of("Contains", LuaTreeNodeList::Contains),
-        RegisteredFunction.of("IndexOf", LuaTreeNodeList::IndexOf),
+        RegisteredFunction.of("GetCount", LuaTreeNodeList::getCount),        
+        RegisteredFunction.of("Add", LuaTreeNodeList::addNode),
+        RegisteredFunction.of("Get", LuaTreeNodeList::getNode),
+        RegisteredFunction.of("Contains", LuaTreeNodeList::contains),
+        RegisteredFunction.of("IndexOf", LuaTreeNodeList::indexOf),
 
-        RegisteredFunction.of("Remove", LuaTreeNodeList::Remove),
-        RegisteredFunction.of("RemoveAt", LuaTreeNodeList::RemoveAt),
-        RegisteredFunction.of("Clear", LuaTreeNodeList::Clear),
+        RegisteredFunction.of("Remove", LuaTreeNodeList::remove),
+        RegisteredFunction.of("RemoveAt", LuaTreeNodeList::removeAt),
+        RegisteredFunction.of("Clear", LuaTreeNodeList::clear),
     });
     
-    uiMetatable.rawset("TreeNodeList", luaTreeNodeListClass);
+    uiEnv.rawset("TreeNodeList", luaTreeNodeListClass);
   }
 
   public static LuaTable newLuaTreeNodeList(LuaState state, JTree jtree, DefaultMutableTreeNode rootNode) throws LuaError, UnwindThrowable {
@@ -65,14 +63,14 @@ public abstract class LuaTreeNodeList {
   }
 
   public static JTree jTreeSelf(LuaState state, LuaValue self) throws LuaError {
-    return (JTree)Turbine.objectSelf(state, self, ImmutablePair.class).left;
+    return (JTree)LuaTools.objectSelf(state, self, ImmutablePair.class).left;
   }
 
   public static DefaultMutableTreeNode rootNodeSelf(LuaState state, LuaValue self) throws LuaError {
-    return (DefaultMutableTreeNode)Turbine.objectSelf(state, self, ImmutablePair.class).right;
+    return (DefaultMutableTreeNode)LuaTools.objectSelf(state, self, ImmutablePair.class).right;
   }
   
-  public static LuaValue Constructor(LuaState state, LuaValue self, LuaValue jTtree, LuaValue treeNode) throws LuaError {
+  public static LuaValue constructor(LuaState state, LuaValue self, LuaValue jTtree, LuaValue treeNode) throws LuaError {
     Turbine.ObjectInheritedConstructor(
         state,
         self,
@@ -86,27 +84,29 @@ public abstract class LuaTreeNodeList {
     return Constants.NIL;
   }
   
-  public static LuaNumber GetCount(LuaState state, LuaValue self) throws LuaError {
+  public static LuaNumber getCount(LuaState state, LuaValue self) throws LuaError {
     DefaultMutableTreeNode rootNode = rootNodeSelf(state, self);
 
     return valueOf(rootNode.getChildCount());
   }
   
-  public static LuaValue Add(LuaState state, LuaValue self, LuaValue value) throws LuaError {
+  public static LuaValue addNode(LuaState state, LuaValue self, LuaValue luaNode) throws LuaError {
     JTree jTree = jTreeSelf(state, self);
     DefaultMutableTreeNode rootNode = rootNodeSelf(state, self);
+    DefaultMutableTreeNode node = LuaTools.objectSelf(state, luaNode, DefaultMutableTreeNode.class);
 
     if (jTree != null) {
       DefaultTreeModel treeModel = (DefaultTreeModel)jTree.getModel();
       treeModel.insertNodeInto(
-          Turbine.objectSelf(state, value, DefaultMutableTreeNode.class),
+          node,
           rootNode,
           rootNode.getChildCount()
       );
+      
       jTree.expandPath(new TreePath(rootNode.getPath()));
     } else {
       rootNode.insert(
-          Turbine.objectSelf(state, value, DefaultMutableTreeNode.class),
+          node,
           rootNode.getChildCount()
       );
     }
@@ -114,27 +114,27 @@ public abstract class LuaTreeNodeList {
   }
   
   @SuppressWarnings("cast")
-  public static LuaValue Get(LuaState state, LuaValue self, LuaValue index) throws LuaError {
-    return Turbine.findLuaObjectFromObject((DefaultMutableTreeNode)rootNodeSelf(state, self).getChildAt(index.checkInteger()));
+  public static LuaValue getNode(LuaState state, LuaValue self, LuaValue index) throws LuaError {
+    return LuaTools.findLuaObjectFromObject((DefaultMutableTreeNode)rootNodeSelf(state, self).getChildAt(index.checkInteger()));
   }
   
-  public static LuaValue Contains(LuaState state, LuaValue self, LuaValue value) {
+  public static LuaValue contains(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue IndexOf(LuaState state, LuaValue self, LuaValue value) {
+  public static LuaValue indexOf(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue Remove(LuaState state, LuaValue self, LuaValue value) {
+  public static LuaValue remove(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue RemoveAt(LuaState state, LuaValue self, LuaValue index) {
+  public static LuaValue removeAt(LuaState state, LuaValue self, LuaValue index) {
     return Constants.NIL;
   }
   
-  public static LuaValue Clear(LuaState state, LuaValue self) {
+  public static LuaValue clear(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
 }

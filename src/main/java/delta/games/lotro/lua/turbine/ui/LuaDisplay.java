@@ -21,7 +21,7 @@ import org.squiddev.cobalt.function.RegisteredFunction;
 public abstract class LuaDisplay {
 
   public static void add(LuaState state,
-                         LuaTable uiMetatable) {
+                         LuaTable uiEnv) {
 
     LuaTable luaDisplay = RegisteredFunction.bind(new RegisteredFunction[]{
         RegisteredFunction.of("GetWidth", LuaDisplay::GetWidth),
@@ -32,7 +32,7 @@ public abstract class LuaDisplay {
         RegisteredFunction.ofV("GetMousePosition", LuaDisplay::GetMousePosition)
     });
     
-    uiMetatable.rawset("Display", luaDisplay);
+    uiEnv.rawset("Display", luaDisplay);
   }
 
   public static LuaNumber GetWidth(LuaState state) {

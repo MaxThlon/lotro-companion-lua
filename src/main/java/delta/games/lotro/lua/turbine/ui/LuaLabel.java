@@ -22,7 +22,7 @@ import org.squiddev.cobalt.function.LuaFunction;
 import org.squiddev.cobalt.function.RegisteredFunction;
 
 import delta.common.ui.swing.labels.MultilineLabel;
-import delta.games.lotro.lua.turbine.Turbine;
+import delta.games.lotro.lua.utils.LuaTools;
 
 /**
  * LuaLabel library for lua scripts.
@@ -31,7 +31,7 @@ import delta.games.lotro.lua.turbine.Turbine;
 public abstract class LuaLabel {
 
   public static LuaTable add(LuaState state,
-                             LuaTable uiMetatable,
+                             LuaTable uiEnv,
                              LuaFunction luaClass,
                              LuaValue luaScrollableControlClass) throws LuaError, UnwindThrowable {
 
@@ -75,7 +75,7 @@ public abstract class LuaLabel {
         RegisteredFunction.of("GetSelectionStart", LuaLabel::GetSelectionStart)
     });
     
-    uiMetatable.rawset("Label", luaLabelClass);
+    uiEnv.rawset("Label", luaLabelClass);
     
     return luaLabelClass;
   }
@@ -149,7 +149,7 @@ public abstract class LuaLabel {
   }
   
   public static LuaString GetText(LuaState state, LuaValue self) throws LuaError {
-    JComponent jComponent = Turbine.objectSelf(state, self, JComponent.class);
+    JComponent jComponent = LuaTools.objectSelf(state, self, JComponent.class);
     if (JLabel.class.isAssignableFrom(jComponent.getClass())) {
       return valueOf(((JLabel)jComponent).getText());
     } else if (JTextArea.class.isAssignableFrom(jComponent.getClass())) {
@@ -160,7 +160,7 @@ public abstract class LuaLabel {
   }
   
   public static LuaValue SetText(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    JComponent jComponent = Turbine.objectSelf(state, self, JComponent.class);
+    JComponent jComponent = LuaTools.objectSelf(state, self, JComponent.class);
     if (JLabel.class.isAssignableFrom(jComponent.getClass())) {
       ((JLabel)jComponent).setText(value.checkString());
     } else if (JButton.class.isAssignableFrom(jComponent.getClass())) {

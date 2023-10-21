@@ -22,7 +22,7 @@ import delta.common.framework.jobs.Job;
 import delta.common.framework.jobs.JobPool;
 import delta.common.framework.jobs.JobResult;
 import delta.common.framework.jobs.MultiThreadedJobExecutor;
-import delta.common.ui.swing.Frame;
+import delta.common.ui.swing.JFrame;
 import delta.common.ui.swing.GuiFactory;
 import delta.common.utils.application.config.main.MainApplicationConfiguration;
 import delta.games.lotro.client.plugin.Plugin;
@@ -146,7 +146,7 @@ public class PluginManager
   }
   
   public PluginImpl createLuaRunner() {
-    Frame frame=GuiFactory.buildFrame();
+    JFrame frame=GuiFactory.buildFrame();
     
     DragonConsole dragonConsole = new DragonConsole(false, false);
     frame.add(dragonConsole);

@@ -29,8 +29,8 @@ public abstract class LuaMouseListener implements MouseListener {
                   _luaMouseEnter = null,
                   _luaMouseLeave = null;
   
-  public static LuaMouseListener luaIndexMetaFunc(LuaState state, LuaValue self) throws LuaError {
-    Component component = LuaControl.findComponentFromLuaObject(state, self);
+  public static LuaMouseListener luaIndexMetaFunc(LuaState state, Component component, LuaValue self) {
+    
     return Arrays.stream(component.getMouseListeners())
                  .filter(LuaMouseListener.class::isInstance)
                  .map(LuaMouseListener.class::cast)

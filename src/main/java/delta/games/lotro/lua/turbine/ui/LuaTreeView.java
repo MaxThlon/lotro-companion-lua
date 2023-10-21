@@ -1,9 +1,12 @@
 package delta.games.lotro.lua.turbine.ui;
 
+import java.awt.event.MouseEvent;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.squiddev.cobalt.Constants;
@@ -20,8 +23,10 @@ import org.squiddev.cobalt.function.RegisteredFunction;
 import delta.common.ui.swing.GuiFactory;
 import delta.games.lotro.lua.turbine.Turbine;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeCellEditor;
+import delta.games.lotro.lua.turbine.ui.tree.LuaTreeMouseListener;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeNodeList;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeViewTreeCellRenderer;
+import delta.games.lotro.lua.utils.LuaTools;
 
 /**
  * LuaTreeView library for lua scripts.
@@ -30,44 +35,45 @@ import delta.games.lotro.lua.turbine.ui.tree.LuaTreeViewTreeCellRenderer;
 public abstract class LuaTreeView {
 
   public static void add(LuaState state,
-                         LuaTable uiMetatable,
+                         LuaTable uiEnv,
                          LuaValue luaScrollableControlClass) throws LuaError, UnwindThrowable {
 
     LuaTable luaTreeViewClass = OperationHelper.call(state, Turbine._luaClass, luaScrollableControlClass).checkTable();
     RegisteredFunction.bind(luaTreeViewClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", LuaTreeView::Constructor),
+        RegisteredFunction.of("Constructor", LuaTreeView::constructor),
         
-        RegisteredFunction.of("GetIndentationWidth", LuaTreeView::GetIndentationWidth),
-        RegisteredFunction.of("SetIndentationWidth", LuaTreeView::SetIndentationWidth),
+        RegisteredFunction.of("GetIndentationWidth", LuaTreeView::getIndentationWidth),
+        RegisteredFunction.of("SetIndentationWidth", LuaTreeView::setIndentationWidth),
         
-        RegisteredFunction.of("ExpandAll", LuaTreeView::ExpandAll),
-        RegisteredFunction.of("CollapseAll", LuaTreeView::CollapseAll),
+        RegisteredFunction.of("ExpandAll", LuaTreeView::expandAll),
+        RegisteredFunction.of("CollapseAll", LuaTreeView::collapseAll),
         
-        RegisteredFunction.of("GetNodes", LuaTreeView::GetNodes),
-        RegisteredFunction.of("GetSelectedNode", LuaTreeView::GetSelectedNode),
-        RegisteredFunction.of("SetSelectedNode", LuaTreeView::SetSelectedNode),
-        RegisteredFunction.of("GetItemAt", LuaTreeView::GetItemAt),
+        RegisteredFunction.of("GetNodes", LuaTreeView::getNodes),
+        RegisteredFunction.of("GetSelectedNode", LuaTreeView::getSelectedNode),
+        RegisteredFunction.of("SetSelectedNode", LuaTreeView::setSelectedNode),
+        RegisteredFunction.of("GetItemAt", LuaTreeView::getItemAt),
         
-        RegisteredFunction.of("GetFilter", LuaTreeView::GetFilter),
-        RegisteredFunction.of("SetFilter", LuaTreeView::SetFilter),
-        RegisteredFunction.of("GetSortMethod", LuaTreeView::GetSortMethod),
-        RegisteredFunction.of("SetSortMethod", LuaTreeView::SetSortMethod),
+        RegisteredFunction.of("GetFilter", LuaTreeView::getFilter),
+        RegisteredFunction.of("SetFilter", LuaTreeView::setFilter),
+        RegisteredFunction.of("GetSortMethod", LuaTreeView::getSortMethod),
+        RegisteredFunction.of("SetSortMethod", LuaTreeView::setSortMethod),
         
-        RegisteredFunction.of("Refresh", LuaTreeView::Refresh)
+        RegisteredFunction.of("Refresh", LuaTreeView::refresh)
     });
     
-    uiMetatable.rawset("TreeView", luaTreeViewClass);
+    uiEnv.rawset("TreeView", luaTreeViewClass);
   }
 
   public static JTree jTreeSelf(LuaState state, LuaValue self) throws LuaError {
-    return (JTree)Turbine.objectSelf(state, self, JScrollPane.class).getViewport().getView();
+    return (JTree)LuaTools.objectSelf(state, self, JScrollPane.class).getViewport().getView();
   }
 
-  public static LuaValue Constructor(LuaState state, LuaValue self) throws LuaError {
+  public static LuaValue constructor(LuaState state, LuaValue self) throws LuaError {
     DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("root");
     JTree tree = new JTree (new DefaultTreeModel(rootNode));
     tree.setCellRenderer(new LuaTreeViewTreeCellRenderer());
     tree.setCellEditor(new LuaTreeCellEditor());
+    tree.addMouseListener(new LuaTreeMouseListener(tree, state));
     tree.setEditable(true);
     tree.setRootVisible(false);
     tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -79,23 +85,23 @@ public abstract class LuaTreeView {
     return Constants.NIL;
   }
   
-  public static LuaNumber GetIndentationWidth(LuaState state, LuaValue self) {
+  public static LuaNumber getIndentationWidth(LuaState state, LuaValue self) {
     return Constants.ZERO;
   }
   
-  public static LuaValue SetIndentationWidth(LuaState state, LuaValue self, LuaValue value) {
+  public static LuaValue setIndentationWidth(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue ExpandAll(LuaState state, LuaValue self) {
+  public static LuaValue expandAll(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue CollapseAll(LuaState state, LuaValue self) {
+  public static LuaValue collapseAll(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue GetNodes(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
+  public static LuaValue getNodes(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
     JTree jTree = LuaTreeView.jTreeSelf(state, self);
     return LuaTreeNodeList.newLuaTreeNodeList(
         state,
@@ -104,35 +110,35 @@ public abstract class LuaTreeView {
     );
   }
   
-  public static LuaValue GetSelectedNode(LuaState state, LuaValue self) throws LuaError { 
-    return Turbine.findLuaObjectFromObject(LuaTreeView.jTreeSelf(state, self).getLastSelectedPathComponent());
+  public static LuaValue getSelectedNode(LuaState state, LuaValue self) throws LuaError { 
+    return LuaTools.findLuaObjectFromObject(LuaTreeView.jTreeSelf(state, self).getLastSelectedPathComponent());
   }
   
-  public static LuaValue SetSelectedNode(LuaState state, LuaValue self, LuaValue value) {
+  public static LuaValue setSelectedNode(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue GetItemAt(LuaState state, LuaValue self, LuaValue value) {
+  public static LuaValue getItemAt(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue GetFilter(LuaState state, LuaValue self, LuaValue value) {
+  public static LuaValue getFilter(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetFilter(LuaState state, LuaValue self, LuaValue value) {
+  public static LuaValue setFilter(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue GetSortMethod(LuaState state, LuaValue self) {
+  public static LuaValue getSortMethod(LuaState state, LuaValue self) {
     return Constants.NIL;
   }
   
-  public static LuaValue SetSortMethod(LuaState state, LuaValue self, LuaValue value) {
+  public static LuaValue setSortMethod(LuaState state, LuaValue self, LuaValue value) {
     return Constants.NIL;
   }
   
-  public static LuaValue Refresh(LuaState state, LuaValue self) {
+  public static LuaValue refresh(LuaState state, LuaValue self) {
     return Constants.NIL;
   }  
 }
