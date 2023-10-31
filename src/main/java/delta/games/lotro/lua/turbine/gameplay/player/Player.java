@@ -1,81 +1,83 @@
 package delta.games.lotro.lua.turbine.gameplay.player;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaBoolean;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaString;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import party.iroiro.luajava.JFunction;
+import party.iroiro.luajava.Lua;
 
 /**
  * @author MaxThlon
  */
 public class Player
 {
-  public static LuaTable add(LuaState state, LuaTable gameplayEnv,
-                             LuaFunction luaClass, LuaValue luaActorClass) throws LuaError, UnwindThrowable {
-    LuaTable luaPlayerClass = luaClass.call(state, luaActorClass).checkTable();
-    RegisteredFunction.bind(luaPlayerClass, new RegisteredFunction[]{
-      RegisteredFunction.of("Constructor", Player::constructor),
-      RegisteredFunction.of("GetClass", Player::getLotroClass),
-      RegisteredFunction.of("GetRace", Player::getRace),
-      RegisteredFunction.of("GetAlignment", Player::getAlignment),
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "Gameplay", "Actor");
+  	if (error != Lua.LuaError.OK) return error;
+    lua.push((JFunction)Player::constructor);
+    lua.setField(-2, "Constructor");
+    lua.push((JFunction)Player::getLotroClass);
+    lua.setField(-2, "GetClass");
+    lua.push((JFunction)Player::getRace);
+    lua.setField(-2, "GetRace");
+    lua.push((JFunction)Player::getAlignment);
+    lua.setField(-2, "GetAlignment");
+    
+    lua.push((JFunction)Player::isLinkDead);
+    lua.setField(-2, "IsLinkDead");
+    lua.push((JFunction)Player::isVoiceActive);
+    lua.setField(-2, "IsVoiceActive");
+    lua.push((JFunction)Player::isVoiceEnabled);
+    lua.setField(-2, "IsVoiceEnabled");
+    
+    lua.push((JFunction)Player::getParty);
+    lua.setField(-2, "GetParty");
+    lua.push((JFunction)Player::getReadyState);
+    lua.setField(-2, "GetReadyState");
 
-      RegisteredFunction.of("IsLinkDead", Player::isLinkDead),
-      RegisteredFunction.of("IsVoiceActive", Player::isVoiceActive),
-      RegisteredFunction.of("IsVoiceEnabled", Player::isVoiceEnabled),
-      
-      RegisteredFunction.of("GetParty", Player::getParty),
-      RegisteredFunction.of("GetReadyState", Player::getReadyState),
-      
-      RegisteredFunction.of("GetPet", Player::getPet),
-    });
-    gameplayEnv.rawset("Player", luaPlayerClass);
+    lua.push((JFunction)Player::getPet);
+    lua.setField(-2, "GetPet");
 
-    return luaPlayerClass;
+    lua.setField(-2, "Player");
+    return error;
   }
   
-  public static LuaValue constructor(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int constructor(Lua lua) {
+    return 1;
   }
   
-  public static LuaString getLotroClass(LuaState state, LuaValue self) {
-    return Constants.EMPTYSTRING;
+  private static int getLotroClass(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getRace(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  private static int getRace(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getAlignment(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  private static int getAlignment(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean isLinkDead(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  private static int isLinkDead(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean isVoiceActive(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  private static int isVoiceActive(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean isVoiceEnabled(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  private static int isVoiceEnabled(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getParty(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  private static int getParty(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getReadyState(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  private static int getReadyState(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getPet(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  private static int getPet(Lua lua) {
+    return 1;
   }
 }

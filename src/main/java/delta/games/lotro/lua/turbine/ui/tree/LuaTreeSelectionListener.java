@@ -5,15 +5,9 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.OperationHelper;
-import org.squiddev.cobalt.UnwindThrowable;
-
-import delta.games.lotro.lua.utils.LuaTools;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import party.iroiro.luajava.Lua;
+import party.iroiro.luajava.value.LuaValue;
 
 /**
  * LuaTreeSelectionListener library for lua scripts.
@@ -21,32 +15,25 @@ import delta.games.lotro.lua.utils.LuaTools;
  */
 public class LuaTreeSelectionListener implements TreeSelectionListener  {
   private JTree _jTree;
-  private LuaState _state;
-  private LuaTable _luaTreeview;
+  private LuaValue _luaTreeview;
   public LuaValue _luaSelectedNodeChanged;
 
-  public LuaTreeSelectionListener(JTree jTree, LuaState state, LuaTable luaTreeview, LuaValue luaSelectedNodeChanged) {
-    this._jTree = jTree;
-    this._state = state;
-    this._luaTreeview = luaTreeview;
-    this._luaSelectedNodeChanged = luaSelectedNodeChanged;
+  public LuaTreeSelectionListener(JTree jTree, LuaValue luaTreeview, LuaValue luaSelectedNodeChanged) {
+    _jTree = jTree;
+    _luaTreeview = luaTreeview;
+    _luaSelectedNodeChanged = luaSelectedNodeChanged;
   }
 
   @Override
   public void valueChanged(TreeSelectionEvent event) {
-    DefaultMutableTreeNode node = (DefaultMutableTreeNode)_jTree.getLastSelectedPathComponent();
-
-    try {
-      if (this._luaSelectedNodeChanged != Constants.NIL)
-          OperationHelper.call(
-              _state,
-              this._luaSelectedNodeChanged,
-              _luaTreeview, 
-              (node == null)?Constants.NIL : LuaTools.findLuaObjectFromObject(node),
-              Constants.NIL
-          );
-    } catch (LuaError | UnwindThrowable error) {
-      error.printStackTrace();
+    if (_luaSelectedNodeChanged.type() != Lua.LuaType.NIL) {
+      DefaultMutableTreeNode node = (DefaultMutableTreeNode)_jTree.getLastSelectedPathComponent();
+      if (node != null) {
+        _luaSelectedNodeChanged.call(
+            _luaTreeview,
+            LuaObject.findLuaObjectFromObject(node)
+        );
+      }
     }
   }
 }

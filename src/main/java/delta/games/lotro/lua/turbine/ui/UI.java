@@ -1,195 +1,178 @@
 package delta.games.lotro.lua.turbine.ui;
 
-import static org.squiddev.cobalt.ValueFactory.listOf;
-import static org.squiddev.cobalt.ValueFactory.tableOf;
-import static org.squiddev.cobalt.ValueFactory.valueOf;
-
 import java.awt.Color;
-import java.awt.Dimension;
+import java.util.HashMap;
 
-import javax.swing.JDesktopPane;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.WindowConstants;
-
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.Varargs;
-import org.squiddev.cobalt.function.RegisteredFunction;
-
-import com.eleet.dragonconsole.DragonConsole;
-
-import delta.common.ui.swing.GuiFactory;
-import delta.games.lotro.lua.turbine.Turbine;
+import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeNode;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeNodeList;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
 
 /**
  * UI library for lua scripts.
  * @author MaxThlon
  */
 public abstract class UI {
-  public static JFrame frame = null;
-  public static JDesktopPane jDesktopPane = null;
-  public static DragonConsole dragonConsole = null;
+  @SuppressWarnings("boxing")
+  public static Lua.LuaError openPackage(Lua lua, int globalsIndex) {
+  	Lua.LuaError error;
 
-
-  public static void buildUI() {
-    /*try {
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    } catch (Throwable e) {
-        e.printStackTrace();
-    }*/
-    //FlatLotroLaf.setup();
-    GuiFactory.init();
-    frame=new JFrame("Lotro companion lua");
-    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    frame.setPreferredSize(new Dimension(1024, 768));
-    
-    
-    jDesktopPane = new JDesktopPane();
-    frame.setContentPane(jDesktopPane);
-    frame.pack();
-
-    JInternalFrame jInternalFrame = new JInternalFrame("General", true);
-    jInternalFrame.setLocation(0, jDesktopPane.getHeight() - 200);
-    jInternalFrame.setPreferredSize(new Dimension(600, 200));
-    jInternalFrame.setOpaque(false);
-    jInternalFrame.pack();
-    jInternalFrame.setVisible(true);
-    dragonConsole = new DragonConsole(false, false);
-    jInternalFrame.add(dragonConsole);
-    jDesktopPane.add(jInternalFrame);
-
-    
-    frame.setVisible(true);
-  }
-
-  public static void add(LuaState state, LuaTable uiEnv) throws LuaError, UnwindThrowable {
-    LuaTable globals = state.getMainThread().getfenv();
-
-    LuaTable luaColorClass = Turbine._luaClass.call(state, Turbine._luaObjectClass).checkTable();
-    RegisteredFunction.bind(luaColorClass, new RegisteredFunction[]{
-        RegisteredFunction.ofV("Constructor", UI::ColorConstructor)
-    });
-    uiEnv.rawset("Color", luaColorClass);
-
-    uiEnv.rawset("BlendMode", tableOf(
-        valueOf("Color"), valueOf("Color"),
-        valueOf("Normal"), valueOf("Normal"),
-        valueOf("Multiply"), valueOf("Multiply"),
-        valueOf("AlphaBlend"), valueOf("AlphaBlend"),
-        valueOf("Overlay"), valueOf("Overlay"),
-        valueOf("Grayscale"), valueOf("Grayscale"),
-        valueOf("Screen"), valueOf("Screen"),
-        valueOf("None"), valueOf("None"),
-        valueOf("Undefined"), valueOf("Undefined")
-    ));
-    
-    uiEnv.rawset("ContentAlignment", tableOf(
-        valueOf("TopLeft"), valueOf(1),
-        valueOf("TopCenter"), valueOf(2),
-        valueOf("TopRight"), valueOf(3),
-        valueOf("MiddleLeft"), valueOf(4),
-        valueOf("MiddleCenter"), valueOf(5),
-        valueOf("MiddleRight"), valueOf(6),
-        valueOf("BottomLeft"), valueOf(7),
-        valueOf("BottomCenter"), valueOf(8),
-        valueOf("BottomRight"), valueOf(9),
-        valueOf("Undefined"), valueOf(0)
-    ));
-    
-    
-    uiEnv.rawset("FontStyle", tableOf(
-        valueOf("None"), valueOf("None"),
-        valueOf("Outline"), valueOf("Outline")
-    ));
-    
-    uiEnv.rawset("MouseButton", tableOf(
-        valueOf("Left"), valueOf(1),
-        valueOf("Middle"), valueOf(4),
-        valueOf("Right"), valueOf(2)
-    ));
-    
-    uiEnv.rawset("Orientation" , tableOf(
-        valueOf("Horizontal"), valueOf(0),
-        valueOf("Vertical"), valueOf(1)
-    ));
-    
-    uiEnv.rawset("HorizontalLayout", tableOf(
-        valueOf("LeftToRight"), valueOf(0),
-        valueOf("RightToLeft"), valueOf(1)
-    ));
-
-    uiEnv.rawset("VerticalLayout", tableOf(
-        valueOf("BottomToTop"), valueOf(1),
-        valueOf("TopToBottom"), valueOf(0)
-    ));
-
-    LuaTable luaControlClass = LuaControl.add(state, uiEnv, Turbine._luaClass, Turbine._luaObjectClass);
-
-    LuaDisplay.add(state, uiEnv);
-    LuaTable luaScrollableControlClass = LuaScrollableControl.add(state, uiEnv, luaControlClass);
-    LuaTable luaLabelClass = LuaLabel.add(state, uiEnv, Turbine._luaClass, luaScrollableControlClass);
-    LuaTextBox.add(state, uiEnv, luaLabelClass);
-    LuaButton.add(state, uiEnv, luaLabelClass);
-    LuaWindow.add(state, uiEnv, luaControlClass);
-    LuaListBox.add(state, uiEnv, luaScrollableControlClass);
-    LuaScrollBar.add(state, uiEnv, luaControlClass);
-    LuaTreeNode.add(state, uiEnv, luaControlClass);
-    LuaTreeNodeList.add(state, uiEnv);
-    LuaTreeView.add(state, uiEnv, luaScrollableControlClass);
-  }
-  
-  public static Color luaColorToColor(LuaValue self) throws LuaError {
-    LuaTable _self = self.checkTable();
-    return new Color(
-        (float)_self.rawget("R").checkDouble(),
-        (float)_self.rawget("G").checkDouble(),
-        (float)_self.rawget("B").checkDouble(),
-        (float)_self.rawget("A").checkDouble()
+  	LuaTools.pushfenv(
+    		lua,
+    		globalsIndex,
+    		"Turbine.UI",
+    		"Turbine", "UI"
     );
+  	LuaTools.pushModule(
+  			lua,
+  			LuaTools.relativizeIndex(globalsIndex, -1),
+  			"Turbine", "UI"
+  	);
+    lua.push(new HashMap<String, String>() {{
+        put("Color", "Color");
+        put("Normal", "Normal");
+        put("Multiply", "Multiply");
+        put("AlphaBlend", "AlphaBlend");
+        put("Overlay", "Overlay");
+        put("Grayscale", "Grayscale");
+        put("Screen", "Screen");
+        put("None", "None");
+        put("Undefined", "Undefined");
+    }}, Lua.Conversion.FULL);
+    lua.setField(-2, "BlendMode");
+
+    lua.push(new HashMap<String, Integer>() {{
+        put("TopLeft", 1);
+        put("TopCenter", 2);
+        put("TopRight", 3);
+        put("MiddleLeft", 4);
+        put("MiddleCenter", 5);
+        put("MiddleRight", 6);
+        put("BottomLeft", 7);
+        put("BottomCenter", 8);
+        put("BottomRight", 9);
+        put("Undefined", 0);
+    }}, Lua.Conversion.FULL);
+    lua.setField(-2, "ContentAlignment");
+
+    lua.push(new HashMap<String, String>() {{
+        put("None", "None");
+        put("Outline", "Outline");
+    }}, Lua.Conversion.FULL);
+    lua.setField(-2, "FontStyle");
+
+    lua.push(new HashMap<String, Integer>() {{
+        put("Left", 1);
+        put("Middle", 4);
+        put("Right", 2);
+    }}, Lua.Conversion.FULL);
+    lua.setField(-2, "MouseButton");
+
+    lua.push(new HashMap<String, Integer>() {{
+        put("Horizontal", 0);
+        put("Vertical", 1);
+    }}, Lua.Conversion.FULL);
+    lua.setField(-2, "Orientation");
+
+    lua.push(new HashMap<String, Integer>() {{
+        put("LeftToRight", 0);
+        put("RightToLeft", 1);
+    }}, Lua.Conversion.FULL);
+    lua.setField(-2, "HorizontalLayout");
+
+    lua.push(new HashMap<String, Integer>() {{
+        put("BottomToTop", 1);
+        put("TopToBottom", 0);
+    }}, Lua.Conversion.FULL);
+    lua.setField(-2, "VerticalLayout");
+
+    if ((error = LuaObject.callInherit(lua, -3, "Turbine", "Object")) != Lua.LuaError.OK) return error;
+    LuaTools.setFunction(lua, -1, -3, "Constructor", UI::ColorConstructor);
+    lua.setField(-2, "Color");
+
+    if ((error  = LuaControl.add(lua)) != Lua.LuaError.OK) return error;
+    if ((error  = LuaDisplay.add(lua)) != Lua.LuaError.OK) return error;
+    if ((error = LuaScrollableControl.add(lua)) != Lua.LuaError.OK) return error;
+    if ((error = LuaLabel.add(lua)) != Lua.LuaError.OK) return error;
+    if ((error = LuaTextBox.add(lua)) != Lua.LuaError.OK) return error;
+    if ((error = LuaButton.add(lua)) != Lua.LuaError.OK) return error;
+    if ((error = LuaWindow.add(lua)) != Lua.LuaError.OK) return error;
+    if ((error = LuaListBox.add(lua)) != Lua.LuaError.OK) return error;
+    if ((error = LuaScrollBar.add(lua)) != Lua.LuaError.OK) return error;
+    if ((error = LuaTreeNode.add(lua)) != Lua.LuaError.OK) return error;
+    if ((error = LuaTreeNodeList.add(lua)) != Lua.LuaError.OK) return error;
+    if ((error = LuaTreeView.add(lua)) != Lua.LuaError.OK) return error;
+
+    lua.pop(2); /* pop env, module */
+    return error;
   }
   
-  public static LuaValue colorToLuaColor(Color color) throws LuaError {
+  public static Color luaColorToColor(Lua lua, int index) {
+  	lua.getField(index, "A");
+  	lua.getField(index, "R");
+  	lua.getField(index, "G");
+  	lua.getField(index, "B");
+  	
+  	Color color = new Color(
+        (float)lua.toNumber(-3),
+        (float)lua.toNumber(-2),
+        (float)lua.toNumber(-1),
+        (float)lua.toNumber(-4)
+    );
+  	lua.pop(4);
+  	return color;
+  }
+  
+  public static HashMap<String, Double> colorToLuaColor(Color color) {
     float[] compArray = color.getRGBComponents(null);
-    return tableOf(
-        valueOf("A"), valueOf(compArray[3]),
-        valueOf("R"), valueOf(compArray[0]),
-        valueOf("G"), valueOf(compArray[1]),
-        valueOf("B"), valueOf(compArray[2])
-    );
+
+    return new HashMap<String, Double>() {{
+        put("A", Double.valueOf(compArray[3]));
+        put("R", Double.valueOf(compArray[0]));
+        put("G", Double.valueOf(compArray[1]));
+        put("B", Double.valueOf(compArray[2]));
+    }};
   }
 
-  public static LuaValue ColorConstructor(LuaState state, Varargs varargs) throws LuaError {
-    LuaTable self = varargs.first().checkTable();
-    Turbine.ObjectConstructor(state, self);
-
-    switch (varargs.count()) {
-      case 1:
-        self.rawset("A", valueOf(1.0));
-        self.rawset("R", valueOf(1.0));
-        self.rawset("G", valueOf(1.0));
-        self.rawset("B", valueOf(1.0));
+  private static int ColorConstructor(Lua lua) {
+    LuaObject.ObjectInheritedConstructor(lua, 1, null, null, null);
+    
+    switch (lua.getTop()) {
+      case 1: {
+      	Double defaultValue = Double.valueOf(1.0);
+      	lua.push(defaultValue); /* Value affected to "B" */
+      	lua.pushValue(-1);
+      	lua.setField(1, "A");
+      	lua.pushValue(-1);
+        lua.setField(1, "R");
+        lua.pushValue(-1);
+        lua.setField(1, "G");
+        lua.setField(1, "B");
         break;
+      }
       case 4:
-        self.rawset("A", valueOf(1.0));
-        self.rawset("R", varargs.checkValue(2).checkNumber());
-        self.rawset("G", varargs.checkValue(3).checkNumber());
-        self.rawset("B", varargs.checkValue(4).checkNumber());
+      	lua.push(Double.valueOf(1.0));
+      	lua.setField(1, "A");
+      	lua.pushValue(2);
+        lua.setField(1, "R");
+        lua.pushValue(3);
+        lua.setField(1, "G");
+        lua.pushValue(4);
+        lua.setField(1, "B");
         break;
       case 5:
-        self.rawset("A", varargs.checkValue(2).checkNumber());
-        self.rawset("R", varargs.checkValue(3).checkNumber());
-        self.rawset("G", varargs.checkValue(4).checkNumber());
-        self.rawset("B", varargs.checkValue(5).checkNumber());
+        lua.pushValue(2);
+        lua.setField(1, "A");
+        lua.pushValue(3);
+        lua.setField(1, "R");
+        lua.pushValue(4);
+        lua.setField(1, "G");
+        lua.pushValue(5);
+        lua.setField(1, "B");
         break;
     }
 
-    return Constants.NIL;
+    return 1;
   }
 }

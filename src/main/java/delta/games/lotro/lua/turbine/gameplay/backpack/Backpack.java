@@ -1,52 +1,46 @@
 package delta.games.lotro.lua.turbine.gameplay.backpack;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaNumber;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
 
 /**
  * @author MaxThlon
  */
 public class Backpack
 {
-  public static LuaTable add(LuaState state, LuaTable gameplayEnv,
-                             LuaFunction luaClass, LuaValue luaObjectClass) throws LuaError, UnwindThrowable {
-    LuaTable luaBackpackClass = luaClass.call(state, luaObjectClass).checkTable();
-    RegisteredFunction.bind(luaBackpackClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", Backpack::constructor),
-        RegisteredFunction.of("GetSize", Backpack::getSize),
-        RegisteredFunction.of("GetItem", Backpack::getItem),
-        RegisteredFunction.of("PerformItemDrop", Backpack::performItemDrop),
-        RegisteredFunction.of("PerformShortcutDrop", Backpack::performShortcutDrop)
-    });
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	if (error != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", Backpack::constructor);
+    LuaTools.setFunction(lua, -1, -3, "GetSize", Backpack::getSize);
+    LuaTools.setFunction(lua, -1, -3, "GetItem", Backpack::getItem);
+    LuaTools.setFunction(lua, -1, -3, "PerformItemDrop", Backpack::performItemDrop);
+    LuaTools.setFunction(lua, -1, -3, "PerformShortcutDrop", Backpack::performShortcutDrop);
+
+    lua.setField(-2, "Backpack");
     
-    gameplayEnv.rawset("Backpack", luaBackpackClass);
-    return luaBackpackClass;
+    return error;
   }
   
-  public static LuaValue constructor(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int constructor(Lua lua) {
+    return 1;
   }
   
-  public static LuaNumber getSize(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getSize(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getItem(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getItem(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue performItemDrop(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int performItemDrop(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue performShortcutDrop(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int performShortcutDrop(Lua lua) {
+    return 1;
   }
 }

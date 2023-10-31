@@ -1,21 +1,14 @@
 package delta.games.lotro.lua.turbine.ui.mouse;
 
-import static org.squiddev.cobalt.ValueFactory.tableOf;
-
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Arrays;
 
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.OperationHelper;
-import org.squiddev.cobalt.UnwindThrowable;
-
-import delta.common.framework.plugin.PluginManager;
 import delta.games.lotro.lua.turbine.Apartment;
-import delta.games.lotro.lua.turbine.ui.LuaControl;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
+import party.iroiro.luajava.value.LuaValue;
 
 /**
  * LuaMouseListener library for lua scripts.
@@ -29,7 +22,7 @@ public abstract class LuaMouseListener implements MouseListener {
                   _luaMouseEnter = null,
                   _luaMouseLeave = null;
   
-  public static LuaMouseListener luaIndexMetaFunc(LuaState state, Component component, LuaValue self) {
+  public static LuaMouseListener luaIndexMetaFunc(Lua lua, Component component, LuaValue self) {
     
     return Arrays.stream(component.getMouseListeners())
                  .filter(LuaMouseListener.class::isInstance)
@@ -38,56 +31,36 @@ public abstract class LuaMouseListener implements MouseListener {
       LuaMouseListener luaMouseListener = new LuaMouseListener() {
         @Override
         public void mousePressed(MouseEvent  mouseEvent) {
-          try {
-            if (_luaMouseDown != null) {
-              PluginManager.getInstance().event("MouseDown", new Object[]{Apartment.findApartment(state), _luaMouseDown, self, tableOf()});
-            }
-          } catch (LuaError error) {
-            error.printStackTrace();
+          if (_luaMouseDown != null) {
+            LuaTools.invokeEvent(lua, "MouseDown", new Object[]{Apartment.findApartment(lua), _luaMouseDown, self});
           }
         }
   
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
-          try {
-            if (_luaMouseClick != null) {
-              PluginManager.getInstance().event("MouseClick", new Object[]{Apartment.findApartment(state), _luaMouseClick, self, tableOf()});
-            }
-          } catch (LuaError error) {
-            error.printStackTrace();
+          if (_luaMouseClick != null) {
+            LuaTools.invokeEvent(lua, "MouseClick", new Object[]{Apartment.findApartment(lua), _luaMouseClick, self});
           }
         }
   
         @Override
         public void mouseReleased(MouseEvent mouseEvent) {
-          try {
-            if (_luaMouseUp != null) {
-              PluginManager.getInstance().event("MouseUp", new Object[]{Apartment.findApartment(state), _luaMouseUp, self, tableOf()});
-            }
-          } catch (LuaError error) {
-            error.printStackTrace();
+          if (_luaMouseUp != null) {
+            LuaTools.invokeEvent(lua, "MouseUp", new Object[]{Apartment.findApartment(lua), _luaMouseUp, self});
           }
         }
   
         @Override
         public void mouseEntered(MouseEvent mouseEvent) {
-          try {
-            if (_luaMouseEnter != null) {
-              PluginManager.getInstance().event("MouseEnter", new Object[]{Apartment.findApartment(state), _luaMouseEnter, self, tableOf()});
-            }
-          } catch (LuaError error) {
-            error.printStackTrace();
+          if (_luaMouseEnter != null) {
+            LuaTools.invokeEvent(lua, "MouseEnter", new Object[]{Apartment.findApartment(lua), _luaMouseEnter, self});
           }
         }
   
         @Override
         public void mouseExited(MouseEvent mouseEvent) {
-          try {
-            if (_luaMouseLeave != null) {
-              PluginManager.getInstance().event("MouseLeave", new Object[]{Apartment.findApartment(state), _luaMouseLeave, self, tableOf()});
-            }
-          } catch (LuaError error) {
-            error.printStackTrace();
+          if (_luaMouseLeave != null) {
+            LuaTools.invokeEvent(lua, "MouseLeave", new Object[]{Apartment.findApartment(lua), _luaMouseLeave, self});
           }
         }
       };

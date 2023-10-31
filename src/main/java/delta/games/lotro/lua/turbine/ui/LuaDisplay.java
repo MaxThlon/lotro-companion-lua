@@ -1,18 +1,13 @@
 package delta.games.lotro.lua.turbine.ui;
 
-import static org.squiddev.cobalt.ValueFactory.valueOf;
-import static org.squiddev.cobalt.ValueFactory.varargsOf;
-
 import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Toolkit;
 
-import org.squiddev.cobalt.LuaNumber;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.Varargs;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
 
 /**
  * LuaDisplay library for lua scripts.
@@ -20,45 +15,58 @@ import org.squiddev.cobalt.function.RegisteredFunction;
  */
 public abstract class LuaDisplay {
 
-  public static void add(LuaState state,
-                         LuaTable uiEnv) {
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	if (error != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaDisplay::constructor);
+    LuaTools.setFunction(lua, -1, -3, "GetWidth", LuaDisplay::getWidth);
+    LuaTools.setFunction(lua, -1, -3, "GetHeight", LuaDisplay::GetHeight);
+    LuaTools.setFunction(lua, -1, -3, "GetSize", LuaDisplay::GetSize);
+    LuaTools.setFunction(lua, -1, -3, "GetMouseX", LuaDisplay::GetMouseX);
+    LuaTools.setFunction(lua, -1, -3, "GetMouseY", LuaDisplay::GetMouseY);
+    LuaTools.setFunction(lua, -1, -3, "GetMousePosition", LuaDisplay::GetMousePosition);
 
-    LuaTable luaDisplay = RegisteredFunction.bind(new RegisteredFunction[]{
-        RegisteredFunction.of("GetWidth", LuaDisplay::GetWidth),
-        RegisteredFunction.of("GetHeight", LuaDisplay::GetHeight),
-        RegisteredFunction.ofV("GetSize", LuaDisplay::GetSize),
-        RegisteredFunction.of("GetMouseX", LuaDisplay::GetMouseX),
-        RegisteredFunction.of("GetMouseY", LuaDisplay::GetMouseY),
-        RegisteredFunction.ofV("GetMousePosition", LuaDisplay::GetMousePosition)
-    });
-    
-    uiEnv.rawset("Display", luaDisplay);
+    if ((error =lua.pCall(0, 1)) != Lua.LuaError.OK) return error;
+    lua.setField(-2, "Display");
+    return error;
   }
 
-  public static LuaNumber GetWidth(LuaState state) {
-    return valueOf(Toolkit.getDefaultToolkit().getScreenSize().width);
+  private static int constructor(Lua lua) {
+    return 1;
+  }
+
+  private static int getWidth(Lua lua) {
+    lua.push(Toolkit.getDefaultToolkit().getScreenSize().width);
+    return 1;
   }
   
-  public static LuaNumber GetHeight(LuaState state) {
-    return valueOf(Toolkit.getDefaultToolkit().getScreenSize().height);
+  private static int GetHeight(Lua lua) {
+    lua.push(Toolkit.getDefaultToolkit().getScreenSize().height);
+    return 1;
   }
   
-  public static Varargs GetSize(LuaState state, Varargs varargs) {
+  private static int GetSize(Lua lua) {
     Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-    return varargsOf(valueOf(dimension.width), valueOf(dimension.height));
+    lua.push(dimension.width);
+    lua.push(dimension.height);
+    return 1;
   }
   
-  public static LuaNumber GetMouseX(LuaState state) {
-    return valueOf(MouseInfo.getPointerInfo().getLocation().x);
+  private static int GetMouseX(Lua lua) {
+    lua.push(MouseInfo.getPointerInfo().getLocation().x);
+    return 1;
   }
 
-  public static LuaNumber GetMouseY(LuaState state) {
-    return valueOf(MouseInfo.getPointerInfo().getLocation().y);
+  private static int GetMouseY(Lua lua) {
+    lua.push(MouseInfo.getPointerInfo().getLocation().y);
+    return 1;
   }
   
-  public static Varargs GetMousePosition(LuaState state, Varargs varargs) {
+  private static int GetMousePosition(Lua lua) {
     Point location = MouseInfo.getPointerInfo().getLocation();
-    
-    return varargsOf(valueOf(location.x), valueOf(location.y));
+    lua.push(location.x);
+    lua.push(location.y);
+    return 1;
   }
 }

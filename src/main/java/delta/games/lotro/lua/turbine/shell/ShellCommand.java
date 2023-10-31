@@ -1,15 +1,8 @@
 package delta.games.lotro.lua.turbine.shell;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaString;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.RegisteredFunction;
-
-import delta.games.lotro.lua.turbine.Turbine;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
 
 /**
  * ShellCommand for lua scripts.
@@ -17,31 +10,35 @@ import delta.games.lotro.lua.turbine.Turbine;
  */
 public abstract class ShellCommand {
 
-  public static void add(LuaState state,
-                         LuaTable turbine) throws LuaError, UnwindThrowable {
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
 
-    LuaTable luaShellCommandClass = Turbine._luaClass.call(state, Turbine._luaObjectClass).checkTable();
-    RegisteredFunction.bind(luaShellCommandClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Execute", ShellCommand::Execute),
-        RegisteredFunction.of("GetHelp", ShellCommand::GetHelp),
-        RegisteredFunction.of("GetShortHelp", ShellCommand::GetShortHelp)
-    });
-    
-    turbine.rawset("ShellCommand", luaShellCommandClass);
+  	if ((error  = LuaObject.callInherit(lua, -3, "Turbine", "Object")) != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", ShellCommand::constructor);
+    LuaTools.setFunction(lua, -1, -3, "Execute", ShellCommand::execute);
+    LuaTools.setFunction(lua, -1, -3, "GetHelp", ShellCommand::getHelp);
+    LuaTools.setFunction(lua, -1, -3, "GetShortHelp", ShellCommand::getShortHelp);
+
+    lua.setField(-2, "ShellCommand");
+    return error;
   }
   
-  public static LuaValue Execute(LuaState state, LuaValue self) {
+  private static int constructor(Lua lua) {
+    return 1;
+  }
 
-    return Constants.NIL;
+  private static int execute(Lua lua) {
+
+    return 1;
   }
   
-  public static LuaString GetHelp(LuaState state, LuaValue self) {
+  private static int getHelp(Lua lua) {
 
-    return Constants.EMPTYSTRING;
+    return 1;
   }
 
-  public static LuaString GetShortHelp(LuaState state, LuaValue self) {
+  private static int getShortHelp(Lua lua) {
 
-    return Constants.EMPTYSTRING;
+    return 1;
   }
 }

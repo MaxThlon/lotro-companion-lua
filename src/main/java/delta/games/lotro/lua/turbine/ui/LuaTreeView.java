@@ -1,32 +1,20 @@
 package delta.games.lotro.lua.turbine.ui;
 
-import java.awt.event.MouseEvent;
-
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaNumber;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.OperationHelper;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
-
 import delta.common.ui.swing.GuiFactory;
-import delta.games.lotro.lua.turbine.Turbine;
+import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeCellEditor;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeMouseListener;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeNodeList;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeViewTreeCellRenderer;
 import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
+import party.iroiro.luajava.lua51.Lua51Consts;
 
 /**
  * LuaTreeView library for lua scripts.
@@ -34,111 +22,111 @@ import delta.games.lotro.lua.utils.LuaTools;
  */
 public abstract class LuaTreeView {
 
-  public static void add(LuaState state,
-                         LuaTable uiEnv,
-                         LuaValue luaScrollableControlClass) throws LuaError, UnwindThrowable {
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "UI", "ScrollableControl");
+  	if (error != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaTreeView::constructor);
+  	LuaTools.setFunction(lua, -1, -3, "GetIndentationWidth", LuaTreeView::getIndentationWidth);
+    LuaTools.setFunction(lua, -1, -3, "SetIndentationWidth", LuaTreeView::setIndentationWidth);
 
-    LuaTable luaTreeViewClass = OperationHelper.call(state, Turbine._luaClass, luaScrollableControlClass).checkTable();
-    RegisteredFunction.bind(luaTreeViewClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", LuaTreeView::constructor),
-        
-        RegisteredFunction.of("GetIndentationWidth", LuaTreeView::getIndentationWidth),
-        RegisteredFunction.of("SetIndentationWidth", LuaTreeView::setIndentationWidth),
-        
-        RegisteredFunction.of("ExpandAll", LuaTreeView::expandAll),
-        RegisteredFunction.of("CollapseAll", LuaTreeView::collapseAll),
-        
-        RegisteredFunction.of("GetNodes", LuaTreeView::getNodes),
-        RegisteredFunction.of("GetSelectedNode", LuaTreeView::getSelectedNode),
-        RegisteredFunction.of("SetSelectedNode", LuaTreeView::setSelectedNode),
-        RegisteredFunction.of("GetItemAt", LuaTreeView::getItemAt),
-        
-        RegisteredFunction.of("GetFilter", LuaTreeView::getFilter),
-        RegisteredFunction.of("SetFilter", LuaTreeView::setFilter),
-        RegisteredFunction.of("GetSortMethod", LuaTreeView::getSortMethod),
-        RegisteredFunction.of("SetSortMethod", LuaTreeView::setSortMethod),
-        
-        RegisteredFunction.of("Refresh", LuaTreeView::refresh)
-    });
-    
-    uiEnv.rawset("TreeView", luaTreeViewClass);
+    LuaTools.setFunction(lua, -1, -3, "ExpandAll", LuaTreeView::expandAll);
+    LuaTools.setFunction(lua, -1, -3, "CollapseAll", LuaTreeView::collapseAll);
+
+    LuaTools.setFunction(lua, -1, -3, "GetNodes", LuaTreeView::getNodes);
+    LuaTools.setFunction(lua, -1, -3, "GetSelectedNode", LuaTreeView::getSelectedNode);
+    LuaTools.setFunction(lua, -1, -3, "SetSelectedNode", LuaTreeView::setSelectedNode);
+    LuaTools.setFunction(lua, -1, -3, "GetItemAt", LuaTreeView::getItemAt);
+
+    LuaTools.setFunction(lua, -1, -3, "GetFilter", LuaTreeView::getFilter);
+    LuaTools.setFunction(lua, -1, -3, "SetFilter", LuaTreeView::setFilter);
+
+    LuaTools.setFunction(lua, -1, -3, "GetSortMethod", LuaTreeView::getSortMethod);
+    LuaTools.setFunction(lua, -1, -3, "SetSortMethod", LuaTreeView::setSortMethod);
+
+    LuaTools.setFunction(lua, -1, -3, "Refresh", LuaTreeView::refresh);
+
+    lua.setField(-2, "TreeView");
+    return error;
   }
 
-  public static JTree jTreeSelf(LuaState state, LuaValue self) throws LuaError {
-    return (JTree)LuaTools.objectSelf(state, self, JScrollPane.class).getViewport().getView();
+  public static JTree jTreeSelf(Lua lua, int index) {
+    return (JTree)LuaObject.objectSelf(lua, index, JScrollPane.class).getViewport().getView();
   }
 
-  public static LuaValue constructor(LuaState state, LuaValue self) throws LuaError {
+  private static int constructor(Lua lua) {
     DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("root");
     JTree tree = new JTree (new DefaultTreeModel(rootNode));
     tree.setCellRenderer(new LuaTreeViewTreeCellRenderer());
     tree.setCellEditor(new LuaTreeCellEditor());
-    tree.addMouseListener(new LuaTreeMouseListener(tree, state));
+    tree.addMouseListener(new LuaTreeMouseListener(tree));
     tree.setEditable(true);
     tree.setRootVisible(false);
     tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
     tree.setShowsRootHandles(true);
 
     JScrollPane jScrollPane = GuiFactory.buildScrollPane(tree);
-    LuaScrollableControl.scrollableControlInheritedConstructor(state, self, jScrollPane);
+    LuaScrollableControl.scrollableControlInheritedConstructor(lua, 1, jScrollPane);
 
-    return Constants.NIL;
+    return 1;
   }
   
-  public static LuaNumber getIndentationWidth(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getIndentationWidth(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue setIndentationWidth(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int setIndentationWidth(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue expandAll(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int expandAll(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue collapseAll(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int collapseAll(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getNodes(LuaState state, LuaValue self) throws LuaError, UnwindThrowable {
-    JTree jTree = LuaTreeView.jTreeSelf(state, self);
+  private static int getNodes(Lua lua) {
+    JTree jTree = LuaTreeView.jTreeSelf(lua, 1);
     return LuaTreeNodeList.newLuaTreeNodeList(
-        state,
+        lua,
+        Lua51Consts.LUA_ENVIRONINDEX,
         jTree,
         (DefaultMutableTreeNode)jTree.getModel().getRoot()
     );
   }
   
-  public static LuaValue getSelectedNode(LuaState state, LuaValue self) throws LuaError { 
-    return LuaTools.findLuaObjectFromObject(LuaTreeView.jTreeSelf(state, self).getLastSelectedPathComponent());
+  private static int getSelectedNode(Lua lua) {
+    LuaObject.findLuaObjectFromObject(LuaTreeView.jTreeSelf(lua, 1).getLastSelectedPathComponent());
+    return 1;
   }
   
-  public static LuaValue setSelectedNode(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int setSelectedNode(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getItemAt(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int getItemAt(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getFilter(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int getFilter(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue setFilter(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int setFilter(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getSortMethod(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getSortMethod(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue setSortMethod(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int setSortMethod(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue refresh(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int refresh(Lua lua) {
+    return 1;
   }  
 }

@@ -1,99 +1,86 @@
 package delta.games.lotro.lua.turbine.plugin;
 
-import static org.squiddev.cobalt.ValueFactory.userdataOf;
-
-import javax.swing.JButton;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
-
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.OperationHelper;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.RegisteredFunction;
-
 import delta.games.lotro.client.plugin.Plugin;
-import delta.games.lotro.lua.turbine.Turbine;
-import delta.games.lotro.lua.turbine.ui.tree.LuaTreeNodeList;
+import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
+import party.iroiro.luajava.Lua.Conversion;
 
 /**
  * @author MaxThlon
  */
-public class LuaPlugin
-{
-  private static LuaTable _luaPluginClass;
+public class LuaPlugin {
 
-  public static void add(LuaState state, LuaTable turbine) throws LuaError, UnwindThrowable {
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = PluginData.add(lua);
+  	if (error != Lua.LuaError.OK) return error;
 
-    _luaPluginClass = Turbine._luaClass.call(state, Turbine._luaObjectClass).checkTable();
-    RegisteredFunction.bind(_luaPluginClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", LuaPlugin::constructor),
-        RegisteredFunction.of("GetName", LuaPlugin::getName),
-        RegisteredFunction.of("GetVersion", LuaPlugin::getVersion),
-        RegisteredFunction.of("GetAuthor", LuaPlugin::getAuthor),
-        RegisteredFunction.of("GetConfiguration", LuaPlugin::getConfiguration),
-        RegisteredFunction.of("Load", LuaPlugin::load),
-        RegisteredFunction.of("Unload", LuaPlugin::unload),
-        RegisteredFunction.of("getOptionsPanel", LuaPlugin::getConfiguration)
-    });
-    turbine.rawset("Plugin", _luaPluginClass);
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	if (error != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaPlugin::constructor);
+    LuaTools.setFunction(lua, -1, -3, "GetName", LuaPlugin::getName);
+    LuaTools.setFunction(lua, -1, -3, "GetVersion", LuaPlugin::getVersion);
+    LuaTools.setFunction(lua, -1, -3, "GetAuthor", LuaPlugin::getAuthor);
+    LuaTools.setFunction(lua, -1, -3, "GetConfiguration", LuaPlugin::getConfiguration);
+    LuaTools.setFunction(lua, -1, -3, "Load", LuaPlugin::load);
+    LuaTools.setFunction(lua, -1, -3, "Unload", LuaPlugin::unload);
+    LuaTools.setFunction(lua, -1, -3, "GetOptionsPanel", LuaPlugin::getOptionsPanel);
+
+    lua.setField(-2, "Plugin");
+    
+    error = PluginManager.add(lua);
+    return error;
   }
   
-  public static Plugin pluginSelf(LuaState state, LuaValue self) throws LuaError {
-    return LuaTools.objectSelf(state, self, Plugin.class);
+  public static Plugin pluginSelf(Lua lua, int index) {
+    return LuaObject.objectSelf(lua, index, Plugin.class);
   }
 
-  public static LuaTable newLuaPlugin(LuaState state, Plugin plugin) throws LuaError, UnwindThrowable {
-    LuaTable luaPlugin = OperationHelper.call(
-        state,
-        _luaPluginClass,
-        userdataOf(plugin)
-    ).checkTable();
-
-    return luaPlugin;
+  public static int newLuaPlugin(Lua lua, int envIndex, Plugin plugin) {
+  	LuaTools.pushValue(lua, envIndex, "Turbine", "Object");
+    lua.push(plugin, Conversion.NONE);
+    lua.pCall(1,1);
+    
+    return 1;
   }
   
-  public static LuaValue constructor(LuaState state, LuaValue self, LuaValue plugin) throws LuaError {
-    Turbine.ObjectInheritedConstructor(
-        state,
+  public static int constructor(Lua lua) {
+    /*Turbine.ObjectInheritedConstructor(
+        lua,
         self,
         LuaTools.optUserdata(plugin, Plugin.class, null),
         null,
         null
-    );
-    return Constants.NIL;
+    );*/
+    return 1;
   }
   
-  public static LuaValue getName(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getName(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getVersion(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getVersion(Lua lua) {
+    return 1;
   }
 
-  public static LuaValue getAuthor(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getAuthor(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getConfiguration(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getConfiguration(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue load(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int load(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue unload(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int unload(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getOptionsPanel(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getOptionsPanel(Lua lua) {
+    return 1;
   }
 }

@@ -1,36 +1,37 @@
 package delta.games.lotro.lua.turbine.plugin;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.RegisteredFunction;
-
-import delta.games.lotro.lua.turbine.Turbine;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
 
 /**
  * @author MaxThlon
  */
 public class PluginData
 {
-  public static void add(LuaState state, LuaTable turbineEnv) {
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
 
-    LuaTable pluginData=RegisteredFunction.bind(new RegisteredFunction[]{
-        RegisteredFunction.of("Load", PluginData::load),
-        RegisteredFunction.of("Save", PluginData::save)
-    });
-    turbineEnv.rawset("PluginData", pluginData);
+  	if ((error = LuaObject.callInherit(lua, -3, "Turbine", "Object")) != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", PluginData::constructor);
+    LuaTools.setFunction(lua, -1, -3, "Load", PluginData::load);
+    LuaTools.setFunction(lua, -1, -3, "Save", PluginData::save);
+
+    lua.setField(-2, "PluginData");
+    return error;
   }
   
-  public static LuaValue load(LuaState state, LuaValue self) {
+  private static int constructor(Lua lua) {
+    return 1;
+  }
 
-    return Constants.NIL;
+  private static int load(Lua lua) {
+
+    return 1;
   }
   
-  public static LuaValue save(LuaState state, LuaValue self) {
+  private static int save(Lua lua) {
 
-    return Constants.NIL;
+    return 1;
   }
 }

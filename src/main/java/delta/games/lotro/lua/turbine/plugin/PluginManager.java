@@ -1,56 +1,61 @@
 package delta.games.lotro.lua.turbine.plugin;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
 
 /**
  * @author MaxThlon
  */
 public class PluginManager
 {
-  public static void add(LuaState state, LuaTable turbine) {
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	if (error != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", PluginManager::constructor);
+    LuaTools.setFunction(lua, -1, -3, "GetAvailablePlugins", PluginManager::getAvailablePlugins);
+    LuaTools.setFunction(lua, -1, -3, "GetLoadedPlugins", PluginManager::getLoadedPlugins);
+    LuaTools.setFunction(lua, -1, -3, "LoadPlugin", PluginManager::loadPlugin);
+    LuaTools.setFunction(lua, -1, -3, "RefreshAvailablePlugins", PluginManager::refreshAvailablePlugins);
+    LuaTools.setFunction(lua, -1, -3, "ShowOptions", PluginManager::showOptions);
+    LuaTools.setFunction(lua, -1, -3, "UnloadScriptState", PluginManager::unloadScriptState);
 
-    LuaTable pluginManager = RegisteredFunction.bind(new RegisteredFunction[]{
-        RegisteredFunction.of("GetAvailablePlugins", PluginManager::getAvailablePlugins),
-        RegisteredFunction.of("GetLoadedPlugins", PluginManager::getLoadedPlugins),
-        RegisteredFunction.of("LoadPlugin", PluginManager::loadPlugin),
-        RegisteredFunction.of("RefreshAvailablePlugins", PluginManager::refreshAvailablePlugins),
-        RegisteredFunction.of("ShowOptions", PluginManager::showOptions),
-        RegisteredFunction.of("UnloadScriptState", PluginManager::unloadScriptState)
-    });
-    turbine.rawset("PluginManager", pluginManager);
+    lua.setField(-2, "PluginManager");
+    return error;
   }
   
-  public static LuaValue getAvailablePlugins(LuaState state, LuaValue self) {
-
-    return Constants.NIL;
+  private static int constructor(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getLoadedPlugins(LuaState state, LuaValue self) {
+  private static int getAvailablePlugins(Lua lua) {
 
-    return Constants.NIL;
+    return 1;
   }
   
-  public static LuaValue loadPlugin(LuaState state, LuaValue self) {
+  private static int getLoadedPlugins(Lua lua) {
 
-    return Constants.NIL;
+    return 1;
   }
   
-  public static LuaValue refreshAvailablePlugins(LuaState state, LuaValue self) {
+  private static int loadPlugin(Lua lua) {
 
-    return Constants.NIL;
+    return 1;
   }
   
-  public static LuaValue showOptions(LuaState state, LuaValue self) {
+  private static int refreshAvailablePlugins(Lua lua) {
 
-    return Constants.NIL;
+    return 1;
   }
   
-  public static LuaValue unloadScriptState(LuaState state, LuaValue self) {
+  private static int showOptions(Lua lua) {
 
-    return Constants.NIL;
+    return 1;
+  }
+  
+  private static int unloadScriptState(Lua lua) {
+
+    return 1;
   }
 }

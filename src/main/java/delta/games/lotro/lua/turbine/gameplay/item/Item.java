@@ -1,143 +1,146 @@
 package delta.games.lotro.lua.turbine.gameplay.item;
 
-import static org.squiddev.cobalt.ValueFactory.tableOf;
-import static org.squiddev.cobalt.ValueFactory.valueOf;
-
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaBoolean;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaNumber;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import java.util.HashMap;
 
 import delta.games.lotro.common.enums.ItemClass;
 import delta.games.lotro.common.enums.LotroEnumsRegistry;
 import delta.games.lotro.lore.items.ItemQuality;
+import delta.games.lotro.lua.turbine.engine.Engine;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.JFunction;
+import party.iroiro.luajava.Lua;
 
 /**
  * @author MaxThlon
  */
 public class Item
 {
-  public static void add(LuaState state, LuaTable gameplayEnv,
-                         LuaFunction luaClass, LuaValue luaEntityClass) throws LuaError, UnwindThrowable {
-    LuaTable itemCategoryTable = new LuaTable();
-    for (ItemClass itemClass:LotroEnumsRegistry.getInstance().get(ItemClass.class).getAll()) {
-      itemCategoryTable.rawset(valueOf(itemClass.getLabel()), valueOf(itemClass.getCode()));
-    }
-    gameplayEnv.rawset("ItemCategory", itemCategoryTable);
-    
-    gameplayEnv.rawset("ItemDurability", tableOf(
-        valueOf("Undefined"), valueOf(0),
-        valueOf("Substantial"), valueOf(1),
-        valueOf("Brittle"), valueOf(2),
-        valueOf("Normal"), valueOf(3),
-        valueOf("Tough"), valueOf(4),
-        valueOf("Flimsy"), valueOf(5),
-        valueOf("Indestructible"), valueOf(6),
-        valueOf("Weak"), valueOf(7)
-    ));
-    
-    LuaTable itemQualityTable = new LuaTable();
-    for (ItemQuality itemQuality:LotroEnumsRegistry.getInstance().get(ItemQuality.class).getAll()) {
-      itemQualityTable.rawset(valueOf(itemQuality.getKey()), valueOf(itemQuality.getCode()));
-    }
-    gameplayEnv.rawset("ItemQuality", itemQualityTable);
-    
-    gameplayEnv.rawset("ItemWearState", tableOf(
-        valueOf("Undefined"), valueOf(0),
-        valueOf("Pristine"), valueOf(1),
-        valueOf("Worn"), valueOf(2),
-        valueOf("Damaged"), valueOf(3),
-        valueOf("Broken"), valueOf(4)
-    ));
+  @SuppressWarnings("boxing")
+	public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
 
-    ItemInfo.add(state, gameplayEnv);
+    lua.push(new HashMap<String, Integer>() {{
+      for (ItemClass itemClass:LotroEnumsRegistry.getInstance().get(ItemClass.class).getAll()) {
+        put(itemClass.getLabel(), itemClass.getCode());
+      }
+    }}, Lua.Conversion.FULL);
+    lua.setField(-2, "ItemCategory");
 
-    LuaTable luaItemClass = luaClass.call(state, luaEntityClass).checkTable();
-    RegisteredFunction.bind(luaItemClass, new RegisteredFunction[]{
-      RegisteredFunction.of("Constructor", Item::constructor),
-      RegisteredFunction.of("GetCategory", Item::getCategory),
-      RegisteredFunction.of("GetItemInfo", Item::getItemInfo),
-      RegisteredFunction.of("IsMagic", Item::isMagic),
-      RegisteredFunction.of("GetEffects", Item::getEffects),
-      RegisteredFunction.of("GetQuality", Item::getQuality),
-      RegisteredFunction.of("GetDurability", Item::getDurability),
-      RegisteredFunction.of("GetWearState", Item::getWearState),
+    lua.push(new HashMap<String, Integer>() {{
+        put("Undefined", 0);
+        put("Substantial", 1);
+        put("Brittle", 2);
+        put("Normal", 3);
+        put("Tough", 4);
+        put("Flimsy", 5);
+        put("Indestructible", 6);
+        put("Weak", 7);
+    }}, Lua.Conversion.FULL);
+    lua.setField(-2, "ItemDurability");
 
-      RegisteredFunction.of("GetMaxStackSize", Item::getMaxStackSize),
-      RegisteredFunction.of("GetQuantity", Item::getQuantity),
-      
-      RegisteredFunction.of("GetIconImageID", Item::getIconImageID),
-      RegisteredFunction.of("GetBackgroundImageID", Item::getBackgroundImageID),
-      RegisteredFunction.of("GetQualityImageID", Item::getQualityImageID),
-      RegisteredFunction.of("GetUnderlayImageID", Item::getUnderlayImageID),
-      RegisteredFunction.of("GetShadowImageID", Item::getShadowImageID)
-    });
-    gameplayEnv.rawset("Item", luaItemClass);
+    lua.push(new HashMap<String, Integer>() {{
+      for (ItemQuality itemQuality:LotroEnumsRegistry.getInstance().get(ItemQuality.class).getAll()) {
+        put(itemQuality.getKey(), itemQuality.getCode());
+      }
+    }}, Lua.Conversion.FULL);
+    lua.setField(-2, "ItemQuality");
+
+    lua.push(new HashMap<String, Integer>() {{
+        put("Undefined", 0);
+        put("Pristine", 1);
+        put("Worn", 2);
+        put("Damaged", 3);
+        put("Broken", 4);
+    }}, Lua.Conversion.FULL);
+    lua.setField(-2, "ItemWearState");
+
+    error = ItemInfo.add(lua);
+    if (error != Lua.LuaError.OK) return error;
+
+    error = LuaObject.callInherit(lua, -3, "Turbine", "Gameplay", "Entity");
+    if (error != Lua.LuaError.OK) return error;
+    LuaTools.setFunction(lua, -1, -3, "Constructor", Item::constructor);
+    lua.push((JFunction)Item::constructor);
+    lua.setField(-2, "Constructor");
+    LuaTools.setFunction(lua, -1, -3, "GetCategory", Item::getCategory);
+    LuaTools.setFunction(lua, -1, -3, "GetItemInfo", Item::getItemInfo);
+    LuaTools.setFunction(lua, -1, -3, "IsMagic", Item::isMagic);
+    LuaTools.setFunction(lua, -1, -3, "GetEffects", Item::getEffects);
+    LuaTools.setFunction(lua, -1, -3, "GetQuality", Item::getQuality);
+    LuaTools.setFunction(lua, -1, -3, "GetDurability", Item::getDurability);
+    LuaTools.setFunction(lua, -1, -3, "GetWearState", Item::getWearState);
+    
+    LuaTools.setFunction(lua, -1, -3, "GetMaxStackSize", Item::getMaxStackSize);
+    LuaTools.setFunction(lua, -1, -3, "GetQuantity", Item::getQuantity);
+    
+    LuaTools.setFunction(lua, -1, -3, "GetIconImageID", Item::getIconImageID);
+    LuaTools.setFunction(lua, -1, -3, "GetBackgroundImageID", Item::getBackgroundImageID);
+    LuaTools.setFunction(lua, -1, -3, "GetQualityImageID", Item::getQualityImageID);
+    LuaTools.setFunction(lua, -1, -3, "GetUnderlayImageID", Item::getUnderlayImageID);
+    LuaTools.setFunction(lua, -1, -3, "GetShadowImageID", Item::getShadowImageID);
+
+    lua.setField(-2, "Item");
+    return error;
   }
   
-  public static LuaValue constructor(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int constructor(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getCategory(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getCategory(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getItemInfo(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getItemInfo(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean isMagic(LuaState state, LuaValue self) {
-    return Constants.FALSE;
+  private static int isMagic(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getEffects(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getEffects(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getQuality(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getQuality(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getDurability(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getDurability(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getWearState(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getWearState(Lua lua) {
+    return 1;
   }
   
-  public static LuaNumber getMaxStackSize(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getMaxStackSize(Lua lua) {
+    return 1;
   }
   
-  public static LuaNumber getQuantity(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getQuantity(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getIconImageID(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getIconImageID(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getBackgroundImageID(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getBackgroundImageID(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getQualityImageID(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getQualityImageID(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getUnderlayImageID(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getUnderlayImageID(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getShadowImageID(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getShadowImageID(Lua lua) {
+    return 1;
   }
 }

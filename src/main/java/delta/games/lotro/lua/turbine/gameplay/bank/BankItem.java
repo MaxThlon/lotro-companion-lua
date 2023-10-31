@@ -1,54 +1,46 @@
 package delta.games.lotro.lua.turbine.gameplay.bank;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaBoolean;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaNumber;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaString;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
 
 /**
  * @author MaxThlon
  */
 public class BankItem
 {
-  public static LuaTable add(LuaState state, LuaTable gameplayEnv,
-                             LuaFunction luaClass, LuaValue luaObjectClass) throws LuaError, UnwindThrowable {
-    LuaTable luaBankClass = luaClass.call(state, luaObjectClass).checkTable();
-    RegisteredFunction.bind(luaBankClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", BankItem::constructor),
-        RegisteredFunction.of("GetChest", BankItem::getChest),
-        RegisteredFunction.of("GetBoundOwner", BankItem::getBoundOwner),
-        RegisteredFunction.of("GetQuantity", BankItem::getQuantity),
-        RegisteredFunction.of("GetItem", BankItem::GetWearState)
-    });
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	if (error != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", BankItem::constructor);
+    LuaTools.setFunction(lua, -1, -3, "GetChest", BankItem::getChest);
+    LuaTools.setFunction(lua, -1, -3, "GetBoundOwner", BankItem::getBoundOwner);
+    LuaTools.setFunction(lua, -1, -3, "GetQuantity", BankItem::getQuantity);
+    LuaTools.setFunction(lua, -1, -3, "GetWearState", BankItem::getWearState);
+
+    lua.setField(-2, "BankItem");
     
-    gameplayEnv.rawset("Bank", luaBankClass);
-    return luaBankClass;
+    return error;
   }
   
-  private static LuaValue constructor(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int constructor(Lua lua) {
+    return 1;
   }
   
-  private static LuaValue getChest(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getChest(Lua lua) {
+    return 1;
   }
   
-  private static LuaValue getBoundOwner(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getBoundOwner(Lua lua) {
+    return 1;
   }
   
-  private static LuaNumber getQuantity(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getQuantity(Lua lua) {
+    return 1;
   }
   
-  private static LuaValue GetWearState(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getWearState(Lua lua) {
+    return 1;
   }
 }

@@ -1,53 +1,50 @@
 package delta.games.lotro.lua.turbine.gameplay.effect;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaBoolean;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaNumber;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import party.iroiro.luajava.JFunction;
+import party.iroiro.luajava.Lua;
 
 /**
  * @author MaxThlon
  */
 public class EffectList
 {
-  public static LuaTable add(LuaState state, LuaTable gameplayEnv,
-                             LuaFunction luaClass, LuaValue luaObjectClass) throws LuaError, UnwindThrowable {
-    LuaTable luaEffectListClass = luaClass.call(state, luaObjectClass).checkTable();
-    RegisteredFunction.bind(luaEffectListClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", EffectList::constructor),
-        RegisteredFunction.of("GetCount", EffectList::getCount),
-        RegisteredFunction.of("Get", EffectList::get),
-        RegisteredFunction.of("Contains", EffectList::contains),
-        RegisteredFunction.of("IndexOf", EffectList::indexOf)
-    });
-
-    gameplayEnv.rawset("EffectList", luaEffectListClass);
-    return luaEffectListClass;
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	if (error != Lua.LuaError.OK) return error;
+    lua.push((JFunction)EffectList::constructor);
+    lua.setField(-2, "Constructor");
+    lua.push((JFunction)EffectList::getCount);
+    lua.setField(-2, "GetCount");
+    lua.push((JFunction)EffectList::get);
+    lua.setField(-2, "Get");
+    lua.push((JFunction)EffectList::contains);
+    lua.setField(-2, "Contains");
+    lua.push((JFunction)EffectList::indexOf);
+    lua.setField(-2, "IndexOf");
+    lua.setField(-2, "EffectList");
+    
+    return error;
   }
   
-  public static LuaValue constructor(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  public static int constructor(Lua lua) {
+    return 1;
   }
   
-  public static LuaNumber getCount(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  public static int getCount(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue get(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  public static int get(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean contains(LuaState state, LuaValue self) {
-    return Constants.FALSE;
+  public static int contains(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue indexOf(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  public static int indexOf(Lua lua) {
+    return 1;
   }
 }

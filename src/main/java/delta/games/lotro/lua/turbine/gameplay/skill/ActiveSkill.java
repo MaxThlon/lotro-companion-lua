@@ -1,40 +1,51 @@
 package delta.games.lotro.lua.turbine.gameplay.skill;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaBoolean;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import party.iroiro.luajava.JFunction;
+import party.iroiro.luajava.Lua;
 
 /**
  * ActiveSkill library for lua scripts.
  * @author MaxThlon
  */
 public class ActiveSkill {
-  public static void add(LuaState state, LuaTable gameplayEnv) {
-    gameplayEnv.rawset("ActiveSkill", RegisteredFunction.bind(new RegisteredFunction[]{
-        RegisteredFunction.of("IsUsable", ActiveSkill::isUsable),
-        RegisteredFunction.of("GetBaseCooldown", ActiveSkill::getBaseCooldown),
-        RegisteredFunction.of("GetCooldown", ActiveSkill::getCooldown),
-        RegisteredFunction.of("GetResetTime", ActiveSkill::getResetTime)
-    }));
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	if (error != Lua.LuaError.OK) return error;
+    lua.push((JFunction)ActiveSkill::constructor);
+    lua.setField(-2, "Constructor");
+    lua.push((JFunction)ActiveSkill::isUsable);
+    lua.setField(-2, "IsUsable");
+    lua.push((JFunction)ActiveSkill::getBaseCooldown);
+    lua.setField(-2, "GetBaseCooldown");
+    lua.push((JFunction)ActiveSkill::getCooldown);
+    lua.setField(-2, "GetCooldown");
+    lua.push((JFunction)ActiveSkill::getResetTime);
+    lua.setField(-2, "GetResetTime");
+
+    lua.setField(-2, "ActiveSkill");
+    return error;
   }
   
-  public static LuaBoolean isUsable(LuaState state, LuaValue self) {
-    return Constants.FALSE;
+  private static int constructor(Lua lua) {
+    return 1;
+  }
+
+  private static int isUsable(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getBaseCooldown(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getBaseCooldown(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getCooldown(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getCooldown(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getResetTime(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getResetTime(Lua lua) {
+    return 1;
   }
 }
 

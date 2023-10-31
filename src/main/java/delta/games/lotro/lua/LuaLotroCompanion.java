@@ -1,19 +1,11 @@
 package delta.games.lotro.lua;
 
-import static org.squiddev.cobalt.ValueFactory.valueOf;
-
 import java.awt.Dimension;
 
 import javax.swing.JInternalFrame;
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.function.LibFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
 
-import delta.games.lotro.lua.turbine.ui.UI;
+import party.iroiro.luajava.Lua;
+import party.iroiro.luajava.value.LuaValue;
 
 /**
  * LuaLotroCompanion library for lua scripts.
@@ -27,16 +19,16 @@ public abstract class LuaLotroCompanion {
 
   public LuaLotroCompanion() {}
   
-  public static void add(LuaState state, LuaTable env) throws LuaError {
-    LibFunction.setGlobalLibrary(state, env, "LotroCompanion", RegisteredFunction.bind(new RegisteredFunction[]{
+  public static void add(Lua lua, LuaValue env) {
+    /*LibFunction.setGlobalLibrary(state, env, "LotroCompanion", RegisteredFunction.bind(new RegisteredFunction[]{
         RegisteredFunction.of("Activate", LuaLotroCompanion::Activate),
         RegisteredFunction.of("AddTranslation", LuaLotroCompanion::AddTranslation),
         RegisteredFunction.of("TranslationPopulate", LuaLotroCompanion::TranslationPopulate)
-    }));
+    }));*/
   }
 
-  public static LuaValue Activate(LuaState state, LuaValue value) {
-    //LuaTable languages = value.checkTable();
+  public static int Activate(Lua lua, LuaValue value) {
+    //LuaValue languages = value.checkTable();
     //columnCount = languages.count();
     jInternalFrame = new JInternalFrame("Translation");
     jInternalFrame.setOpaque(false);
@@ -46,11 +38,11 @@ public abstract class LuaLotroCompanion {
     
     jInternalFrame.add(_translationPanelController.getPanel());*/
 
-    UI.jDesktopPane.add(jInternalFrame);
+    //UI.jDesktopPane.add(jInternalFrame);
     jInternalFrame.pack();
     jInternalFrame.setVisible(true);
     jInternalFrame.toFront();
-    return Constants.NIL;
+    return 1;
   }
 
   /*public DefaultMutableTreeNode searchNode(String translateId) {
@@ -68,10 +60,10 @@ public abstract class LuaLotroCompanion {
     return null;
   }*/
 
-  public static LuaValue AddTranslation(LuaState state,
-                                        LuaValue language,
-                                        LuaValue translateId,
-                                        LuaValue translateValue) {
+  public static int AddTranslation(Lua lua,
+                                   LuaValue language,
+                                   LuaValue translateId,
+                                   LuaValue translateValue) {
     /*DefaultTreeModel treeModel = (DefaultTreeModel)jTree.getModel();
     DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)treeModel.getRoot();
     
@@ -89,19 +81,19 @@ public abstract class LuaLotroCompanion {
         rootNode.getChildCount()
     );
     jTree.expandPath(new TreePath(rootNode.getPath()));*/
-    return Constants.NIL;
+    return 1;
   }
   
-  public static LuaValue TranslationPopulate(LuaState state, LuaValue luaTranslation) throws LuaError {
-    String[] translations = new String[] {"Ani", "Sam", "Joe"};
+  public static int TranslationPopulate(Lua lua, LuaValue luaTranslation) {
+    /*String[] translations = new String[] {"Ani", "Sam", "Joe"};
     String _english = translations[0];
 
     int i = 0;
-    LuaTable _luaTranslation = luaTranslation.checkTable();
+    LuaValue _luaTranslation = luaTranslation.checkTable();
     for (String translation: translations) {
-      _luaTranslation.rawset(_english, valueOf((i++ == 0)?"":translation));
-    }
+      _luaTranslation.set(_english, valueOf((i++ == 0)?"":translation));
+    }*/
 
-    return Constants.NIL;
+    return 1;
   }
 }

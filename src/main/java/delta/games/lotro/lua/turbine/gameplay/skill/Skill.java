@@ -1,28 +1,38 @@
 package delta.games.lotro.lua.turbine.gameplay.skill;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaBoolean;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import party.iroiro.luajava.JFunction;
+import party.iroiro.luajava.Lua;
 
 /**
  * ActiveSkill library for lua scripts.
  * @author MaxThlon
  */
 public class Skill {
-  public static void add(LuaState state, LuaTable gameplayEnv) {
-    SkillInfo.add(state, gameplayEnv);
-    ActiveSkill.add(state, gameplayEnv);
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = SkillInfo.add(lua);
+  	if (error != Lua.LuaError.OK) return error;
+  	error = ActiveSkill.add(lua);
+    if (error != Lua.LuaError.OK) return error;
     
-    gameplayEnv.rawset("Skill", RegisteredFunction.bind(new RegisteredFunction[]{
-        RegisteredFunction.of("GetSkillInfo", Skill::getSkillInfo)
-    }));
+    error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+    if (error != Lua.LuaError.OK) return error;
+    lua.push((JFunction)Skill::constructor);
+    lua.setField(-2, "Constructor");
+    lua.push((JFunction)Skill::getSkillInfo);
+    lua.setField(-2, "GetSkillInfo");
+    
+    lua.setField(-2, "Skill");
+    return error;
   }
 
-  public static LuaValue getSkillInfo(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  public static int constructor(Lua lua) {
+    return 1;
+  }
+
+  private static int getSkillInfo(Lua lua) {
+    return 1;
   }
 }
 

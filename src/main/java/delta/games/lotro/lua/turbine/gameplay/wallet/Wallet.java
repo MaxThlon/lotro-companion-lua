@@ -1,47 +1,39 @@
 package delta.games.lotro.lua.turbine.gameplay.wallet;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaBoolean;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaNumber;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaString;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
 
 /**
  * @author MaxThlon
  */
 public class Wallet
 {
-  public static LuaTable add(LuaState state, LuaTable gameplayEnv,
-                             LuaFunction luaClass, LuaValue luaObjectClass) throws LuaError, UnwindThrowable {
-    
-    WalletItem.add(state, gameplayEnv, luaClass, luaObjectClass);
-    
-    LuaTable luaWalletClass = luaClass.call(state, luaObjectClass).checkTable();
-    RegisteredFunction.bind(luaWalletClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", Wallet::constructor),
-        RegisteredFunction.of("GetSize", Wallet::getSize),
-        RegisteredFunction.of("GetItem", Wallet::getItem)
-    });
-    
-    gameplayEnv.rawset("Wallet", luaWalletClass);
-    return luaWalletClass;
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = WalletItem.add(lua);
+  	if (error != Lua.LuaError.OK) return error;
+
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	if (error != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", Wallet::constructor);
+    LuaTools.setFunction(lua, -1, -3, "GetSize", Wallet::getSize);
+    LuaTools.setFunction(lua, -1, -3, "GetItem", Wallet::getItem);
+
+    if ((error = lua.pCall(1, 1)) != Lua.LuaError.OK) return error;
+    lua.setField(-2, "Wallet");
+    return error;
   }
   
-  public static LuaValue constructor(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int constructor(Lua lua) {
+    return 1;
   }
   
-  public static LuaNumber getSize(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getSize(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getItem(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getItem(Lua lua) {
+    return 1;
   }
 }

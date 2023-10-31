@@ -1,28 +1,14 @@
 package delta.games.lotro.lua.turbine.ui;
 
-import static org.squiddev.cobalt.ValueFactory.valueOf;
-
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.ErrorFactory;
-import org.squiddev.cobalt.LuaBoolean;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaNumber;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaString;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.OperationHelper;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
-
-import delta.common.ui.swing.labels.MultilineLabel;
+import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
 
 /**
  * LuaLabel library for lua scripts.
@@ -30,195 +16,193 @@ import delta.games.lotro.lua.utils.LuaTools;
  */
 public abstract class LuaLabel {
 
-  public static LuaTable add(LuaState state,
-                             LuaTable uiEnv,
-                             LuaFunction luaClass,
-                             LuaValue luaScrollableControlClass) throws LuaError, UnwindThrowable {
-
-    LuaTable luaLabelClass = OperationHelper.call(state, luaClass, luaScrollableControlClass).checkTable();
-
-    RegisteredFunction.bind(luaLabelClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", LuaLabel::Constructor),
-        RegisteredFunction.of("IsMultiline", LuaLabel::IsMultiline),
-        RegisteredFunction.of("SetMultiline", LuaLabel::SetMultiline),
-        RegisteredFunction.of("IsMarkupEnabled", LuaLabel::IsMarkupEnabled),
-        
-        RegisteredFunction.of("GetFont", LuaLabel::GetFont),
-        RegisteredFunction.of("SetFont", LuaLabel::SetFont),
-        RegisteredFunction.of("GetFontStyle", LuaLabel::GetFontStyle),
-        RegisteredFunction.of("SetFontStyle", LuaLabel::SetFontStyle),
-        RegisteredFunction.of("GetTextAlignment", LuaLabel::GetTextAlignment),
-        RegisteredFunction.of("SetTextAlignment", LuaLabel::SetTextAlignment),
-        RegisteredFunction.of("GetForeColor", LuaLabel::GetForeColor),
-        RegisteredFunction.of("SetForeColor", LuaLabel::SetForeColor),
-        RegisteredFunction.of("GetOutlineColor", LuaLabel::GetOutlineColor),
-        RegisteredFunction.of("SetOutlineColor", LuaLabel::SetOutlineColor),
-        
-        RegisteredFunction.of("GetTextLength", LuaLabel::GetTextLength),
-        RegisteredFunction.of("GetText", LuaLabel::GetText),
-        RegisteredFunction.of("SetText", LuaLabel::SetText),
-        RegisteredFunction.of("AppendText", LuaLabel::AppendText),
-        RegisteredFunction.of("InsertText", LuaLabel::InsertText),
-
-
-        
-        RegisteredFunction.of("IsSelectable", LuaLabel::IsSelectable),
-        RegisteredFunction.of("SetSelectable", LuaLabel::SetSelectable),
-        RegisteredFunction.of("SelectAll", LuaLabel::SelectAll),
-        RegisteredFunction.of("DeselectAll", LuaLabel::DeselectAll),
-        RegisteredFunction.of("SetSelection", LuaLabel::SetSelection),
-        RegisteredFunction.of("GetSelectedText", LuaLabel::GetSelectedText),
-        RegisteredFunction.of("SetSelectedText", LuaLabel::SetSelectedText),
-        RegisteredFunction.of("GetSelectionLength", LuaLabel::GetSelectionLength),
-        RegisteredFunction.of("SetSelectionLength", LuaLabel::SetSelectionLength),
-        RegisteredFunction.of("SetSelectionStart", LuaLabel::SetSelectionStart),
-        RegisteredFunction.of("GetSelectionStart", LuaLabel::GetSelectionStart)
-    });
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "UI", "ScrollableControl");
+  	if (error != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaLabel::constructor);
+  	LuaTools.setFunction(lua, -1, -3, "IsMultiline", LuaLabel::isMultiline);
+  	LuaTools.setFunction(lua, -1, -3, "SetMultiline", LuaLabel::setMultiline);
+  	LuaTools.setFunction(lua, -1, -3, "IsMarkupEnabled", LuaLabel::isMarkupEnabled);
+  	LuaTools.setFunction(lua, -1, -3, "GetFont", LuaLabel::getFont);
+  	LuaTools.setFunction(lua, -1, -3, "SetFont", LuaLabel::setFont);
+  	LuaTools.setFunction(lua, -1, -3, "GetFontStyle", LuaLabel::getFontStyle);
+  	LuaTools.setFunction(lua, -1, -3, "SetFontStyle", LuaLabel::setFontStyle);
+  	LuaTools.setFunction(lua, -1, -3, "GetTextAlignment", LuaLabel::getTextAlignment);
+  	LuaTools.setFunction(lua, -1, -3, "SetTextAlignment", LuaLabel::setTextAlignment);
+  	LuaTools.setFunction(lua, -1, -3, "GetForeColor", LuaLabel::getForeColor);
+  	LuaTools.setFunction(lua, -1, -3, "SetForeColor", LuaLabel::setForeColor);
+  	LuaTools.setFunction(lua, -1, -3, "GetOutlineColor", LuaLabel::getOutlineColor);
+  	LuaTools.setFunction(lua, -1, -3, "SetOutlineColor", LuaLabel::setOutlineColor);
     
-    uiEnv.rawset("Label", luaLabelClass);
+  	LuaTools.setFunction(lua, -1, -3, "GetTextLength", LuaLabel::getTextLength);
+    LuaTools.setFunction(lua, -1, -3, "GetText", LuaLabel::getText);
+    LuaTools.setFunction(lua, -1, -3, "SetText", LuaLabel::setText);
+    LuaTools.setFunction(lua, -1, -3, "AppendText", LuaLabel::appendText);
+    LuaTools.setFunction(lua, -1, -3, "InsertText", LuaLabel::insertText);
     
-    return luaLabelClass;
+    LuaTools.setFunction(lua, -1, -3, "IsSelectable", LuaLabel::isSelectable);
+    LuaTools.setFunction(lua, -1, -3, "SetSelectable", LuaLabel::setSelectable);
+    LuaTools.setFunction(lua, -1, -3, "SelectAll", LuaLabel::selectAll);
+    LuaTools.setFunction(lua, -1, -3, "DeselectAll", LuaLabel::deselectAll);
+    LuaTools.setFunction(lua, -1, -3, "SetSelection", LuaLabel::setSelection);
+    LuaTools.setFunction(lua, -1, -3, "GetSelectedText", LuaLabel::getSelectedText);
+    LuaTools.setFunction(lua, -1, -3, "SetSelectedText", LuaLabel::setSelectedText);
+    LuaTools.setFunction(lua, -1, -3, "GetSelectionLength", LuaLabel::getSelectionLength);
+    LuaTools.setFunction(lua, -1, -3, "SetSelectionLength", LuaLabel::setSelectionLength);
+    LuaTools.setFunction(lua, -1, -3, "GetSelectionStart", LuaLabel::getSelectionStart);
+    LuaTools.setFunction(lua, -1, -3, "SetSelectionStart", LuaLabel::setSelectionStart);
+
+    lua.setField(-2, "Label");
+    return error;
   }
 
-  public static LuaValue Constructor(LuaState state, LuaValue self) throws LuaError {
+  private static int constructor(Lua lua) {
     //MultilineLabel label = new MultilineLabel();
     JLabel label = new JLabel();
-    LuaControl.controlInheritedConstructor(state, self, label);
+    LuaControl.controlInheritedConstructor(lua, 1, label);
 
-    return Constants.NIL;
+    return 1;
   }
   
-  public static LuaBoolean IsMultiline(LuaState state, LuaValue self) {
-    return Constants.FALSE;
+  private static int isMultiline(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue SetMultiline(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
-  }
-
-  public static LuaBoolean IsMarkupEnabled(LuaState state, LuaValue self) {
-    return Constants.FALSE;
-  }
-  
-  
-  public static LuaValue GetFont(LuaState state, LuaValue self) {  
-    return Constants.NIL;
+  private static int setMultiline(Lua lua) {
+    return 1;
   }
 
-  public static LuaValue SetFont(LuaState state, LuaValue self, LuaValue value) {
-    //MultilineLabel2 multilineLabel = self.metatag(state, valueOf("objectSelf")).checkUserdata(MultilineLabel2.class);
+  private static int isMarkupEnabled(Lua lua) {
+    return 1;
+  }
+  
+  
+  private static int getFont(Lua lua) {  
+    return 1;
+  }
+
+  private static int setFont(Lua lua) {
+    //MultilineLabel2 multilineLabel = self.metatag(lua, valueOf("objectSelf")).checkUserdata(MultilineLabel2.class);
     //multilineLabel.getDefaultStyle().getFont().    
-    return Constants.NIL;
+    return 1;
   }
   
-  public static LuaValue GetFontStyle(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getFontStyle(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue SetFontStyle(LuaState state, LuaValue self, LuaValue value) { 
-    return Constants.NIL;
+  private static int setFontStyle(Lua lua) { 
+    return 1;
   }
   
-  public static LuaValue GetTextAlignment(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getTextAlignment(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue SetTextAlignment(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int setTextAlignment(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue GetForeColor(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getForeColor(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue SetForeColor(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int setForeColor(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue GetOutlineColor(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getOutlineColor(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue SetOutlineColor(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int setOutlineColor(Lua lua) {
+    return 1;
   }
 
   
-  public static LuaNumber GetTextLength(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getTextLength(Lua lua) {
+    return 1;
   }
   
-  public static LuaString GetText(LuaState state, LuaValue self) throws LuaError {
-    JComponent jComponent = LuaTools.objectSelf(state, self, JComponent.class);
+  private static int getText(Lua lua) {
+    JComponent jComponent = LuaObject.objectSelf(lua, 1, JComponent.class);
     if (JLabel.class.isAssignableFrom(jComponent.getClass())) {
-      return valueOf(((JLabel)jComponent).getText());
+    	return LuaTools.invokeAndWait(lua, () -> lua.push(((JLabel)jComponent).getText()));
     } else if (JTextArea.class.isAssignableFrom(jComponent.getClass())) {
-      return valueOf(((JTextArea)jComponent).getText());
+    	return LuaTools.invokeAndWait(lua, () -> lua.push(((JTextArea)jComponent).getText()));
     } else if (JButton.class.isAssignableFrom(jComponent.getClass())) {
-      return valueOf(((JButton)jComponent).getText());
-    } else throw ErrorFactory.typeError(self, MultilineLabel.class.getName());
+    	return LuaTools.invokeAndWait(lua, () -> lua.push(((JButton)jComponent).getText()));
+    }
+    lua.push("Type error in LuaLabel:GetText");
+    return -1;
   }
   
-  public static LuaValue SetText(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    JComponent jComponent = LuaTools.objectSelf(state, self, JComponent.class);
-    if (JLabel.class.isAssignableFrom(jComponent.getClass())) {
-      ((JLabel)jComponent).setText(value.checkString());
-    } else if (JButton.class.isAssignableFrom(jComponent.getClass())) {
-      ((JButton)jComponent).setText(value.checkString());
-    } else throw ErrorFactory.typeError(self, MultilineLabel.class.getName());
+  private static int setText(Lua lua) {
+    JComponent jComponent = LuaObject.objectSelf(lua, 1, JComponent.class);
+    String value = lua.toString(2);
 
-    return Constants.NIL;
+    if (JLabel.class.isAssignableFrom(jComponent.getClass())) {    	
+    	SwingUtilities.invokeLater(() -> ((JLabel)jComponent).setText(value));
+      return 1;
+    } else if (JButton.class.isAssignableFrom(jComponent.getClass())) {
+    	SwingUtilities.invokeLater(() -> ((JButton)jComponent).setText(value));
+      return 1;
+    }
+
+    lua.push("Type error in LuaLabel:SetText");
+    return -1;
   }
   
-  public static LuaValue AppendText(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int appendText(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue InsertText(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int insertText(Lua lua) {
+    return 1;
   }  
   
-  public static LuaValue IsSelectable(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int isSelectable(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue SetSelectable(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int setSelectable(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue SelectAll(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int selectAll(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue DeselectAll(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int deselectAll(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue SetSelection(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int setSelection(Lua lua) {
+    return 1;
   }
   
-  public static LuaString GetSelectedText(LuaState state, LuaValue self) {
-    return Constants.EMPTYSTRING;
+  private static int getSelectedText(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue SetSelectedText(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int setSelectedText(Lua lua) {
+    return 1;
   }
   
-  public static LuaNumber GetSelectionLength(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getSelectionLength(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue SetSelectionLength(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int setSelectionLength(Lua lua) {
+    return 1;
+  }
+
+  private static int getSelectionStart(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue SetSelectionStart(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
-  }
-  
-  public static LuaValue GetSelectionStart(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int setSelectionStart(Lua lua) {
+    return 1;
   }
 }

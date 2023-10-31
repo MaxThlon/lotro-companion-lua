@@ -1,60 +1,65 @@
 package delta.games.lotro.lua.turbine.engine;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
 
 /**
  * Engine library for lua scripts.
  * @author MaxThlon
  */
 public class Engine {
-  public static void add(LuaState state, LuaTable turbineEnv) {
-    LuaTable engine=RegisteredFunction.bind(new RegisteredFunction[]{
-        RegisteredFunction.of("GetCallStack", Engine::getCallStack),
-        RegisteredFunction.of("GetDate", Engine::getDate),
-        RegisteredFunction.of("GetGameTime", Engine::getGameTime),
-        RegisteredFunction.of("GetLanguage", Engine::getLanguage),
-        RegisteredFunction.of("GetLocale", Engine::getLocale),
-        RegisteredFunction.of("GetLocalTime", Engine::getLocalTime),
-        RegisteredFunction.of("GetScriptVersion", Engine::getScriptVersion),
-        RegisteredFunction.of("ScriptLog", Engine::scriptLog)
-    });
-    turbineEnv.rawset("Engine", engine);
+  public static Lua.LuaError openPackage(Lua lua) {
+  	Lua.LuaError error;
+  	if ((error = LuaObject.callInherit(lua, -3, "Turbine", "Object")) != Lua.LuaError.OK) return error;
+    LuaTools.setFunction(lua, -1, -3, "Constructor", Engine::constructor);
+    LuaTools.setFunction(lua, -1, -3, "GetCallStack", Engine::getCallStack);
+    LuaTools.setFunction(lua, -1, -3, "GetDate", Engine::getDate);
+    LuaTools.setFunction(lua, -1, -3, "GetGameTime", Engine::getGameTime);
+    LuaTools.setFunction(lua, -1, -3, "GetLanguage", Engine::getLanguage);
+    LuaTools.setFunction(lua, -1, -3, "GetLocale", Engine::getLocale);
+    LuaTools.setFunction(lua, -1, -3, "GetLocalTime", Engine::getLocalTime);
+    LuaTools.setFunction(lua, -1, -3, "GetScriptVersion", Engine::getScriptVersion);
+    LuaTools.setFunction(lua, -1, -3, "ScriptLog", Engine::scriptLog);
+    lua.pCall(0, 1);
+    lua.setField(-2, "Engine");
+    return error;
   }
   
-  public static LuaValue getCallStack(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int constructor(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getDate(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getCallStack(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getGameTime(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getDate(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getLanguage(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getGameTime(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getLocale(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getLanguage(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getLocalTime(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getLocale(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getScriptVersion(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getLocalTime(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue scriptLog(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getScriptVersion(Lua lua) {
+    return 1;
+  }
+  
+  private static int scriptLog(Lua lua) {
+    return 1;
   }
 }
 

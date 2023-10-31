@@ -1,70 +1,61 @@
 package delta.games.lotro.lua.turbine.gameplay.wallet;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaBoolean;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaNumber;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaString;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
 
 /**
  * @author MaxThlon
  */
 public class WalletItem
 {
-  public static LuaTable add(LuaState state, LuaTable gameplayEnv,
-                             LuaFunction luaClass, LuaValue luaObjectClass) throws LuaError, UnwindThrowable {
-    LuaTable luaWalletItemClass = luaClass.call(state, luaObjectClass).checkTable();
-    RegisteredFunction.bind(luaWalletItemClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", WalletItem::constructor),
-        RegisteredFunction.of("GetName", WalletItem::getName),
-        RegisteredFunction.of("GetDescription", WalletItem::getDescription),
-        RegisteredFunction.of("IsAccountItem", WalletItem::isAccountItem),
-        RegisteredFunction.of("GetQuantity", WalletItem::getQuantity),
-        RegisteredFunction.of("GetMaxQuantity", WalletItem::getMaxQuantity),
-        
-        RegisteredFunction.of("GetImage", WalletItem::getImage),
-        RegisteredFunction.of("GetSmallImage", WalletItem::getSmallImage)
-    });
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
 
-    gameplayEnv.rawset("WalletItem", luaWalletItemClass);
-    return luaWalletItemClass;
+  	if ((error = LuaObject.callInherit(lua, -3, "Turbine", "Object")) != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", WalletItem::constructor);
+    LuaTools.setFunction(lua, -1, -3, "GetName", WalletItem::getName);
+    LuaTools.setFunction(lua, -1, -3, "GetDescription", WalletItem::getDescription);
+    LuaTools.setFunction(lua, -1, -3, "IsAccountItem", WalletItem::isAccountItem);
+    LuaTools.setFunction(lua, -1, -3, "GetQuantity", WalletItem::getQuantity);
+    LuaTools.setFunction(lua, -1, -3, "GetMaxQuantity", WalletItem::getMaxQuantity);
+
+    LuaTools.setFunction(lua, -1, -3, "GetImage", WalletItem::getImage);
+    LuaTools.setFunction(lua, -1, -3, "GetSmallImage", WalletItem::getSmallImage);
+
+    lua.setField(-2, "WalletItem");
+    return error;
   }
   
-  private static LuaValue constructor(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int constructor(Lua lua) {
+    return 1;
   }
   
-  private static LuaString getName(LuaState state, LuaValue self) {
-    return Constants.EMPTYSTRING;
+  private static int getName(Lua lua) {
+    return 1;
   }
   
-  private static LuaValue getDescription(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getDescription(Lua lua) {
+    return 1;
   }
   
-  private static LuaBoolean isAccountItem(LuaState state, LuaValue self) {
-    return Constants.FALSE;
+  private static int isAccountItem(Lua lua) {
+    return 1;
   }
 
-  private static LuaNumber getQuantity(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getQuantity(Lua lua) {
+    return 1;
   }
   
-  private static LuaNumber getMaxQuantity(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getMaxQuantity(Lua lua) {
+    return 1;
   }
   
-  private static LuaValue getImage(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getImage(Lua lua) {
+    return 1;
   }
   
-  private static LuaValue getSmallImage(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getSmallImage(Lua lua) {
+    return 1;
   }
 }

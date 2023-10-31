@@ -1,43 +1,39 @@
 package delta.games.lotro.lua.turbine.gameplay.entity;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaBoolean;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaString;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import party.iroiro.luajava.JFunction;
+import party.iroiro.luajava.Lua;
 
 /**
  * @author MaxThlon
  */
 public class Entity
 {
-  public static LuaTable add(LuaState state, LuaTable gameplayEnv,
-                             LuaFunction luaClass, LuaValue luaObjectClass) throws LuaError, UnwindThrowable {
-    LuaTable luaEntityClass = luaClass.call(state, luaObjectClass).checkTable();
-    RegisteredFunction.bind(luaEntityClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", Entity::constructor),
-        RegisteredFunction.of("GetName", Entity::getName),
-        RegisteredFunction.of("IsLocalPlayer", Entity::isLocalPlayer),
-    });
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	if (error != Lua.LuaError.OK) return error;
+    lua.push((JFunction)Entity::constructor);
+    lua.setField(-2, "Constructor");
+    lua.push((JFunction)Entity::getName);
+    lua.setField(-2, "GetName");
+    lua.push((JFunction)Entity::isLocalPlayer);
+    lua.setField(-2, "IsLocalPlayer");
+
+    lua.setField(-2, "Entity");
     
-    gameplayEnv.rawset("Entity", luaEntityClass);
-    return luaEntityClass;
+    return error;
   }
   
-  public static LuaValue constructor(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  public static int constructor(Lua lua) {
+    return 1;
   }
   
-  public static LuaString getName(LuaState state, LuaValue self) {
-    return Constants.EMPTYSTRING;
+  public static int getName(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean isLocalPlayer(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  public static int isLocalPlayer(Lua lua) {
+    return 1;
   }
 }

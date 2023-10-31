@@ -1,42 +1,51 @@
 package delta.games.lotro.lua.turbine.gameplay.skill;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaBoolean;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaString;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import party.iroiro.luajava.JFunction;
+import party.iroiro.luajava.Lua;
 
 /**
  * SkillInfo library for lua scripts.
  * @author MaxThlon
  */
 public class SkillInfo {
-  public static void add(LuaState state, LuaTable gameplayEnv) {
-    gameplayEnv.rawset("SkillInfo", RegisteredFunction.bind(new RegisteredFunction[]{
-        RegisteredFunction.of("GetType", SkillInfo::getType),
-        RegisteredFunction.of("GetName", SkillInfo::getName),
-        RegisteredFunction.of("GetDescription", SkillInfo::getDescription),
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	if (error != Lua.LuaError.OK) return error;
+    lua.push((JFunction)SkillInfo::constructor);
+    lua.setField(-2, "Constructor");
+    lua.push((JFunction)SkillInfo::getType);
+    lua.setField(-2, "GetType");
+    lua.push((JFunction)SkillInfo::getName);
+    lua.setField(-2, "GetName");
+    lua.push((JFunction)SkillInfo::getDescription);
+    lua.setField(-2, "GetDescription");
+    lua.push((JFunction)SkillInfo::getIconImageID);
+    lua.setField(-2, "GetIconImageID");
 
-        RegisteredFunction.of("GetIconImageID", SkillInfo::getIconImageID)
-    }));
+    lua.setField(-2, "SkillInfo");
+    return error;
   }
   
-  public static LuaValue getType(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int constructor(Lua lua) {
+    return 1;
   }
 
-  public static LuaString getName(LuaState state, LuaValue self) {
-    return Constants.EMPTYSTRING;
+  private static int getType(Lua lua) {
+    return 1;
+  }
+
+  private static int getName(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getDescription(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getDescription(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getIconImageID(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getIconImageID(Lua lua) {
+    return 1;
   }
 }
 

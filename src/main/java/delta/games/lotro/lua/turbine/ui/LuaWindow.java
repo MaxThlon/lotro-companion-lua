@@ -1,29 +1,14 @@
 package delta.games.lotro.lua.turbine.ui;
 
-import static org.squiddev.cobalt.ValueFactory.valueOf;
-import static org.squiddev.cobalt.ValueFactory.varargsOf;
-
 import java.awt.Dimension;
 
 import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
-import javax.swing.JPanel;
-
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaNumber;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.OperationHelper;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.Varargs;
-import org.squiddev.cobalt.function.RegisteredFunction;
 
 import delta.common.ui.swing.JFrame;
 import delta.common.ui.swing.windows.DefaultWindowController;
-import delta.games.lotro.lua.turbine.Turbine;
+import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
 
 /**
  * LuaWindow library for lua scripts.
@@ -31,45 +16,43 @@ import delta.games.lotro.lua.utils.LuaTools;
  */
 public abstract class LuaWindow {
 
-  public static void add(LuaState state,
-                         LuaTable uiEnv,
-                         LuaValue luaControlClass) throws LuaError, UnwindThrowable {
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "UI", "Control");
+  	if (error != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaWindow::constructor);
+  	LuaTools.setFunction(lua, -1, -3, "Activate", LuaWindow::activate);
+    LuaTools.setFunction(lua, -1, -3, "Close", LuaWindow::close);
 
-    LuaTable luaWindowClass = OperationHelper.call(state, Turbine._luaClass, luaControlClass).checkTable();
-    RegisteredFunction.bind(luaWindowClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", LuaWindow::constructor),
-        RegisteredFunction.of("Activate", LuaWindow::activate),
-        RegisteredFunction.of("Close", LuaWindow::close),
-        
-        RegisteredFunction.of("GetMinimumWidth", LuaWindow::getMinimumWidth),
-        RegisteredFunction.of("SetMinimumWidth", LuaWindow::setMinimumWidth),
-        RegisteredFunction.of("GetMinimumHeight", LuaWindow::getMinimumHeight),
-        RegisteredFunction.of("SetMinimumHeight", LuaWindow::setMinimumHeight),
-        RegisteredFunction.ofV("GetMinimumSize", LuaWindow::getMinimumSize),
-        RegisteredFunction.of("SetMinimumSize", LuaWindow::setMinimumSize),
-        RegisteredFunction.of("GetMaximumWidth", LuaWindow::getMaximumWidth),
-        RegisteredFunction.of("SetMaximumWidth", LuaWindow::setMaximumWidth),
-        RegisteredFunction.of("GetMaximumHeight", LuaWindow::getMaximumHeight),
-        RegisteredFunction.of("SetMaximumHeight", LuaWindow::setMaximumHeight),
-        RegisteredFunction.ofV("GetMaximumSize", LuaWindow::getMaximumSize),
-        RegisteredFunction.of("SetMaximumSize", LuaWindow::setMaximumSize),
-        
-        RegisteredFunction.of("GetRotation", LuaWindow::getRotation),
-        RegisteredFunction.of("SetRotation", LuaWindow::setRotation),
+    LuaTools.setFunction(lua, -1, -3, "GetMinimumWidth", LuaWindow::getMinimumWidth);
+    LuaTools.setFunction(lua, -1, -3, "SetMinimumWidth", LuaWindow::setMinimumWidth);
+    LuaTools.setFunction(lua, -1, -3, "GetMinimumHeight", LuaWindow::getMinimumHeight);
+    LuaTools.setFunction(lua, -1, -3, "SetMinimumHeight", LuaWindow::setMinimumHeight);
+    LuaTools.setFunction(lua, -1, -3, "GetMinimumSize", LuaWindow::getMinimumSize);
+    LuaTools.setFunction(lua, -1, -3, "SetMinimumSize", LuaWindow::setMinimumSize);
+    LuaTools.setFunction(lua, -1, -3, "GetMaximumWidth", LuaWindow::getMaximumWidth);
+    LuaTools.setFunction(lua, -1, -3, "SetMaximumWidth", LuaWindow::setMaximumWidth);
+    LuaTools.setFunction(lua, -1, -3, "GetMaximumHeight", LuaWindow::getMaximumHeight);
+    LuaTools.setFunction(lua, -1, -3, "SetMaximumHeight", LuaWindow::setMaximumHeight);
+    LuaTools.setFunction(lua, -1, -3, "GetMaximumSize", LuaWindow::getMaximumSize);
+    LuaTools.setFunction(lua, -1, -3, "SetMaximumSize", LuaWindow::setMaximumSize);
 
-        RegisteredFunction.of("GetText", LuaWindow::getText),
-        RegisteredFunction.of("SetText", LuaWindow::setText)
-    });
-    
-    uiEnv.rawset("Window", luaWindowClass);
+    LuaTools.setFunction(lua, -1, -3, "GetRotation", LuaWindow::getRotation);
+    LuaTools.setFunction(lua, -1, -3, "SetRotation", LuaWindow::setRotation);
+
+    LuaTools.setFunction(lua, -1, -3, "GetText", LuaWindow::getText);
+    LuaTools.setFunction(lua, -1, -3, "SetText", LuaWindow::setText);
+
+    lua.setField(-2, "Window");
+    return error;
   }
 
-  public static DefaultWindowController objectSelf(LuaState state, LuaValue self) throws LuaError {
-    return LuaTools.objectSelf(state, self, DefaultWindowController.class);
+  public static DefaultWindowController windowControllerSelf(Lua lua, int index) {
+    return LuaObject.objectSelf(lua, index, DefaultWindowController.class);
   }
-  
-  public static LuaValue constructor(LuaState state, LuaValue self) throws LuaError {
-    DefaultWindowController defaultWindowController=new DefaultWindowController() {
+
+  private static int constructor(Lua lua) {
+  	DefaultWindowController defaultWindowController=new DefaultWindowController() {
       @Override
       protected JFrame build() {
         JFrame frame=super.build();
@@ -81,120 +64,127 @@ public abstract class LuaWindow {
         return null;
       }
     };
-    LuaControl.controlInheritedConstructor(state, self, defaultWindowController);
-
-    return Constants.NIL;
+    return LuaControl.controlInheritedConstructor(lua, 1, defaultWindowController);
   }
   
-  public static LuaValue activate(LuaState state, LuaValue self) throws LuaError {
-    DefaultWindowController windowController=objectSelf(state, self);
+  private static int activate(Lua lua) {
+    DefaultWindowController windowController=windowControllerSelf(lua, 1);
     windowController.bringToFront();
-    return Constants.NIL;
+    return 1;
   }
 
-  public static LuaValue close(LuaState state, LuaValue self) throws LuaError {
-    /*try {
-      objectSelf(state, self).getFrame().setClosed(true);
+  private static int close(Lua lua) {
+    /*
+     LuaValue self = lua.get();
+      objectSelf(lua, self).getFrame().setClosed(true);
     } catch (PropertyVetoException e) {
       e.printStackTrace();
     }*/
-    return Constants.NIL;
+    return 1;
   }
 
-  public static LuaNumber getMinimumWidth(LuaState state, LuaValue self) throws LuaError {
-    return valueOf(objectSelf(state, self).getFrame().getMinimumSize().width);
+  private static int getMinimumWidth(Lua lua) {
+    lua.push(windowControllerSelf(lua, 1).getFrame().getMinimumSize().width);
+    return 1;
   }
   
-  public static LuaValue setMinimumWidth(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    JFrame frame = objectSelf(state, self).getFrame();
+  private static int setMinimumWidth(Lua lua) {
+    JFrame frame = windowControllerSelf(lua, 1).getFrame();
     Dimension dimension = frame.getMinimumSize();
-    dimension.width = value.checkInteger();
+    dimension.width = (int)lua.toNumber(2);
     frame.setMinimumSize(dimension);
-    return Constants.NIL;
+    return 1;
   }
   
-  public static LuaNumber getMinimumHeight(LuaState state, LuaValue self) throws LuaError {
-    return valueOf(objectSelf(state, self).getFrame().getMinimumSize().height);
+  private static int getMinimumHeight(Lua lua) {
+    lua.push(windowControllerSelf(lua, 1).getFrame().getMinimumSize().height);
+    return 1;
   }
   
-  public static LuaValue setMinimumHeight(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    JFrame frame = objectSelf(state, self).getFrame();
+  private static int setMinimumHeight(Lua lua) {
+    JFrame frame = windowControllerSelf(lua, 1).getFrame();
     Dimension dimension = frame.getMinimumSize();
-    dimension.height = value.checkInteger();
+    dimension.height = (int)lua.toNumber(2);
     frame.setMinimumSize(dimension);
-    return Constants.NIL;
+    return 1;
   }
   
-  public static Varargs getMinimumSize(LuaState state, Varargs varargs) throws LuaError {
-    JFrame frame = objectSelf(state, varargs.first()).getFrame();
+  private static int getMinimumSize(Lua lua) {
+    JFrame frame = windowControllerSelf(lua, 1).getFrame();
     Dimension dimension = frame.getMinimumSize();
-    
-    return varargsOf(valueOf(dimension.width), valueOf(dimension.height));
+    lua.push(dimension.width);
+    lua.push(dimension.height);
+    return 1;
   }
   
-  public static LuaValue setMinimumSize(LuaState state, LuaValue self, LuaValue width, LuaValue height) throws LuaError {
-    JFrame frame = objectSelf(state, self).getFrame();
+  private static int setMinimumSize(Lua lua) {
+    JFrame frame = windowControllerSelf(lua, 1).getFrame();
     Dimension dimension = frame.getMinimumSize();
-    dimension.width = width.checkInteger();
-    dimension.height = height.checkInteger();
+    dimension.width = (int)lua.toNumber(2);
+    dimension.height = (int)lua.toNumber(3);
     frame.setMinimumSize(dimension);
-    return Constants.NIL;
+    return 1;
   }
 
-  public static LuaNumber getMaximumWidth(LuaState state, LuaValue self) throws LuaError {
-    return valueOf(objectSelf(state, self).getFrame().getMaximumSize().width);
+  private static int getMaximumWidth(Lua lua) {
+    lua.push(windowControllerSelf(lua, 1).getFrame().getMaximumSize().width);
+    return 1;
   }
   
-  public static LuaValue setMaximumWidth(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    JFrame frame = objectSelf(state, self).getFrame();
+  private static int setMaximumWidth(Lua lua) {
+    JFrame frame = windowControllerSelf(lua, 1).getFrame();
     Dimension dimension = frame.getMaximumSize();
-    dimension.width = value.checkInteger();
+    dimension.width = (int)lua.toNumber(2);
     frame.setMaximumSize(dimension);
-    return Constants.NIL;
+    return 1;
   }
   
-  public static LuaNumber getMaximumHeight(LuaState state, LuaValue self) throws LuaError {
-    return valueOf(objectSelf(state, self).getFrame().getMaximumSize().height);
+  private static int getMaximumHeight(Lua lua) {
+    lua.push(windowControllerSelf(lua, 1).getFrame().getMaximumSize().height);
+    return 1;
   }
   
-  public static LuaValue setMaximumHeight(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    JFrame frame = objectSelf(state, self).getFrame();
+  private static int setMaximumHeight(Lua lua) {
+    JFrame frame = windowControllerSelf(lua, 1).getFrame();
     Dimension dimension = frame.getMaximumSize();
-    dimension.height = value.checkInteger();
+    dimension.height = (int)lua.toNumber(2);
     frame.setMaximumSize(dimension);
-    return Constants.NIL;
+    return 1;
   }
   
-  public static Varargs getMaximumSize(LuaState state, Varargs varargs) throws LuaError {
-    JFrame frame = objectSelf(state, varargs.first()).getFrame();
+  private static int getMaximumSize(Lua lua) {
+    JFrame frame = windowControllerSelf(lua, 1).getFrame();
     Dimension dimension = frame.getMaximumSize();
     
-    return varargsOf(valueOf(dimension.width), valueOf(dimension.height));
+    lua.push(dimension.width);
+    lua.push(dimension.height);
+    return 1;
   }
   
-  public static LuaValue setMaximumSize(LuaState state, LuaValue self, LuaValue width, LuaValue height) throws LuaError {
-    JFrame frame = objectSelf(state, self).getFrame();
+  private static int setMaximumSize(Lua lua) {
+    JFrame frame = windowControllerSelf(lua, 1).getFrame();
     Dimension dimension = frame.getMaximumSize();
-    dimension.width = width.checkInteger();
-    dimension.height = height.checkInteger();
+    dimension.width = (int)lua.toNumber(2);
+    dimension.height = (int)lua.toNumber(3);
     frame.setMaximumSize(dimension);
-    return Constants.NIL;
+    return 1;
   }
   
-  public static LuaNumber getRotation(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getRotation(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue setRotation(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int setRotation(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getText(LuaState state, LuaValue self) throws LuaError {
-    return valueOf(objectSelf(state, self).getFrame().getTitle());
+  private static int getText(Lua lua) {
+    lua.push(windowControllerSelf(lua, 1).getFrame().getTitle());
+    return 1;
   }
   
-  public static LuaValue setText(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    objectSelf(state, self).setTitle(value.checkString());
-    return Constants.NIL;
+  private static int setText(Lua lua) {
+    windowControllerSelf(lua, 1).setTitle(lua.toString(2));
+    return 1;
   }
 }

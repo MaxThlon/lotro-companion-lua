@@ -1,13 +1,8 @@
 package delta.games.lotro.lua.turbine.shell;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.function.RegisteredFunction;
-
-import delta.games.lotro.lua.turbine.ui.UI;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
 
 /**
  * Shell library for lua scripts.
@@ -15,37 +10,46 @@ import delta.games.lotro.lua.turbine.ui.UI;
  */
 public abstract class Shell {
 
-  public static void add(LuaState state, LuaTable turbine) {
-    
-    LuaTable shell = RegisteredFunction.bind(new RegisteredFunction[]{
-        RegisteredFunction.of("WriteLine", Shell::WriteLine),
-        RegisteredFunction.of("GetCommands", Shell::GetCommands),
-        RegisteredFunction.of("AddCommand", Shell::AddCommand),
-        RegisteredFunction.of("RemoveCommand", Shell::RemoveCommand),
-        RegisteredFunction.of("IsCommand", Shell::IsCommand)
-    });
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	
+  	if ((error = ShellCommand.add(lua)) != Lua.LuaError.OK) return error;
 
-    turbine.rawset("Shell", shell);
+  	if ((error  = LuaObject.callInherit(lua, -3, "Turbine", "Object")) != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", Shell::constructor);
+    LuaTools.setFunction(lua, -1, -3, "WriteLine", Shell::WriteLine);
+    LuaTools.setFunction(lua, -1, -3, "GetCommands", Shell::GetCommands);
+    LuaTools.setFunction(lua, -1, -3, "AddCommand", Shell::AddCommand);
+    LuaTools.setFunction(lua, -1, -3, "RemoveCommand", Shell::RemoveCommand);
+    LuaTools.setFunction(lua, -1, -3, "IsCommand", Shell::IsCommand);
+
+    if ((error = lua.pCall(0, 1)) != Lua.LuaError.OK) return error;
+    lua.setField(-2, "Shell");
+    return error;
   }
   
-  public static LuaValue WriteLine(LuaState state, LuaValue self) throws LuaError {
-    UI.dragonConsole.append(self.checkString());
-    return Constants.NIL;
+  public static int constructor(Lua lua) {
+    return 1;
+  }
+
+  public static int WriteLine(Lua lua) {
+    //UI.dragonConsole.append(self.checkString());
+    return 1;
   }
   
-  public static LuaValue GetCommands(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  public static int GetCommands(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue AddCommand(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  public static int AddCommand(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue RemoveCommand(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  public static int RemoveCommand(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue IsCommand(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  public static int IsCommand(Lua lua) {
+    return 1;
   }
 }

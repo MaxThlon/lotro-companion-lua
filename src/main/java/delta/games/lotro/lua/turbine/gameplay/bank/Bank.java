@@ -1,68 +1,62 @@
 package delta.games.lotro.lua.turbine.gameplay.bank;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaBoolean;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaNumber;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaString;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.engine.Engine;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.JFunction;
+import party.iroiro.luajava.Lua;
 
 /**
  * @author MaxThlon
  */
 public class Bank
 {
-  public static LuaTable add(LuaState state, LuaTable gameplayEnv,
-                             LuaFunction luaClass, LuaValue luaObjectClass) throws LuaError, UnwindThrowable {
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = BankItem.add(lua);
+  	if (error != Lua.LuaError.OK) return error;
+
+    LuaObject.callInherit(lua, -1, "Turbine", "Object");
+    if (error != Lua.LuaError.OK) return error;
+    LuaTools.setFunction(lua, -1, -3, "Constructor", Bank::constructor);
+    LuaTools.setFunction(lua, -1, -3, "IsAvailable", Bank::isAvailable);
+    LuaTools.setFunction(lua, -1, -3, "GetCapacity", Bank::getCapacity);
+    LuaTools.setFunction(lua, -1, -3, "GetCount", Bank::getCount);
+    LuaTools.setFunction(lua, -1, -3, "GetItem", Bank::getItem);
+    LuaTools.setFunction(lua, -1, -3, "GetChestCount", Bank::getChestCount);
+    LuaTools.setFunction(lua, -1, -3, "GetChestName", Bank::getChestName);
+
+    lua.pCall(0, 1);
+    lua.setField(-2, "Bank");
     
-    BankItem.add(state, gameplayEnv, luaClass, luaObjectClass);
-    
-    LuaTable luaBankClass = luaClass.call(state, luaObjectClass).checkTable();
-    RegisteredFunction.bind(luaBankClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", Bank::constructor),
-        RegisteredFunction.of("IsAvailable", Bank::isAvailable),
-        RegisteredFunction.of("GetCapacity", Bank::getCapacity),
-        RegisteredFunction.of("GetCount", Bank::getCount),
-        RegisteredFunction.of("GetItem", Bank::getItem),
-        
-        RegisteredFunction.of("GetChestCount", Bank::getChestCount),
-        RegisteredFunction.of("GetChestName", Bank::getChestName)
-    });
-    
-    gameplayEnv.rawset("Bank", luaBankClass);
-    return luaBankClass;
+    return error;
   }
   
-  public static LuaValue constructor(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int constructor(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean isAvailable(LuaState state, LuaValue self) {
-    return Constants.FALSE;
+  private static int isAvailable(Lua lua) {
+    return 1;
   }
   
-  public static LuaNumber getCapacity(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getCapacity(Lua lua) {
+    return 1;
   }
   
-  public static LuaNumber getCount(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getCount(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getItem(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getItem(Lua lua) {
+    return 1;
   }
   
-  public static LuaNumber getChestCount(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  private static int getChestCount(Lua lua) {
+    return 1;
   }
   
-  public static LuaString getChestName(LuaState state, LuaValue self) {
-    return Constants.EMPTYSTRING;
+  private static int getChestName(Lua lua) {
+    return 1;
   }
 }

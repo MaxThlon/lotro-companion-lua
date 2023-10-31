@@ -1,86 +1,88 @@
 package delta.games.lotro.lua.turbine.gameplay.effect;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaBoolean;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaNumber;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaString;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import party.iroiro.luajava.JFunction;
+import party.iroiro.luajava.Lua;
 
 /**
  * @author MaxThlon
  */
 public class Effect
 {
-  public static LuaTable add(LuaState state, LuaTable gameplayEnv,
-                             LuaFunction luaClass, LuaValue luaObjectClass) throws LuaError, UnwindThrowable {
-    LuaTable luaEffectClass = luaClass.call(state, luaObjectClass).checkTable();
-    RegisteredFunction.bind(luaEffectClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", Effect::constructor),
-        RegisteredFunction.of("GetID", Effect::getID),
-        RegisteredFunction.of("GetName", Effect::getName),
-        RegisteredFunction.of("GetDescription", Effect::getDescription),
-        RegisteredFunction.of("GetCategory", Effect::getCategory),
-        RegisteredFunction.of("IsDebuff", Effect::isDebuff),
-        RegisteredFunction.of("IsCurable", Effect::isCurable),
-        RegisteredFunction.of("IsDispellable", Effect::isDispellable),
-        RegisteredFunction.of("GetDuration", Effect::getDuration),
-        RegisteredFunction.of("GetStartTime", Effect::getStartTime),
-        RegisteredFunction.of("GetIcon", Effect::getIcon)
-    });
-    gameplayEnv.rawset("Effect", luaEffectClass);
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	if (error != Lua.LuaError.OK) return error;
+    lua.push((JFunction)Effect::constructor);
+    lua.setField(-2, "Constructor");
+    lua.push((JFunction)Effect::getID);
+    lua.setField(-2, "GetID");
+    lua.push((JFunction)Effect::getName);
+    lua.setField(-2, "GetName");
+    lua.push((JFunction)Effect::getDescription);
+    lua.setField(-2, "GetDescription");
+    lua.push((JFunction)Effect::getCategory);
+    lua.setField(-2, "GetCategory");
+    lua.push((JFunction)Effect::isDebuff);
+    lua.setField(-2, "IsDebuff");
+    lua.push((JFunction)Effect::isCurable);
+    lua.setField(-2, "IsCurable");
+    lua.push((JFunction)Effect::isDispellable);
+    lua.setField(-2, "IsDispellable");
+    lua.push((JFunction)Effect::getDuration);
+    lua.setField(-2, "GetDuration");
+    lua.push((JFunction)Effect::getStartTime);
+    lua.setField(-2, "GetStartTime");
+    lua.push((JFunction)Effect::getIcon);
+    lua.setField(-2, "GetIcon");
+    lua.setField(-2, "Effect");
     
-    EffectList.add(state, gameplayEnv, luaClass, luaObjectClass);
+    error = EffectList.add(lua);
     
-    return luaEffectClass;
+    return error;
   }
   
-  public static LuaValue constructor(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  public static int constructor(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getID(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  public static int getID(Lua lua) {
+    return 1;
   }
   
-  public static LuaString getName(LuaState state, LuaValue self) {
-    return Constants.EMPTYSTRING;
+  public static int getName(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getDescription(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  public static int getDescription(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getCategory(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  public static int getCategory(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean isDebuff(LuaState state, LuaValue self) {
-    return Constants.FALSE;
+  public static int isDebuff(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean isCurable(LuaState state, LuaValue self) {
-    return Constants.FALSE;
+  public static int isCurable(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean isDispellable(LuaState state, LuaValue self) {
-    return Constants.FALSE;
+  public static int isDispellable(Lua lua) {
+    return 1;
   }
   
-  public static LuaNumber getDuration(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  public static int getDuration(Lua lua) {
+    return 1;
   }
   
-  public static LuaNumber getStartTime(LuaState state, LuaValue self) {
-    return Constants.ZERO;
+  public static int getStartTime(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getIcon(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  public static int getIcon(Lua lua) {
+    return 1;
   }
 }

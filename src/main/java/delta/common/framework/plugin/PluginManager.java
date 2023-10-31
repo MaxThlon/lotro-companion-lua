@@ -5,54 +5,43 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.Buffer;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 
-import com.eleet.dragonconsole.CommandProcessor;
-import com.eleet.dragonconsole.DragonConsole;
-
-import delta.common.framework.jobs.Job;
-import delta.common.framework.jobs.JobPool;
-import delta.common.framework.jobs.JobResult;
-import delta.common.framework.jobs.MultiThreadedJobExecutor;
-import delta.common.ui.swing.JFrame;
-import delta.common.ui.swing.GuiFactory;
+import delta.common.framework.module.ModuleEvent;
+import delta.common.framework.module.ModuleExecutor;
+import delta.common.framework.module.ModuleManager;
 import delta.common.utils.application.config.main.MainApplicationConfiguration;
 import delta.games.lotro.client.plugin.Plugin;
 import delta.games.lotro.client.plugin.io.xml.PluginXMLParser;
-import delta.games.lotro.lua.LuaRunner;
+import delta.games.lotro.lua.LuaModule;
+import delta.games.lotro.lua.utils.LuaTools;
+import delta.games.lotro.utils.events.EventsManager;
 
 /**
  * PluginManager.
  * @author MaxThlon
  */
-public class PluginManager
+public class PluginManager 
 {
   private static class PluginManagerHolder {
     private static final PluginManager PLUGIN_MANAGER = new PluginManager();
-  }
-  
-  interface PluginListener {
-    public void producedResult(JobResult<?> jobResult);
   }
 
   private static final Logger LOGGER=Logger.getLogger(PluginManager.class);
 
   private PluginConfiguration _pluginConfiguration;
   private List<Plugin> _plugins;
-
-  MultiThreadedJobExecutor _jobExecutor;
-  PluginExecutor _pluginExecutor;
-  Job _job;
-
-
 
   /**
    * Get the sole instance of this class.
@@ -93,7 +82,7 @@ public class PluginManager
         .findAny()
         .orElse(null);
   }
-
+  
   /**
    * find path with matcher.
    * @param path 
@@ -123,15 +112,16 @@ public class PluginManager
     catch (IOException e)
     {
       LOGGER.error(e);
-      return List.of();
+      return new ArrayList<Plugin>();
     }
   }
   
   protected File pluginFindScriptFile(Plugin plugin) {
-    return _pluginConfiguration.getPluginsPath().resolve(plugin._package.replaceAll("\\.", "/")+".lua").toFile();
+    return _pluginConfiguration.getPluginsPath()
+    		.resolve(plugin._package.replace('.', File.separatorChar) + ".lua").toFile();
   }
   
-  protected InputStream pluginOpenScript(File scriptFile) {
+	protected InputStream pluginOpenScript(File scriptFile) {
     FileInputStream inputStream;
     try
     {
@@ -144,53 +134,66 @@ public class PluginManager
     }
     return inputStream;
   }
+
+  public LuaModule addModule(UUID moduleUuid) {
+  	LuaModule luaModule = new LuaModule(moduleUuid, null, _pluginConfiguration.getPluginsPath());
+  	ModuleManager.getInstance().addModule(luaModule);
+  	
+    return luaModule;
+  }
   
-  public PluginImpl createLuaRunner() {
-    JFrame frame=GuiFactory.buildFrame();
-    
-    DragonConsole dragonConsole = new DragonConsole(false, false);
-    frame.add(dragonConsole);
-    frame.pack();
-    frame.setVisible(true);
-    frame.toFront();
+  public void bootstrapLotro(UUID moduleUuid, Buffer buffer, String name) {
+  	addModule(moduleUuid);
 
-    CommandProcessor commandProcessor=new CommandProcessor();
-    commandProcessor.install(dragonConsole);
-    LuaRunner luaRunner=new LuaRunner(commandProcessor);
-    luaRunner.initPackageLib(_pluginConfiguration.getPluginsPath());
-    luaRunner.bootstrapSandBoxedLotro();
-    return luaRunner;
+  	EventsManager.invokeEvent(new  ModuleEvent(
+    		ModuleExecutor.ExecutorEvent.LOAD,
+    		moduleUuid,
+    		ModuleExecutor.ExecutorEvent.LOAD.name(),
+    		new Object[]{ LuaModule.LuaBootstrap.Lotro, buffer, name })
+    );
+  	EventsManager.invokeEvent(new  ModuleEvent(
+    		ModuleExecutor.ExecutorEvent.EXECUTE,
+    		moduleUuid,
+    		ModuleExecutor.ExecutorEvent.EXECUTE.name(),
+    		null
+    ));
   }
-
-  protected void initJobExecutor() {
-    if (_jobExecutor == null) {
-      _jobExecutor=new MultiThreadedJobExecutor(new JobPool(), 1);
-    }
+  
+  public void bootstrapLotro(UUID moduleUuid, Plugin plugin) {
+  	try {
+			bootstrapLotro(
+					moduleUuid,
+					LuaTools.loadBuffer(pluginFindScriptFile(plugin)),
+					plugin._package
+			);
+		} catch (FileNotFoundException e) {
+			LOGGER.error(e);
+			
+		}
   }
+  
+  public void bootstrapSandBoxedLotro(UUID moduleUuid) {
+  	addModule(moduleUuid);
 
-  /**
-   * start Lua.
-   */
-  public void startLua() {
-    initJobExecutor();
-    _pluginExecutor=new PluginExecutor(this);
-    _job=_jobExecutor.getPool().addJob(_pluginExecutor);
-    _jobExecutor.start();
+  	EventsManager.invokeEvent(new  ModuleEvent(
+    		ModuleExecutor.ExecutorEvent.LOAD,
+    		moduleUuid,
+    		ModuleExecutor.ExecutorEvent.LOAD.name(),
+    		new Object[]{ LuaModule.LuaBootstrap.LotroSandBox }
+    ));
   }
 
   /**
    * execute plugin.
+   * @param moduleUuid .
    * @param plugin .
    */
-  public void execute(Plugin plugin) {
-    _pluginExecutor.queueEvent("loadPlugin", new Object[]{ plugin });
-  }
-  
-  /**
-   * @param eventName .
-   * @param arguments .
-   */
-  public void event(String eventName, Object[] arguments) {
-    _pluginExecutor.queueEvent(eventName, arguments);
+  public void loadPlugin(UUID moduleUuid, Plugin plugin) {
+  	EventsManager.invokeEvent(new  ModuleEvent(
+    		ModuleExecutor.ExecutorEvent.LOAD,
+    		moduleUuid,
+    		ModuleExecutor.ExecutorEvent.LOAD.name(),
+    		new Object[]{ plugin }
+    ));
   }
 }

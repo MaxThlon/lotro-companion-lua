@@ -1,90 +1,83 @@
 package delta.games.lotro.lua.turbine.gameplay.entity;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaBoolean;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaString;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
 
 /**
  * @author MaxThlon
  */
 public class Actor
 {
-  public static LuaTable add(LuaState state, LuaTable gameplayEnv,
-                             LuaFunction luaClass, LuaValue luaEntityClass) throws LuaError, UnwindThrowable {
-    LuaTable luaActorClass = luaClass.call(state, luaEntityClass).checkTable();
-    RegisteredFunction.bind(luaActorClass, new RegisteredFunction[]{
-      RegisteredFunction.of("Constructor", Actor::constructor),
-      RegisteredFunction.of("GetLevel", Actor::getLevel),
-      RegisteredFunction.of("GetTarget", Actor::getTarget),
-      RegisteredFunction.of("GetEffects", Actor::getEffects),
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "Gameplay", "Entity");
+  	if (error != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", Actor::constructor);
+  	LuaTools.setFunction(lua, -1, -3, "GetLevel", Actor::getLevel);
+    LuaTools.setFunction(lua, -1, -3, "GetTarget", Actor::getTarget);
+    LuaTools.setFunction(lua, -1, -3, "GetEffects", Actor::getEffects);
+    
+    LuaTools.setFunction(lua, -1, -3, "GetMorale", Actor::getMorale);
+    LuaTools.setFunction(lua, -1, -3, "GetBaseMaxMorale", Actor::getBaseMaxMorale);
+    LuaTools.setFunction(lua, -1, -3, "GetTemporaryMorale", Actor::getTemporaryMorale);
+    LuaTools.setFunction(lua, -1, -3, "GetMaxTemporaryMorale", Actor::getMaxTemporaryMorale);
 
-      RegisteredFunction.of("GetMorale", Actor::getMorale),
-      RegisteredFunction.of("GetBaseMaxMorale", Actor::getBaseMaxMorale),
-      RegisteredFunction.of("GetTemporaryMorale", Actor::getTemporaryMorale),
-      RegisteredFunction.of("GetMaxTemporaryMorale", Actor::getMaxTemporaryMorale),
-      
-      RegisteredFunction.of("GetPower", Actor::getPower),
-      RegisteredFunction.of("GetBaseMaxPower", Actor::getBaseMaxPower),
-      RegisteredFunction.of("GetTemporaryPower", Actor::getTemporaryPower),
-      RegisteredFunction.of("GetMaxTemporaryPower", Actor::getMaxTemporaryPower)
-    });
-    gameplayEnv.rawset("Actor", luaActorClass);
-
-    return luaActorClass;
+    LuaTools.setFunction(lua, -1, -3, "GetPower", Actor::getPower);
+    LuaTools.setFunction(lua, -1, -3, "GetBaseMaxPower", Actor::getBaseMaxPower);
+    LuaTools.setFunction(lua, -1, -3, "GetTemporaryPower", Actor::getTemporaryPower);
+    LuaTools.setFunction(lua, -1, -3, "GetMaxTemporaryPower", Actor::getMaxTemporaryPower);
+    
+    lua.setField(-2, "Actor");
+    
+    return error;
   }
   
-  public static LuaValue constructor(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  public static int constructor(Lua lua) {
+    return 1;
   }
   
-  public static LuaString getLevel(LuaState state, LuaValue self) {
-    return Constants.EMPTYSTRING;
+  public static int getLevel(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getTarget(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  public static int getTarget(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getEffects(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  public static int getEffects(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getMorale(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  public static int getMorale(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getBaseMaxMorale(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  public static int getBaseMaxMorale(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getTemporaryMorale(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  public static int getTemporaryMorale(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getMaxTemporaryMorale(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  public static int getMaxTemporaryMorale(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getPower(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  public static int getPower(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getBaseMaxPower(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  public static int getBaseMaxPower(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getTemporaryPower(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  public static int getTemporaryPower(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getMaxTemporaryPower(LuaState state, LuaValue self) {
-    return Constants.TRUE;
+  public static int getMaxTemporaryPower(Lua lua) {
+    return 1;
   }
 }

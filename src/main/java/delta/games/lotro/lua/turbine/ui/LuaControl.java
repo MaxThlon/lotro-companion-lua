@@ -1,9 +1,6 @@
 package delta.games.lotro.lua.turbine.ui;
 
-import static org.squiddev.cobalt.ValueFactory.tableOf;
-import static org.squiddev.cobalt.ValueFactory.valueOf;
-import static org.squiddev.cobalt.ValueFactory.varargsOf;
-
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -25,100 +22,91 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.RootPaneContainer;
+import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaBoolean;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaNumber;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.OperationHelper;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.Varargs;
-import org.squiddev.cobalt.function.LibFunction;
-import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
-
-import delta.common.framework.plugin.PluginManager;
 import delta.common.ui.swing.Window;
 import delta.common.ui.swing.windows.WindowController;
 import delta.games.lotro.lua.turbine.Apartment;
-import delta.games.lotro.lua.turbine.Turbine;
+import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.turbine.ui.mouse.LuaMouseListener;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeSelectionListener;
 import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.JFunction;
+import party.iroiro.luajava.Lua;
+import party.iroiro.luajava.value.LuaValue;
 
 /**
  * LuaControl library for lua scripts.
  * @author MaxThlon
  */
 public abstract class LuaControl {
-  private static Logger LOGGER = Logger.getLogger(LuaControl.class);
+  //private static Logger LOGGER = Logger.getLogger(LuaControl.class);
+	public static LuaValue _newIndexMetaFunc;
+	public static LuaValue _indexMetaFunc;
 
   public static String jComponentKey_luaObjectSelf = "jComponentKey_luaObjectSelf";
   public static Object jComponentKey_luaEventsFunc = new Object();
 
-  public static LuaTable add(LuaState state,
-                             LuaTable uiEnv,
-                             LuaFunction luaClass,
-                             LuaValue luaObjectClass) throws LuaError, UnwindThrowable {
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+		
+  	/* Register luaNewIndexMetaFunc*/
+  	lua.push((JFunction)LuaControl::newIndexMetaFunc);
+  	_newIndexMetaFunc = lua.get();
+  	
+  	lua.push((JFunction)LuaControl::indexMetaFunc);
+  	_indexMetaFunc = lua.get();
+  	
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	if (error != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaControl::constructor);
+  	LuaTools.setFunction(lua, -1, -3, "GetParent", LuaControl::getParent);
+  	LuaTools.setFunction(lua, -1, -3, "SetParent", LuaControl::setParent);
+  	LuaTools.setFunction(lua, -1, -3, "GetControls", LuaControl::getControls);
+  	LuaTools.setFunction(lua, -1, -3, "Focus", LuaControl::focus);
+  	LuaTools.setFunction(lua, -1, -3, "SetVisible", LuaControl::setVisible);
+    LuaTools.setFunction(lua, -1, -3, "IsVisible", LuaControl::isVisible);
+    LuaTools.setFunction(lua, -1, -3, "GetLeft", LuaControl::getLeft);
+    LuaTools.setFunction(lua, -1, -3, "SetLeft", LuaControl::setLeft);
+    LuaTools.setFunction(lua, -1, -3, "GetTop", LuaControl::getTop);
+    LuaTools.setFunction(lua, -1, -3, "SetTop", LuaControl::setTop);
+    LuaTools.setFunction(lua, -1, -3, "GetPosition", LuaControl::getPosition);
+    LuaTools.setFunction(lua, -1, -3, "SetPosition", LuaControl::setPosition);
+    LuaTools.setFunction(lua, -1, -3, "GetWidth", LuaControl::getWidth);
+    LuaTools.setFunction(lua, -1, -3, "SetWidth", LuaControl::setWidth);
+    LuaTools.setFunction(lua, -1, -3, "GetHeight", LuaControl::getHeight);
+    LuaTools.setFunction(lua, -1, -3, "SetHeight", LuaControl::setHeight);
+    LuaTools.setFunction(lua, -1, -3, "GetSize", LuaControl::getSize);
+    LuaTools.setFunction(lua, -1, -3, "SetSize", LuaControl::setSize);
+    LuaTools.setFunction(lua, -1, -3, "GetZOrder", LuaControl::getZOrder);
+    LuaTools.setFunction(lua, -1, -3, "SetZOrder", LuaControl::setZOrder);
 
-    LuaTable luaControlClass = luaClass.call(state, luaObjectClass).checkTable();
-    RegisteredFunction.bind(luaControlClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", LuaControl::controlConstructor),
-        RegisteredFunction.of("GetParent", LuaControl::getParent),
-        RegisteredFunction.of("SetParent", LuaControl::setParent),
-        RegisteredFunction.of("GetControls", LuaControl::getControls),
-        RegisteredFunction.of("Focus", LuaControl::focus),
-        RegisteredFunction.of("SetVisible", LuaControl::setVisible),
-        RegisteredFunction.of("IsVisible", LuaControl::isVisible),
-        RegisteredFunction.of("GetLeft", LuaControl::getLeft),
-        RegisteredFunction.of("SetLeft", LuaControl::setLeft),
-        RegisteredFunction.of("GetTop", LuaControl::getTop),
-        RegisteredFunction.of("SetTop", LuaControl::setTop),
-        RegisteredFunction.ofV("GetPosition", LuaControl::getPosition),
-        RegisteredFunction.of("SetPosition", LuaControl::setPosition),
-        RegisteredFunction.of("GetWidth", LuaControl::getWidth),
-        RegisteredFunction.of("SetWidth", LuaControl::setWidth),
-        RegisteredFunction.of("GetHeight", LuaControl::getHeight),
-        RegisteredFunction.of("SetHeight", LuaControl::setHeight),
-        RegisteredFunction.ofV("GetSize", LuaControl::getSize),
-        RegisteredFunction.of("SetSize", LuaControl::setSize),
-        RegisteredFunction.of("GetZOrder", LuaControl::getZOrder),
-        RegisteredFunction.of("SetZOrder", LuaControl::setZOrder),
-        
-        RegisteredFunction.of("GetBlendMode", LuaControl::getBlendMode),
-        RegisteredFunction.of("SetBlendMode", LuaControl::setBlendMode),
-        RegisteredFunction.of("GetBackColor", LuaControl::getBackColor),
-        RegisteredFunction.of("SetBackColor", LuaControl::setBackColor),
-        RegisteredFunction.of("GetBackColorBlendMode", LuaControl::getBackColorBlendMode),
+    LuaTools.setFunction(lua, -1, -3, "GetBlendMode", LuaControl::getBlendMode);
+    LuaTools.setFunction(lua, -1, -3, "SetBlendMode", LuaControl::setBlendMode);
+    LuaTools.setFunction(lua, -1, -3, "GetBackColor", LuaControl::getBackColor);
+    LuaTools.setFunction(lua, -1, -3, "SetBackColor", LuaControl::setBackColor);
+    LuaTools.setFunction(lua, -1, -3, "GetBackColorBlendMode", LuaControl::getBackColorBlendMode);
 
-        
-        RegisteredFunction.of("GetBackground", LuaControl::getBackground),
-        RegisteredFunction.of("SetBackground", LuaControl::setBackground),
-        RegisteredFunction.of("GetOpacity", LuaControl::getOpacity),
-        RegisteredFunction.of("SetOpacity", LuaControl::setOpacity),
-        RegisteredFunction.of("GetStretchMode", LuaControl::getStretchMode),
-        RegisteredFunction.of("SetMouseVisible", LuaControl::setMouseVisible),
-        RegisteredFunction.of("IsMouseVisible", LuaControl::isMouseVisible),
-        RegisteredFunction.ofV("GetMousePosition", LuaControl::getMousePosition),
-        RegisteredFunction.of("GetAllowDrop", LuaControl::getAllowDrop),
-        RegisteredFunction.of("GetWantsUpdates", LuaControl::getWantsUpdates),
-        RegisteredFunction.of("SetWantsUpdates", LuaControl::setWantsUpdates),
-        RegisteredFunction.of("GetWantsKeyEvents", LuaControl::getWantsKeyEvents),
-        RegisteredFunction.of("SetWantsKeyEvents", LuaControl::setWantsKeyEvents),
-        
-    });
-    
-    uiEnv.rawset("Control", luaControlClass);
-    
-    return luaControlClass;
+    LuaTools.setFunction(lua, -1, -3, "GetBackground", LuaControl::getBackground);
+    LuaTools.setFunction(lua, -1, -3, "SetBackground", LuaControl::setBackground);
+    LuaTools.setFunction(lua, -1, -3, "GetOpacity", LuaControl::getOpacity);
+    LuaTools.setFunction(lua, -1, -3, "SetOpacity", LuaControl::setOpacity);
+    LuaTools.setFunction(lua, -1, -3, "GetStretchMode", LuaControl::getStretchMode);
+    LuaTools.setFunction(lua, -1, -3, "SetMouseVisible", LuaControl::setMouseVisible);
+    LuaTools.setFunction(lua, -1, -3, "IsMouseVisible", LuaControl::isMouseVisible);
+    LuaTools.setFunction(lua, -1, -3, "GetMousePosition", LuaControl::getMousePosition);
+    LuaTools.setFunction(lua, -1, -3, "GetAllowDrop", LuaControl::getAllowDrop);
+    LuaTools.setFunction(lua, -1, -3, "GetWantsUpdates", LuaControl::getWantsUpdates);
+    LuaTools.setFunction(lua, -1, -3, "SetWantsUpdates", LuaControl::setWantsUpdates);
+    LuaTools.setFunction(lua, -1, -3, "GetWantsKeyEvents", LuaControl::getWantsKeyEvents);
+    LuaTools.setFunction(lua, -1, -3, "SetWantsKeyEvents", LuaControl::setWantsKeyEvents);
+
+    lua.setField(-2, "Control");
+    return error;
   }
   
-  public static Component findComponentFromLuaObject(LuaState state, LuaValue value) throws LuaError { 
-    return findComponentFromObject(LuaTools.objectSelf(state, value));
+  public static Component findComponentFromLuaObject(Lua lua, int index) { 
+    return findComponentFromObject(LuaObject.objectSelf(lua, index));
   }
 
   public static Component findComponentFromObject(Object objectSelf) {
@@ -146,16 +134,16 @@ public abstract class LuaControl {
     return jComponent;
   }
 
-  public static Container findContainerFromLuaObject(LuaState state, LuaValue self) throws LuaError { 
-    Component component=findComponentFromObject(LuaTools.objectSelf(state, self));
+  public static Container findContainerFromLuaObject(Lua lua, int index) { 
+    Component component=findComponentFromObject(LuaObject.objectSelf(lua, index));
     if (component instanceof Container) {
       return (Container)component;
     }
     return null;
   }
   
-  public static Component findContentComponentFromLuaObject(LuaState state, LuaValue self) throws LuaError { 
-    Component viewComponent=findComponentFromObject(LuaTools.objectSelf(state, self));
+  public static Component findContentComponentFromLuaObject(Lua lua, int index) { 
+    Component viewComponent=findComponentFromObject(LuaObject.objectSelf(lua, index));
     if (viewComponent instanceof JScrollPane) {
       Component component = ((JScrollPane)viewComponent).getViewport().getView();
       if (component != null) viewComponent = component;
@@ -166,26 +154,32 @@ public abstract class LuaControl {
     return viewComponent;
   }
 
-  public static JComponent findJComponentFromLuaObject(LuaState state, LuaValue self) throws LuaError { 
-    return findJComponentFromObject(LuaTools.objectSelf(state, self));
+  public static JComponent findJComponentFromLuaObject(Lua lua, int index) { 
+    return findJComponentFromObject(LuaObject.objectSelf(lua, index));
   }
 
-  public static LuaValue luaNewIndexMetaFunc(LuaState state, LuaValue self, LuaValue key, LuaValue method) throws LuaError {
-    Component component = LuaControl.findComponentFromLuaObject(state, self);
+  private static int newIndexMetaFunc(Lua lua) {
+    String key = lua.toString(2);
+    lua.pushValue(3);
+    LuaValue method = lua.get();
+    Component component = LuaControl.findComponentFromLuaObject(lua, 1);
     if (component != null) {
-      switch(key.checkString()) {
+      switch(key) {
         case "Update": {
-          //JComponent jComponent = LuaControl.findJComponentFromLuaObject(state, self);
           break;
         }
         case "PositionChanged": {
           component.addComponentListener(new ComponentAdapter() {
             public void componentMoved(ComponentEvent event) {
-              try {
-                OperationHelper.call(state, method, self, tableOf());
-              } catch (LuaError | UnwindThrowable error) {
-                LOGGER.error(error);
-              }
+            	LuaTools.invokeEvent(
+            			lua,
+              		"PositionChanged", 
+              		new Object[]{
+              				Apartment.findApartment(lua),
+              				method,
+              				LuaObject.findLuaObjectFromObject(component)
+              		}
+              );
             }
           });
           break;
@@ -193,11 +187,7 @@ public abstract class LuaControl {
         case "SizeChanged": {
           component.addComponentListener(new ComponentAdapter() {
               public void componentResized(ComponentEvent event) {
-                try {
-                  OperationHelper.call(state, method, self, tableOf());
-                } catch (LuaError | UnwindThrowable error) {
-                  LOGGER.error(error);
-                }
+                LuaTools.invokeEvent(lua, "SizeChanged", new Object[]{Apartment.findApartment(lua), method, LuaObject.findLuaObjectFromObject(component)});
               }
           });
           break;
@@ -205,11 +195,7 @@ public abstract class LuaControl {
         case "VisibleChanged": {
           component.addComponentListener(new ComponentAdapter() {
             public void componentShown(ComponentEvent event) {
-              try {
-                OperationHelper.call(state, method, self, tableOf());
-              } catch (LuaError | UnwindThrowable error) {
-                LOGGER.error(error);
-              }
+              LuaTools.invokeEvent(lua, "VisibleChanged", new Object[]{Apartment.findApartment(lua), method, LuaObject.findLuaObjectFromObject(component)});
             }
           });
           break;
@@ -218,11 +204,7 @@ public abstract class LuaControl {
           component.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent event) {
-              try {
-                OperationHelper.call(state, method, self, tableOf());
-              } catch (LuaError | UnwindThrowable error) {
-                LOGGER.error(error);
-              }
+              LuaTools.invokeEvent(lua, "FocusGained", new Object[]{Apartment.findApartment(lua), method, LuaObject.findLuaObjectFromObject(component)});
             }
           });
           break;
@@ -231,28 +213,23 @@ public abstract class LuaControl {
           component.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent event) {
-              try {
-                OperationHelper.call(state, method, self, tableOf());
-              } catch (LuaError | UnwindThrowable error) {
-                LOGGER.error(error);
-              }
+              LuaTools.invokeEvent(lua, "FocusLost", new Object[]{Apartment.findApartment(lua), method, LuaObject.findLuaObjectFromObject(component)});
             }
           });
           break;
         }
   
         case "EnabledChanged":
-    
         case "KeyDown":
         case "KeyUp":
           break;
         case "MouseDown": {
-          LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(state, component, self);
+          LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(lua, component, LuaObject.findLuaObjectFromObject(component));
           mouseListener._luaMouseDown = method;
           break;
         }
         case "MouseClick": {
-          LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(state, component, self);
+          LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(lua, component, LuaObject.findLuaObjectFromObject(component));
           mouseListener._luaMouseClick = method;
           break;
         }
@@ -260,18 +237,18 @@ public abstract class LuaControl {
           break;
   
         case "MouseUp": {
-          LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(state, component, self);
+          LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(lua, component, LuaObject.findLuaObjectFromObject(component));
           mouseListener._luaMouseUp = method;
           break;
         }
           
         case "MouseEnter": {
-          LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(state, component, self);
+          LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(lua, component, LuaObject.findLuaObjectFromObject(component));
           mouseListener._luaMouseEnter = method;
           break;
         }
         case "MouseLeave": {
-          LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(state, component, self);
+          LuaMouseListener mouseListener = LuaMouseListener.luaIndexMetaFunc(lua, component, LuaObject.findLuaObjectFromObject(component));
           mouseListener._luaMouseLeave = method;
           break;
         }
@@ -279,11 +256,7 @@ public abstract class LuaControl {
           component.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent event) {
-                try {
-                  OperationHelper.call(state, method, self, tableOf());
-                } catch (LuaError | UnwindThrowable error) {
-                  LOGGER.error(error);
-                }
+              LuaTools.invokeEvent(lua, "MouseHover", new Object[]{Apartment.findApartment(lua), method, LuaObject.findLuaObjectFromObject(component)});
             }
           });
           break;
@@ -294,11 +267,7 @@ public abstract class LuaControl {
           component.addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent event) {
-                try {
-                  OperationHelper.call(state, method, self, tableOf());
-                } catch (LuaError | UnwindThrowable e) {
-                  LOGGER.error(e);
-                }
+              LuaTools.invokeEvent(lua, "MouseWheel", new Object[]{Apartment.findApartment(lua), method, LuaObject.findLuaObjectFromObject(component)});
             }
           });
           break;
@@ -309,14 +278,10 @@ public abstract class LuaControl {
           break;
         // Button
         case "Click": {
-          LuaButton.jButtonSelf(state, self).addActionListener(new ActionListener() {
+          LuaButton.jButtonSelf(lua, 1).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                try {
-                  PluginManager.getInstance().event("Click", new Object[]{Apartment.findApartment(state), method, self, tableOf()});
-                } catch (LuaError e) {
-                  LOGGER.error(e);
-                }
+              LuaTools.invokeEvent(lua, "Click", new Object[]{Apartment.findApartment(lua), method, LuaObject.findLuaObjectFromObject(component)});
             }
           });
           break;
@@ -324,194 +289,211 @@ public abstract class LuaControl {
         
         // TreeView
         case "SelectedNodeChanged": {
-          JTree jTree = LuaTreeView.jTreeSelf(state, self);
-          jTree.addTreeSelectionListener(new LuaTreeSelectionListener(jTree, state, self.checkTable(), method));
+          JTree jTree = LuaTreeView.jTreeSelf(lua, 1);
+          jTree.addTreeSelectionListener(new LuaTreeSelectionListener(jTree, LuaObject.findLuaObjectFromObject(component), method));
           break;
         }
       }
     }
-    self.checkTable().rawset(key, method);
 
-    return Constants.NIL;
+    lua.rawSet(1); /* Self[key]=value */
+    return 1;
   }
 
-  public static LuaValue luaIndexMetaFunc(LuaState state, LuaValue self, LuaValue key) {
-    /*JComponent jComponent = LuaControl.findJComponentFromObject(objectSelf);
-    ((LibFunction.TwoArg)jComponent.getClientProperty(LuaControl.jComponentKey_luaEventsFunc)).call(state1, self1, key);
+  public static int indexMetaFunc(Lua lua) {
+    /*LuaValue self = lua.get();
+    LuaValue key = lua.get();
+    JComponent jComponent = LuaControl.findJComponentFromObject(objectSelf);
+    ((LibFunction.TwoArg)jComponent.getClientProperty(LuaControl.jComponentKey_luaEventsFunc)).call(lua1, self1, key);
 
-    return valueOf(self1.typeName() + "[" + key.toString() + "]=xyz");*/
-    //self.checkTable().rawset(key, value);
-    return Constants.NIL;
+    lua.push(self1.typeName() + "[" + key.toString() + "]=xyz");*/
+    //self.checkTable().set(key, value);
+    return 0;
   }
 
-  public static LuaValue controlConstructor(LuaState state, LuaValue self) throws LuaError {
+  private static int constructor(Lua lua) {
     JPanel jPanel = new JPanel();
     jPanel.setLayout(null);
-    Turbine.ObjectInheritedConstructor(
-        state, self, jPanel,
-        LibFunction.create(LuaControl::luaNewIndexMetaFunc),
-        LibFunction.create(LuaControl::luaIndexMetaFunc)
+    LuaObject.ObjectInheritedConstructor(
+        lua, 1, jPanel, _newIndexMetaFunc, null
     );
-    return Constants.NIL;
+    return 1;
   }
 
-  public static LuaValue controlInheritedConstructor(LuaState state,
-                                                     LuaValue self,
-                                                     Object objectSelf) throws LuaError {
+  public static int controlInheritedConstructor(Lua lua,
+                                                int indexSelf,
+                                                Object objectSelf) {
     JComponent jComponent = findJComponentFromObject(objectSelf);
     if (jComponent != null) {
-      jComponent.putClientProperty(jComponentKey_luaObjectSelf, self);
+    	lua.pushValue(indexSelf);
+      jComponent.putClientProperty(jComponentKey_luaObjectSelf, lua.get());
     } else if (objectSelf instanceof WindowController) {
       WindowController windowController=(WindowController)objectSelf;
-      windowController.getContext().setValue(jComponentKey_luaObjectSelf, self);
+      lua.pushValue(indexSelf);
+      windowController.getContext().setValue(jComponentKey_luaObjectSelf, lua.get());
     }
     
-    Turbine.ObjectInheritedConstructor(
-        state, self, objectSelf,
-        LibFunction.create(LuaControl::luaNewIndexMetaFunc),
-        LibFunction.create(LuaControl::luaIndexMetaFunc)
+    return LuaObject.ObjectInheritedConstructor(
+        lua, indexSelf, objectSelf, _newIndexMetaFunc, null
     );
-
-    return Constants.NIL;
   }
 
-  public static LuaValue getParent(LuaState state, LuaValue self) {
-    //Container container = LuaTools.objectSelf(state, self, JComponent.class).getParent();
+  private static int getParent(Lua lua) {
+    //Container container = LuaObject.objectSelf(lua, self, JComponent.class).getParent();
     //container.getClientProperty();
-    return Constants.NIL; //Turbine.luaValueFromObject(container);
+    return 1; //Turbine.luaValueFromObject(container);
   }
   
-  public static LuaValue setParent(LuaState state, LuaValue self, LuaValue parent) throws LuaError {
-    Component component = findComponentFromLuaObject(state, self);
+  private static int setParent(Lua lua) {
+    Component component = findComponentFromLuaObject(lua, 1);
 
     if ((component != null)
         && (!(component instanceof JScrollBar))) {
-      Container container = LuaControl.findContainerFromLuaObject(state, parent);
+      Container container = LuaControl.findContainerFromLuaObject(lua, 2);
 
       if (container != null) {
         if (container instanceof JScrollPane) {
           JScrollPane scrollPane=(JScrollPane)container;
           if (scrollPane.getViewport().getView() == null)
-              scrollPane.setViewportView(component);
+          	SwingUtilities.invokeLater(() -> scrollPane.setViewportView(component));
           else {
             Component containerFromView = scrollPane.getViewport().getView();
             if (containerFromView instanceof JComponent)
-              ((JComponent)containerFromView).add(component);
+            	SwingUtilities.invokeLater(() -> ((JComponent)containerFromView).add(component));
           }
-        } else container.add(component);
+        } else SwingUtilities.invokeLater(() -> container.add(component));
       }
     }
-    return Constants.NIL;
+    return 1;
   }
 
-  public static LuaTable getControls(LuaState state, LuaValue self) {
-    return tableOf();
+  private static int getControls(Lua lua) {
+    return 1;
   }
 
-  public static LuaValue focus(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int focus(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue setVisible(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    Component component = findComponentFromLuaObject(state, self);
+  private static int setVisible(Lua lua) {
+    Component component = findComponentFromLuaObject(lua, 1);
+    boolean visible = lua.toBoolean(2);
 
-    component.setVisible(value.checkBoolean());
-    return Constants.NIL;
+    SwingUtilities.invokeLater(() -> component.setVisible(visible));
+    return 1;
   }
   
-  public static LuaBoolean isVisible(LuaState state, LuaValue self) throws LuaError {
-    Component component = findComponentFromLuaObject(state, self);
+  private static int isVisible(Lua lua) {
+    Component component = findComponentFromLuaObject(lua, 1);
 
-    return valueOf(component.isVisible());
+    LuaTools.invokeAndWait(lua, () -> lua.push(component.isVisible()));
+    return 1;
   }
   
-  public static LuaNumber getLeft(LuaState state, LuaValue self) throws LuaError {
-    Component component = findComponentFromLuaObject(state, self);
+  private static int getLeft(Lua lua) {
+    Component component = findComponentFromLuaObject(lua, 1);
 
-    return valueOf(component.getX());
+    LuaTools.invokeAndWait(lua, () -> lua.push(component.getX()));
+    return 1;
   }
   
-  public static LuaValue setLeft(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    Component component = findComponentFromLuaObject(state, self);
+  private static int setLeft(Lua lua) {
+    Component component = findComponentFromLuaObject(lua, 1);
+    int x = (int)lua.toNumber(2);
+
+    SwingUtilities.invokeLater(() -> component.setLocation(x, component.getY()));
+    return 1;
+  }
+  
+  private static int getTop(Lua lua) {
+    Component component = findComponentFromLuaObject(lua, 1);
+
+    LuaTools.invokeAndWait(lua, () -> lua.push(component.getY()));
+    return 1;
+  }
+  
+  private static int setTop(Lua lua) {
+    Component component = findComponentFromLuaObject(lua, 1);
+		int y = (int)lua.toNumber(2);
+
+    SwingUtilities.invokeLater(() -> component.setLocation(component.getX(), y));
+    return 1;
+  }
+  
+  private static int getPosition(Lua lua) {
+    Component component = findComponentFromLuaObject(lua, 1);
     
-    component.setLocation(value.checkInteger(), component.getY());
-    return Constants.NIL;
+    LuaTools.invokeAndWait(lua, () -> {
+    	lua.push(component.getX());
+    	lua.push(component.getY());
+    });
+    return 1;
   }
   
-  public static LuaNumber getTop(LuaState state, LuaValue self) throws LuaError {
-    Component component = findComponentFromLuaObject(state, self);
-
-    return valueOf(component.getY());
-  }
-  
-  public static LuaValue setTop(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    Component component = findComponentFromLuaObject(state, self);
+  private static int setPosition(Lua lua) {
+    Component component = findComponentFromLuaObject(lua, 1);
+    int x = (int)lua.toNumber(2);
+    int y = (int)lua.toNumber(3);
     
-    component.setLocation(component.getX(), value.checkInteger());
-    return Constants.NIL;
-  }
-  
-  public static Varargs getPosition(LuaState state, Varargs varargs) throws LuaError {
-    Component component = findComponentFromLuaObject(state, varargs.first());
-    
-    return varargsOf(valueOf(component.getX()), valueOf(component.getY()));
-  }
-  
-  public static LuaValue setPosition(LuaState state, LuaValue self, LuaValue left, LuaValue top) throws LuaError {
-    Component component = findComponentFromLuaObject(state, self);
-    
-    component.setLocation(left.checkInteger(), top.checkInteger());
-    
-    return Constants.NIL;
+    SwingUtilities.invokeLater(() -> component.setLocation(x, y));
+    return 1;
   }
 
-  public static LuaNumber getWidth(LuaState state, LuaValue self) throws LuaError {
-    Component component = findComponentFromLuaObject(state, self);
+  private static int getWidth(Lua lua) {
+    Component component = findComponentFromLuaObject(lua, 1);
     
     if (component instanceof Window) {
-      return valueOf(component.getPreferredSize().getWidth());
-    }
-    return valueOf(component.getWidth());
-  }
-
-  public static LuaValue setWidth(LuaState state, LuaValue self, LuaValue width) throws LuaError {
-    Component component = findComponentFromLuaObject(state, self);
-    
-    if (component instanceof Window) {
-      component.setPreferredSize(new Dimension(width.checkInteger(), component.getPreferredSize().width));
-      ((Window)component).pack();
+    	LuaTools.invokeAndWait(lua, () ->lua.push(Double.valueOf(component.getPreferredSize().getWidth())));
     } else {
-      component.setSize(new Dimension(width.checkInteger(), component.getHeight()));
+    	LuaTools.invokeAndWait(lua, () -> lua.push(component.getWidth()));
     }
-
-    return Constants.NIL;
+    return 1;
   }
 
-  public static LuaNumber getHeight(LuaState state, LuaValue self) throws LuaError {
-    Component component = findComponentFromLuaObject(state, self);
+  private static int setWidth(Lua lua) {
+    Component component = findComponentFromLuaObject(lua, 1);
+    int width = (int)lua.toNumber(2);
 
     if (component instanceof Window) {
-      return valueOf(component.getPreferredSize().getHeight());
+    	SwingUtilities.invokeLater(() -> {
+    		component.setPreferredSize(new Dimension(width, component.getPreferredSize().width));
+    		((Window)component).pack();
+    	});
+    } else {
+    	SwingUtilities.invokeLater(() -> component.setSize(new Dimension(width, component.getHeight())));
     }
-    return valueOf(component.getHeight());
+    return 1;
+  }
+
+  private static int getHeight(Lua lua) {
+    Component component = findComponentFromLuaObject(lua, 1);
+
+    if (component instanceof Window) {
+    	LuaTools.invokeAndWait(lua, () -> lua.push(Double.valueOf(component.getPreferredSize().getHeight())));
+    } else {
+    	LuaTools.invokeAndWait(lua, () -> lua.push(component.getHeight()));
+    }
+    return 1;
   }
   
-  public static LuaValue setHeight(LuaState state, LuaValue self, LuaValue height) throws LuaError {
-    Component component = findComponentFromLuaObject(state, self);
+  private static int setHeight(Lua lua) {
+    Component component = findComponentFromLuaObject(lua, 1);
+    int height = (int)lua.toNumber(2);
 
     if (component instanceof Window) {
-      component.setPreferredSize(new Dimension(component.getPreferredSize().width, height.checkInteger()));
-      ((Window)component).pack();
+    	SwingUtilities.invokeLater(() -> {
+    		component.setPreferredSize(new Dimension(component.getPreferredSize().width, height));
+    		((Window)component).pack();
+    	});
     } else {
-      component.setSize(new Dimension(component.getWidth(), height.checkInteger()));
+    	SwingUtilities.invokeLater(() -> component.setSize(new Dimension(component.getWidth(), height)));
     }
-    
-    return Constants.NIL;
+    return 1;
   }
 
-  public static Varargs getSize(LuaState state, Varargs varargs) throws LuaError {
+  private static int getSize(Lua lua) {
     Dimension dimension;
-    Component component = findComponentFromLuaObject(state, varargs.first());
+    Component component = findComponentFromLuaObject(lua, 1);
     if (component != null) {
       if (component instanceof Window) {
         dimension = component.getPreferredSize();
@@ -519,115 +501,131 @@ public abstract class LuaControl {
         dimension = component.getSize();
       }
     } else dimension = new Dimension(100,100);
-    return varargsOf(valueOf(dimension.width), valueOf(dimension.height));
+    
+    LuaTools.invokeAndWait(lua, () -> {
+    	lua.push(dimension.width);
+    	lua.push(dimension.height);
+    });
+    return 1;
   }
 
-  public static LuaValue setSize(LuaState state, LuaValue self, LuaValue width, LuaValue height) throws LuaError {    
-    Component component = findComponentFromLuaObject(state, self);
+  private static int setSize(Lua lua) {
+    Component component = findComponentFromLuaObject(lua, 1);
     if (component != null) {
+    	Dimension dimension = new Dimension((int)lua.toNumber(2), (int)lua.toNumber(3));
+
       if (component instanceof Window) {
-        component.setPreferredSize(new Dimension(width.checkInteger(), height.checkInteger()));
-        ((Window)component).pack();
+      	SwingUtilities.invokeLater(() -> {
+          component.setPreferredSize(dimension);
+          ((Window)component).pack();
+      	});
       } else {
-        component.setSize(new Dimension(width.checkInteger(), height.checkInteger()));
+      	SwingUtilities.invokeLater(() -> component.setSize(dimension));
       }
     }
-
-    return Constants.NIL;
+    return 1;
   }
 
-  public static LuaNumber getZOrder(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.ZERO;
+  private static int getZOrder(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue setZOrder(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int setZOrder(Lua lua) {
+    return 1;
   }
 
-  public static LuaValue getBlendMode(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int getBlendMode(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue setBlendMode(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int setBlendMode(Lua lua) {
+    return 1;
   }
 
-  public static LuaValue setBackColor(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    Component component = findContentComponentFromLuaObject(state, self);
+  private static int getBackColor(Lua lua) {
+    Component component = findContentComponentFromLuaObject(lua, 1);
     if (component != null) {
-      component.setBackground(UI.luaColorToColor(value));
+    	LuaTools.invokeAndWait(lua, () -> lua.push(UI.colorToLuaColor(component.getBackground()), Lua.Conversion.FULL));
     }
-    return Constants.NIL;
-  }
-  
-  public static LuaValue getBackColor(LuaState state, LuaValue self) throws LuaError {
-    Component component = findContentComponentFromLuaObject(state, self);
-    LuaValue color=Constants.NIL;
-    if (component != null) {
-      color=UI.colorToLuaColor(component.getBackground());
-    }
-    return color;
-  }
-  
-  public static LuaNumber getBackColorBlendMode(LuaState state, LuaValue self) {
-    return Constants.ZERO;
-  }
-  
-  public static LuaValue getBackground(LuaState state, LuaValue self) {
-    return Constants.NIL;
-  }
-  
-  public static LuaValue setBackground(LuaState state, LuaValue self, LuaValue backgroundImage) {
-    return Constants.NIL;
-  }
-  
-  public static LuaNumber getOpacity(LuaState state, LuaValue self) throws LuaError {
-    Component component = findContentComponentFromLuaObject(state, self);
-    return component.isOpaque()?Constants.ONE:Constants.ZERO;
+    return 1;
   }
 
-  public static LuaValue setOpacity(LuaState state, LuaValue self, LuaValue value) throws LuaError {
-    Component component = findContentComponentFromLuaObject(state, self);
-    if (component instanceof JComponent) ((JComponent)component).setOpaque(value.checkDouble()>.0);
-    return Constants.NIL;
+  private static int setBackColor(Lua lua) {
+    Component component = findContentComponentFromLuaObject(lua, 1);
+    if (component != null) {
+    	Color color = UI.luaColorToColor(lua, 1);
+    	SwingUtilities.invokeLater(() -> component.setBackground(color));
+    }
+    return 1;
   }
   
-  public static LuaValue getStretchMode(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getBackColorBlendMode(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue setMouseVisible(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.NIL;
+  private static int getBackground(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean isMouseVisible(LuaState state, LuaValue self) {
-    return Constants.FALSE;
+  private static int setBackground(Lua lua) {
+    return 1;
   }
   
-  public static Varargs getMousePosition(LuaState state, Varargs varargs) throws LuaError {
-    Component component = findComponentFromLuaObject(state, varargs.first());
-    
+  private static int getOpacity(Lua lua) {
+    Component component = findContentComponentFromLuaObject(lua, 1);
+    LuaTools.invokeAndWait(lua, () -> lua.push(component.isOpaque()));
+    return 1;
+  }
+
+  private static int setOpacity(Lua lua) {
+    /*Component component = findContentComponentFromLuaObject(lua, 1);
+    if (component instanceof JComponent) {
+    	double opacity = lua.toNumber(2);
+    	SwingUtilities.invokeLater(() -> ((JComponent)component).setOpaque(opacity >.0));
+    }*/
+    return 1;
+  }
+  
+  private static int getStretchMode(Lua lua) {
+    return 1;
+  }
+  
+  private static int setMouseVisible(Lua lua) {
+    return 1;
+  }
+  
+  private static int isMouseVisible(Lua lua) {
+    return 1;
+  }
+  
+  private static int getMousePosition(Lua lua) {
+    Component component = findComponentFromLuaObject(lua, 1);
     Point point = component.getMousePosition();
-    return varargsOf(valueOf(point.x), valueOf(point.y));
+    
+    LuaTools.invokeAndWait(lua, () -> {
+      lua.push(point.x);
+      lua.push(point.y);
+    });
+    return 1;
   }
 
-  public static LuaBoolean getAllowDrop(LuaState state, LuaValue self) {
-    return Constants.FALSE;
+  private static int getAllowDrop(Lua lua) {
+    return 1;
   }
   
-  public static LuaBoolean getWantsUpdates(LuaState state, LuaValue self) {
-    return Constants.FALSE;
+  private static int getWantsUpdates(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue setWantsUpdates(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.FALSE;
+  private static int setWantsUpdates(Lua lua) {
+    return 1;
   }
 
-  public static LuaBoolean getWantsKeyEvents(LuaState state, LuaValue self) {
-    return Constants.FALSE;
+  private static int getWantsKeyEvents(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue setWantsKeyEvents(LuaState state, LuaValue self, LuaValue value) {
-    return Constants.FALSE;
+  private static int setWantsKeyEvents(Lua lua) {
+    return 1;
   }
 }

@@ -2,17 +2,9 @@ package delta.games.lotro.lua.turbine.ui;
 
 import javax.swing.JTextArea;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.OperationHelper;
-import org.squiddev.cobalt.UnwindThrowable;
-import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.RegisteredFunction;
-
-import delta.games.lotro.lua.turbine.Turbine;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
+import party.iroiro.luajava.Lua;
 
 /**
  * LuaTextBox library for lua scripts.
@@ -20,22 +12,19 @@ import delta.games.lotro.lua.turbine.Turbine;
  */
 public abstract class LuaTextBox {
 
-  public static void add(LuaState state,
-                         LuaTable uiEnv,
-                         LuaValue luaLabelClass) throws LuaError, UnwindThrowable {
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	if ((error = LuaObject.callInherit(lua, -3, "Turbine", "UI", "Label")) != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaTextBox::constructor);
 
-    LuaTable luaTextBoxClass = OperationHelper.call(state, Turbine._luaClass, luaLabelClass).checkTable();
-    RegisteredFunction.bind(luaTextBoxClass, new RegisteredFunction[]{
-        RegisteredFunction.of("Constructor", LuaTextBox::Constructor),
-    });
-    
-    uiEnv.rawset("TextBox", luaTextBoxClass);
+    lua.setField(-2, "TextBox");
+    return error;
   }
 
-  public static LuaValue Constructor(LuaState state, LuaValue self) throws LuaError {
+  public static int constructor(Lua lua) {
     JTextArea jTextArea = new JTextArea();
-    LuaControl.controlInheritedConstructor(state, self, jTextArea);
+    LuaControl.controlInheritedConstructor(lua, 1, jTextArea);
 
-    return Constants.NIL;
+    return 1;
   }
 }

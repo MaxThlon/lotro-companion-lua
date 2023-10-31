@@ -1,12 +1,12 @@
-import "Turbine.Type"
 import "Turbine"
 import "Turbine.UI"
 import "Turbine.UI.Lotro"
 
 TestWindow = class(Turbine.UI.Window)
 
-function TestWindow:Constructor(title)
+function TestWindow:Constructor()
   Turbine.UI.Window.Constructor(self)
+  self:SetText("Debug Console");
 end;
 
 -- Test Color --
@@ -16,11 +16,11 @@ end;
 
 -- Test Window --
 
--- local window = TestWindow()
--- window:Activate()
+local window = TestWindow()
+window:Activate()
 
-import "RadioButtonGroup"
-import "DebugWindow"
+import "Test.RadioButtonGroup"
+import "Test.DebugWindow"
 
 debugWindow=DebugWindow()
 debugWindow:SetVisible(true)

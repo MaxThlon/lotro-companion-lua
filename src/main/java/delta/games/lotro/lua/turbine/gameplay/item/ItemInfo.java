@@ -1,98 +1,118 @@
 package delta.games.lotro.lua.turbine.gameplay.item;
 
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.LuaString;
-import org.squiddev.cobalt.LuaTable;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.function.RegisteredFunction;
+import delta.games.lotro.lua.turbine.object.LuaObject;
+import party.iroiro.luajava.JFunction;
+import party.iroiro.luajava.Lua;
 
 /**
  * ActiveSkill library for lua scripts.
  * @author MaxThlon
  */
 public class ItemInfo {
-  public static void add(LuaState state, LuaTable gameplayEnv) {
-    gameplayEnv.rawset("ItemInfo", RegisteredFunction.bind(new RegisteredFunction[]{
-        RegisteredFunction.of("GetName", ItemInfo::getName),
-        RegisteredFunction.of("GetNameWithQuantity", ItemInfo::getNameWithQuantity),
-        RegisteredFunction.of("GetDescription", ItemInfo::getDescription),
-        RegisteredFunction.of("GetCategory", ItemInfo::getCategory),
-        RegisteredFunction.of("IsMagic", ItemInfo::isMagic),
-        RegisteredFunction.of("IsUnique", ItemInfo::isUnique),
-        RegisteredFunction.of("GetQuality", ItemInfo::getQuality),
-        RegisteredFunction.of("GetDurability", ItemInfo::getDurability),
-        
-        RegisteredFunction.of("GetMaxQuantity", ItemInfo::getMaxQuantity),
-        RegisteredFunction.of("GetMaxStackSize", ItemInfo::getMaxStackSize),
-        
-        RegisteredFunction.of("GetIconImageID", ItemInfo::getIconImageID),
-        RegisteredFunction.of("GetBackgroundImageID", ItemInfo::getBackgroundImageID),
-        RegisteredFunction.of("GetQualityImageID", ItemInfo::getQualityImageID),
-        RegisteredFunction.of("GetUnderlayImageID", ItemInfo::getUnderlayImageID),
-        RegisteredFunction.of("GetShadowImageID", ItemInfo::getShadowImageID)
-        
-    }));
+  public static Lua.LuaError add(Lua lua) {
+  	Lua.LuaError error;
+  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	if (error != Lua.LuaError.OK) return error;
+    lua.push((JFunction)ItemInfo::constructor);
+    lua.setField(-2, "Constructor");
+    lua.push((JFunction)ItemInfo::getName);
+    lua.setField(-2, "GetName");
+    lua.push((JFunction)ItemInfo::getNameWithQuantity);
+    lua.setField(-2, "GetNameWithQuantity");
+    lua.push((JFunction)ItemInfo::getDescription);
+    lua.setField(-2, "GetDescription");
+    lua.push((JFunction)ItemInfo::getCategory);
+    lua.setField(-2, "GetCategory");
+    lua.push((JFunction)ItemInfo::isMagic);
+    lua.setField(-2, "IsMagic");
+    lua.push((JFunction)ItemInfo::isUnique);
+    lua.setField(-2, "IsUnique");
+    lua.push((JFunction)ItemInfo::getQuality);
+    lua.setField(-2, "GetQuality");
+    lua.push((JFunction)ItemInfo::getDurability);
+    lua.setField(-2, "GetDurability");
+    lua.push((JFunction)ItemInfo::getMaxQuantity);
+    lua.setField(-2, "GetMaxQuantity");
+    lua.push((JFunction)ItemInfo::getMaxStackSize);
+    lua.setField(-2, "GetMaxStackSize");
+
+    lua.push((JFunction)ItemInfo::getIconImageID);
+    lua.setField(-2, "GetIconImageID");
+    lua.push((JFunction)ItemInfo::getBackgroundImageID);
+    lua.setField(-2, "GetBackgroundImageID");
+    lua.push((JFunction)ItemInfo::getQualityImageID);
+    lua.setField(-2, "GetQualityImageID");
+    lua.push((JFunction)ItemInfo::getUnderlayImageID);
+    lua.setField(-2, "GetUnderlayImageID");
+    lua.push((JFunction)ItemInfo::getShadowImageID);
+    lua.setField(-2, "GetShadowImageID");
+
+    lua.setField(-2, "ItemInfo");
+    return error;
   }
 
-  public static LuaString getName(LuaState state, LuaValue self) {
-    return Constants.EMPTYSTRING;
-  }
-  
-  public static LuaString getNameWithQuantity(LuaState state, LuaValue self) {
-    return Constants.EMPTYSTRING;
-  }
-  
-  public static LuaValue getDescription(LuaState state, LuaValue self) {
-    return Constants.NIL;
-  }
-  
-  public static LuaValue getCategory(LuaState state, LuaValue self) {
-    return Constants.NIL;
-  }
-  
-  public static LuaValue isMagic(LuaState state, LuaValue self) {
-    return Constants.NIL;
-  }
-  
-  public static LuaValue isUnique(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int constructor(Lua lua) {
+    return 1;
   }
 
-  public static LuaValue getQuality(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getName(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getDurability(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getNameWithQuantity(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getMaxQuantity(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getDescription(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getMaxStackSize(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getCategory(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getIconImageID(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int isMagic(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getBackgroundImageID(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int isUnique(Lua lua) {
+    return 1;
+  }
+
+  private static int getQuality(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getQualityImageID(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getDurability(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getUnderlayImageID(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getMaxQuantity(Lua lua) {
+    return 1;
   }
   
-  public static LuaValue getShadowImageID(LuaState state, LuaValue self) {
-    return Constants.NIL;
+  private static int getMaxStackSize(Lua lua) {
+    return 1;
+  }
+  
+  private static int getIconImageID(Lua lua) {
+    return 1;
+  }
+  
+  private static int getBackgroundImageID(Lua lua) {
+    return 1;
+  }
+  
+  private static int getQualityImageID(Lua lua) {
+    return 1;
+  }
+  
+  private static int getUnderlayImageID(Lua lua) {
+    return 1;
+  }
+  
+  private static int getShadowImageID(Lua lua) {
+    return 1;
   }
 }
 
