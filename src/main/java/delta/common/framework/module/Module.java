@@ -16,6 +16,10 @@ public interface Module {
    */
 	boolean canAccept(ModuleEvent event);
 
+	default ModuleEvent preOffer(ModuleEvent event) {
+		return event;
+	}
+	
   /**
    * module method to handle events.
    * @param event .

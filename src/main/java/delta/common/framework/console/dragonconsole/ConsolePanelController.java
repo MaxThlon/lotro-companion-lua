@@ -1,4 +1,4 @@
-package delta.common.framework.console;
+package delta.common.framework.console.dragonconsole;
 
 import java.awt.BorderLayout;
 
@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 
 import com.eleet.dragonconsole.DragonConsole;
 
+import delta.common.framework.console.ConsoleManager;
 import delta.common.ui.swing.GuiFactory;
 import delta.common.ui.swing.panels.AbstractPanelController;
 import delta.common.ui.swing.windows.WindowController;
@@ -38,7 +39,7 @@ public class ConsolePanelController extends AbstractPanelController
   {
     JPanel panel = GuiFactory.buildPanel(new BorderLayout());
     DragonConsole dragonConsole = new DragonConsole(false, false);
-    ConsoleManager.getInstance().getCommandProcessor().install(dragonConsole);
+    dragonConsole.setCommandProcessor(ConsoleManager.getInstance().getCommandProcessor());
     panel.add(dragonConsole);
     return panel;
   }

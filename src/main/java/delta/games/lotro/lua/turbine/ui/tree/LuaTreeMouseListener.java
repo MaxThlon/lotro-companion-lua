@@ -7,7 +7,6 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import delta.games.lotro.lua.turbine.Apartment;
 import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.value.LuaValue;
@@ -37,7 +36,7 @@ public class LuaTreeMouseListener implements MouseListener {
           LuaTools.invokeEvent(
           		luaNode.state(),
               "MouseDown",
-              new Object[]{Apartment.findApartment(luaNode.state()), luaNodeCallBackFunc, luaNode});
+              new Object[]{luaNodeCallBackFunc, luaNode});
         }
       }
     }

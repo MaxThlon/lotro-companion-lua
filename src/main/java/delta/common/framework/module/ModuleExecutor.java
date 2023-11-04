@@ -206,7 +206,7 @@ public class ModuleExecutor implements JobImpl, GenericEventsListener<ModuleEven
   	if (ACCEPT_EVENT_EXECUTOR_STATE.contains(_state)) {
       synchronized (_queueLock) {
         if (_eventQueue.size() < QUEUE_LIMIT) {
-        	_eventQueue.offer(event);
+        	_eventQueue.offer(_module.preOffer(event));
         }
       }
   	}

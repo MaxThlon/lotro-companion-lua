@@ -1,7 +1,9 @@
 package delta.games.lotro.lua.turbine.ui;
 
 import javax.swing.JTextArea;
+import javax.xml.ws.Holder;
 
+import delta.common.ui.swing.GuiFactory;
 import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
@@ -10,7 +12,7 @@ import party.iroiro.luajava.Lua;
  * LuaTextBox library for lua scripts.
  * @author MaxThlon
  */
-public abstract class LuaTextBox {
+final class LuaTextBox {
 
   public static Lua.LuaError add(Lua lua) {
   	Lua.LuaError error;
@@ -22,8 +24,10 @@ public abstract class LuaTextBox {
   }
 
   public static int constructor(Lua lua) {
-    JTextArea jTextArea = new JTextArea();
-    LuaControl.controlInheritedConstructor(lua, 1, jTextArea);
+  	Holder<JTextArea> jTextArea = new Holder<JTextArea>();
+    
+    LuaTools.invokeAndWait(lua, () -> jTextArea.value = GuiFactory.buildTextArea("meu", false));
+    LuaControl.controlInheritedConstructor(lua, 1, jTextArea.value);
 
     return 1;
   }

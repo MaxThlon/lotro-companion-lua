@@ -1,6 +1,5 @@
 package delta.games.lotro.lua;
 
-import java.nio.Buffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -21,7 +20,6 @@ import party.iroiro.luajava.ExternalLoader;
 import party.iroiro.luajava.Lua;
 import party.iroiro.luajava.Lua.LuaType;
 import party.iroiro.luajava.lua51.Lua51;
-import party.iroiro.luajava.lua51.Lua51Consts;
 import party.iroiro.luajava.value.LuaValue;
 
 /**
@@ -36,16 +34,17 @@ public class LuaModule implements Module {
 	}
 
   //private static Logger LOGGER = Logger.getLogger(LuaModule.class);
-  
+	private volatile boolean _isClosed = false;
   private UUID _uuid;
+  LuaModuleImpl _luaModuleImpl;
   private Lua _lua;
-  private volatile boolean _isClosed = false;
-
-  public LuaModule(UUID uuid, @Nullable ExternalLoader loader, Path... paths) {
+  
+  public LuaModule(UUID uuid, @Nullable ExternalLoader loader, LuaModuleImpl luaModuleImpl, Path... paths) {
   	_uuid = uuid;
-    // Create an environment to run in
+
+  	_luaModuleImpl = luaModuleImpl;
     _lua = new Lua51();
-    // Reload native library to allow externals natives libraries
+    // Allow externals natives libraries for posix systems
     /*if (_lua.getLuaNative() instanceof Lua51Natives) {
     	((Lua51Natives)_lua.getLuaNative()).loadAsGlobal();
     }*/
@@ -55,6 +54,7 @@ public class LuaModule implements Module {
     }
     _lua.openLibraries();
     LuaTools.setJavaModuleUuid(_lua, _uuid);
+    LuaTools.setJavaLuaModuleImpl(_lua, _luaModuleImpl);
     initPackageLib(paths);
   }
   
@@ -71,7 +71,7 @@ public class LuaModule implements Module {
   public Lua getLua() {
   	return _lua;
   }
-  
+
   private void initPackageLib(Path... paths) {
     LuaValue packageLib = _lua.get("package");
     
@@ -81,6 +81,8 @@ public class LuaModule implements Module {
     	List<String> packagePaths = new ArrayList<String>();
     	packagePaths.addAll(Arrays.stream(paths).map(path -> path.toString()).collect(Collectors.toList()));
     	packagePaths.add(URLToolsLua.getFromClassPath(""));
+    	//packagePaths.add(URLToolsLua.getFromClassPath(Paths.get("lib", "lua", "5.1").toString()));
+    	//packagePaths.add(URLToolsLua.getFromClassPath(Paths.get("share", "lua", "5.1").toString()));
     	packagePaths.add(URLToolsLua.getFromClassPath(Paths.get("luarocks", "lua").toString()));
     	packagePaths.add(URLToolsLua.getFromClassPath("thirdpart"));
       
@@ -104,20 +106,13 @@ public class LuaModule implements Module {
     }
   }
 
-  private Lua.LuaError bootstrapLotro(Buffer buffer, String name) {
+  private Lua.LuaError bootstrapLotro() {
     Lua.LuaError error;
 
-    String[] modules = LuaTools.libraryNameSplit(_lua, name, true);
-    LuaTools.setEnvInfos(_lua, Lua51Consts.LUA_GLOBALSINDEX, "Globals");
+    //LuaTools.setEnvInfos(_lua, Lua51Consts.LUA_GLOBALSINDEX, "Globals");
     if ((error = LuaTools.openRootPackage(_lua)) != Lua.LuaError.OK) return error;
     if ((error = Turbine.openRootPackage(_lua)) != Lua.LuaError.OK) return error;
-    LuaTools.pushGlobals(_lua, String.join(".", modules), modules);
-    LuaTools.openPackage(_lua);
-    if ((error = Turbine.openPackage(_lua)) != Lua.LuaError.OK) return error;
-    if ((error = _lua.load(buffer, name)) != Lua.LuaError.OK) return error;
-    LuaTools.pushfenv(_lua, -2, name, modules); /* push new env with env["_G"] = globals */
-    LuaTools.setfenv(_lua, -2); /* set library globals */
-    _lua.replace(-2); /* replace globals with loaded chunk */
+    
     return error;
   }
 
@@ -125,10 +120,11 @@ public class LuaModule implements Module {
     Lua.LuaError error;
 
     Turbine.openRootPackage(_lua);
-    error = _lua.load(
+    if ((error = _lua.load(
     		LuaTools.loadBuffer(Paths.get("Turbine", "turbine-thread.lua"), LuaModule.class),
         "turbine-thread"
-    );
+    )) != Lua.LuaError.OK) return error;
+    error = _lua.pCall(0, 1);
     return error;
   }
 
@@ -147,7 +143,7 @@ public class LuaModule implements Module {
 			case LOAD:
 				switch((LuaBootstrap)event._args[0]) {
 					case Lotro:
-						error = bootstrapLotro((Buffer)event._args[1], (String)event._args[2]);
+						error = bootstrapLotro();
 						break;
 					case LotroSandBox:
 						error = bootstrapSandBoxedLotro();
@@ -157,17 +153,7 @@ public class LuaModule implements Module {
         break;
 
 			case EXECUTE:
-				String eventName = (event != null)?event._name:"";
-		    switch (eventName) {
-		    	case "debug": {
-		    		/*error = _lua.run("local luarocks = require('luarocks.luarocks') "
-		    				+ "luarocks.cmd.run_command(luarocks.description, luarocks.commands, \"luarocks.cmd.external\", 'install', 'luasocket')");*/
-		    		error = _lua.run("require('mobdebug').listen()");
-		    		break;
-		    	}
-		    	default:
-		    		error = _lua.pCall(0, 1);
-		    }
+				error = Turbine.processEvents(_lua, _luaModuleImpl, event);
 		    LuaTools.handleLuaResult(_lua, error);
 				break;
 

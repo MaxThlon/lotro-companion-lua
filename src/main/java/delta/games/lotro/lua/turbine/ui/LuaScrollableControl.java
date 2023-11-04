@@ -2,7 +2,10 @@ package delta.games.lotro.lua.turbine.ui;
 
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.xml.ws.Holder;
 
+import delta.common.ui.swing.GuiFactory;
 import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
@@ -11,7 +14,7 @@ import party.iroiro.luajava.Lua;
  * LuaScrollableControl library for lua scripts.
  * @author MaxThlon
  */
-public abstract class LuaScrollableControl {
+final class LuaScrollableControl {
   public static Lua.LuaError add(Lua lua) {
   	Lua.LuaError error;
   	error = LuaObject.callInherit(lua, -3, "Turbine", "UI", "Control");
@@ -27,8 +30,10 @@ public abstract class LuaScrollableControl {
   }
 
   private static int constructor(Lua lua) {
-    JScrollPane jScrollPane=new JScrollPane();
-    LuaControl.controlInheritedConstructor(lua, 1, jScrollPane);
+  	Holder<JScrollPane> jScrollPane = new Holder<JScrollPane>();
+    
+    LuaTools.invokeAndWait(lua, () -> jScrollPane.value = GuiFactory.buildScrollPane(null));
+    LuaControl.controlInheritedConstructor(lua, 1, jScrollPane.value);
     return 1;
   }
   
@@ -37,29 +42,35 @@ public abstract class LuaScrollableControl {
   }
   
   private static int getHorizontalScrollBar(Lua lua) {
-  	LuaObject.findLuaObjectFromObject(LuaObject.objectSelf(lua, 1, JScrollPane.class).getHorizontalScrollBar()).push();
+  	JScrollPane jScrollPane = LuaObject.objectSelf(lua, 1, JScrollPane.class);
+
+  	LuaObject.findLuaObjectFromObject(jScrollPane.getHorizontalScrollBar()).push();
     return 1;
   }
 
   private static int setHorizontalScrollBar(Lua lua) {
     if (lua.type(2) != Lua.LuaType.NIL) {
-      LuaObject.objectSelf(lua, 1, JScrollPane.class).setHorizontalScrollBar(
-          LuaObject.objectSelf(lua, 2, JScrollBar.class)
-      );
+    	JScrollPane jScrollPane = LuaObject.objectSelf(lua, 1, JScrollPane.class);
+    	JScrollBar jScrollBar = LuaObject.objectSelf(lua, 2, JScrollBar.class);
+    	
+    	SwingUtilities.invokeLater(() -> jScrollPane.setHorizontalScrollBar(jScrollBar));
     }
     return 1;
   }
   
   private static int getVerticalScrollBar(Lua lua) {
-  	LuaObject.findLuaObjectFromObject(LuaObject.objectSelf(lua, 1, JScrollPane.class).getVerticalScrollBar()).push();
+  	JScrollPane jScrollPane = LuaObject.objectSelf(lua, 1, JScrollPane.class);
+  	
+  	LuaObject.findLuaObjectFromObject(jScrollPane.getVerticalScrollBar()).push();
     return 1;
   }
   
   private static int setVerticalScrollBar(Lua lua) {
     if (lua.type(2) != Lua.LuaType.NIL) {
-      LuaObject.objectSelf(lua, 1, JScrollPane.class).setVerticalScrollBar(
-          LuaObject.objectSelf(lua, 2, JScrollBar.class)
-      );
+    	JScrollPane jScrollPane = LuaObject.objectSelf(lua, 1, JScrollPane.class);
+    	JScrollBar jScrollBar = LuaObject.objectSelf(lua, 2, JScrollBar.class);
+    	
+      SwingUtilities.invokeLater(() -> jScrollPane.setVerticalScrollBar(jScrollBar));
     }
     return 1;
   }

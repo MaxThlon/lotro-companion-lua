@@ -2,7 +2,7 @@ package delta.games.lotro.lua.turbine.ui;
 
 import java.awt.Dimension;
 
-import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 import delta.common.ui.swing.JFrame;
 import delta.common.ui.swing.windows.DefaultWindowController;
@@ -14,7 +14,7 @@ import party.iroiro.luajava.Lua;
  * LuaWindow library for lua scripts.
  * @author MaxThlon
  */
-public abstract class LuaWindow {
+final class LuaWindow {
 
   public static Lua.LuaError add(Lua lua) {
   	Lua.LuaError error;
@@ -52,24 +52,27 @@ public abstract class LuaWindow {
   }
 
   private static int constructor(Lua lua) {
-  	DefaultWindowController defaultWindowController=new DefaultWindowController() {
+  	DefaultWindowController windowController = new DefaultWindowController() {
       @Override
       protected JFrame build() {
-        JFrame frame=super.build();
-        frame.setLayout(null);
+        JFrame frame = super.build();
+        frame.getContentPane().setLayout(null);
         return frame;
       }
-      @Override
+      /*@Override
       protected JComponent buildContents() {
         return null;
-      }
+      }*/
     };
-    return LuaControl.controlInheritedConstructor(lua, 1, defaultWindowController);
+    
+    LuaTools.invokeAndWait(lua, () -> windowController.getWindow());
+    return LuaControl.controlInheritedConstructor(lua, 1, windowController);
   }
   
   private static int activate(Lua lua) {
-    DefaultWindowController windowController=windowControllerSelf(lua, 1);
-    windowController.bringToFront();
+    DefaultWindowController windowController = windowControllerSelf(lua, 1);
+    
+    SwingUtilities.invokeLater(() -> windowController.bringToFront());
     return 1;
   }
 
@@ -84,28 +87,34 @@ public abstract class LuaWindow {
   }
 
   private static int getMinimumWidth(Lua lua) {
-    lua.push(windowControllerSelf(lua, 1).getFrame().getMinimumSize().width);
+  	JFrame frame = windowControllerSelf(lua, 1).getFrame();
+  	
+  	LuaTools.invokeAndWait(lua, () ->  lua.push(frame.getMinimumSize().width));
     return 1;
   }
   
   private static int setMinimumWidth(Lua lua) {
     JFrame frame = windowControllerSelf(lua, 1).getFrame();
     Dimension dimension = frame.getMinimumSize();
+    
     dimension.width = (int)lua.toNumber(2);
-    frame.setMinimumSize(dimension);
+    SwingUtilities.invokeLater(() -> frame.setMinimumSize(dimension));
     return 1;
   }
   
   private static int getMinimumHeight(Lua lua) {
-    lua.push(windowControllerSelf(lua, 1).getFrame().getMinimumSize().height);
+  	JFrame frame = windowControllerSelf(lua, 1).getFrame();
+  	
+  	LuaTools.invokeAndWait(lua, () ->  lua.push(frame.getMinimumSize().height));
     return 1;
   }
   
   private static int setMinimumHeight(Lua lua) {
     JFrame frame = windowControllerSelf(lua, 1).getFrame();
     Dimension dimension = frame.getMinimumSize();
+
     dimension.height = (int)lua.toNumber(2);
-    frame.setMinimumSize(dimension);
+    SwingUtilities.invokeLater(() -> frame.setMinimumSize(dimension));
     return 1;
   }
   
@@ -122,12 +131,14 @@ public abstract class LuaWindow {
     Dimension dimension = frame.getMinimumSize();
     dimension.width = (int)lua.toNumber(2);
     dimension.height = (int)lua.toNumber(3);
-    frame.setMinimumSize(dimension);
+    SwingUtilities.invokeLater(() -> frame.setMinimumSize(dimension));
     return 1;
   }
 
   private static int getMaximumWidth(Lua lua) {
-    lua.push(windowControllerSelf(lua, 1).getFrame().getMaximumSize().width);
+  	JFrame frame = windowControllerSelf(lua, 1).getFrame();
+  	
+  	lua.push(frame.getMaximumSize().width);
     return 1;
   }
   
@@ -135,7 +146,8 @@ public abstract class LuaWindow {
     JFrame frame = windowControllerSelf(lua, 1).getFrame();
     Dimension dimension = frame.getMaximumSize();
     dimension.width = (int)lua.toNumber(2);
-    frame.setMaximumSize(dimension);
+
+    SwingUtilities.invokeLater(() -> frame.setMaximumSize(dimension));
     return 1;
   }
   
@@ -148,7 +160,7 @@ public abstract class LuaWindow {
     JFrame frame = windowControllerSelf(lua, 1).getFrame();
     Dimension dimension = frame.getMaximumSize();
     dimension.height = (int)lua.toNumber(2);
-    frame.setMaximumSize(dimension);
+    SwingUtilities.invokeLater(() -> frame.setMaximumSize(dimension));
     return 1;
   }
   
@@ -166,7 +178,7 @@ public abstract class LuaWindow {
     Dimension dimension = frame.getMaximumSize();
     dimension.width = (int)lua.toNumber(2);
     dimension.height = (int)lua.toNumber(3);
-    frame.setMaximumSize(dimension);
+    SwingUtilities.invokeLater(() -> frame.setMaximumSize(dimension));
     return 1;
   }
   
@@ -184,7 +196,9 @@ public abstract class LuaWindow {
   }
   
   private static int setText(Lua lua) {
-    windowControllerSelf(lua, 1).setTitle(lua.toString(2));
+  	JFrame frame = windowControllerSelf(lua, 1).getFrame();
+  	String title = lua.toString(2);
+  	SwingUtilities.invokeLater(() -> frame.setTitle(title));
     return 1;
   }
 }

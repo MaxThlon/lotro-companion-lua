@@ -5,11 +5,9 @@ import javax.swing.JComponent;
 
 import delta.common.ui.swing.windows.WindowController;
 import delta.games.lotro.client.plugin.Plugin;
-import delta.games.lotro.lua.turbine.Turbine;
 import delta.games.lotro.lua.turbine.ui.LuaControl;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
-import party.iroiro.luajava.Lua.Conversion;
 import party.iroiro.luajava.lua51.Lua51Consts;
 import party.iroiro.luajava.lua51.Lua51Natives;
 import party.iroiro.luajava.value.LuaValue;
@@ -56,7 +54,7 @@ public class LuaObject
 
   public static Lua.LuaError callInherit(Lua lua, int envIndex, @Nullable String... parentClassName) {
     Lua.LuaError error;
-    lua.push(Turbine._luaClass, Conversion.NONE);
+    lua.getGlobal("class");
     if (parentClassName.length != 0) {
     	if ((error = LuaTools.pushValue(lua, envIndex, parentClassName)) != Lua.LuaError.OK) {
     		return error;
@@ -70,22 +68,19 @@ public class LuaObject
   
   public static Object objectSelf(Lua lua, int index) {
   	Object objectSelf = null;
-  	getRegistryObject(lua);
 
-  	if (lua.isNil(-1)) { /* No registry */
-    	lua.pop(1); /* pop RegistryObject */
-    } else {	
-      lua.pushValue((index >0)?index:(index-1)); /* Self at index if positive or index-1 if negative */
-      lua.getTable(-2);  /* RegistryObjects[Self] */
-      objectSelf = lua.toJavaObject(-1);
-      lua.pop(2); /* pop RegistryObject, objectSelf */
-    }
+  	getRegistryObject(lua);
+  	LuaTools.pushValueRelative(lua, index, -1);
+    lua.getTable(-2);  /* RegistryObjects[Self] */
+    objectSelf = lua.toJavaObject(-1);
+    lua.pop(2); /* pop RegistryObject, objectSelf */
+
     return objectSelf;
   }
 
   public static <T> T objectSelf(Lua lua, int index, Class<T> clazz) {
   	 Object instance = objectSelf(lua, index);
-     //if (!clazz.isAssignableFrom(instance.getClass())) throw ErrorFactory.typeError(value, c.getName());
+     //if (!clazz.isAssignableFrom(instance.getClass())) throw typeError(value, c.getName());
      return clazz.cast(instance);
      
   }
@@ -114,9 +109,9 @@ public class LuaObject
   {
   	if (objectSelf != null) {
     	getRegistryObject(lua);
-      lua.pushValue((indexSelf > 0)?indexSelf:(indexSelf-1)); /* Self at index if positive or index-1 if negative */
-      lua.pushJavaObject(objectSelf); /* objectSelf */
-      lua.rawSet(-3);  /* RegistryObjects[Self] = objectSelf */
+    	LuaTools.pushValueRelative(lua, indexSelf, -1);
+    	lua.pushJavaObject(objectSelf); /* objectSelf */
+      lua.setTable(-3);  /* RegistryObjects[Self] = objectSelf */
       lua.pop(1); /* pop RegistryObject */
   	}
 

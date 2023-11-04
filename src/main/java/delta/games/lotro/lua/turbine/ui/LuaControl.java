@@ -23,23 +23,25 @@ import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
+import javax.xml.ws.Holder;
 
+import delta.common.ui.swing.GuiFactory;
 import delta.common.ui.swing.Window;
 import delta.common.ui.swing.windows.WindowController;
-import delta.games.lotro.lua.turbine.Apartment;
 import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.turbine.ui.mouse.LuaMouseListener;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeSelectionListener;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.JFunction;
 import party.iroiro.luajava.Lua;
+import party.iroiro.luajava.Lua.Conversion;
 import party.iroiro.luajava.value.LuaValue;
 
 /**
  * LuaControl library for lua scripts.
  * @author MaxThlon
  */
-public abstract class LuaControl {
+public final class LuaControl {
   //private static Logger LOGGER = Logger.getLogger(LuaControl.class);
 	public static LuaValue _newIndexMetaFunc;
 	public static LuaValue _indexMetaFunc;
@@ -110,14 +112,14 @@ public abstract class LuaControl {
   }
 
   public static Component findComponentFromObject(Object objectSelf) {
-    Component component=null;
+    Component component = null;
 
     if (objectSelf instanceof Component) {
-      component=(Component)objectSelf;
+      component = (Component)objectSelf;
     /*} else if (objectSelf instanceof DefaultMutableTreeNode) {
       component=(Component)((DefaultMutableTreeNode)objectSelf).getUserObject();*/
     } else if (objectSelf instanceof WindowController) {
-      component=(Component)((WindowController)objectSelf).getWindow();
+      component = (Component)((WindowController)objectSelf).getWindow();
     }
 
     return component;
@@ -134,11 +136,18 @@ public abstract class LuaControl {
     return jComponent;
   }
 
-  public static Container findContainerFromLuaObject(Lua lua, int index) { 
-    Component component=findComponentFromObject(LuaObject.objectSelf(lua, index));
+  public static Container findContainerFromObject(Lua lua, Object object) { 
+    Component component=findComponentFromObject(object);
+    if (component instanceof RootPaneContainer) {
+    	component = ((RootPaneContainer)component).getContentPane();
+    }
+    if ((component instanceof JScrollPane) && ((JScrollPane)component).getViewport().getView() != null) {
+    	component = ((JScrollPane)component).getViewport().getView();
+    }
     if (component instanceof Container) {
       return (Container)component;
     }
+
     return null;
   }
   
@@ -175,7 +184,6 @@ public abstract class LuaControl {
             			lua,
               		"PositionChanged", 
               		new Object[]{
-              				Apartment.findApartment(lua),
               				method,
               				LuaObject.findLuaObjectFromObject(component)
               		}
@@ -187,7 +195,7 @@ public abstract class LuaControl {
         case "SizeChanged": {
           component.addComponentListener(new ComponentAdapter() {
               public void componentResized(ComponentEvent event) {
-                LuaTools.invokeEvent(lua, "SizeChanged", new Object[]{Apartment.findApartment(lua), method, LuaObject.findLuaObjectFromObject(component)});
+                LuaTools.invokeEvent(lua, "SizeChanged", new Object[]{method, LuaObject.findLuaObjectFromObject(component)});
               }
           });
           break;
@@ -195,7 +203,7 @@ public abstract class LuaControl {
         case "VisibleChanged": {
           component.addComponentListener(new ComponentAdapter() {
             public void componentShown(ComponentEvent event) {
-              LuaTools.invokeEvent(lua, "VisibleChanged", new Object[]{Apartment.findApartment(lua), method, LuaObject.findLuaObjectFromObject(component)});
+              LuaTools.invokeEvent(lua, "VisibleChanged", new Object[]{method, LuaObject.findLuaObjectFromObject(component)});
             }
           });
           break;
@@ -204,7 +212,7 @@ public abstract class LuaControl {
           component.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent event) {
-              LuaTools.invokeEvent(lua, "FocusGained", new Object[]{Apartment.findApartment(lua), method, LuaObject.findLuaObjectFromObject(component)});
+              LuaTools.invokeEvent(lua, "FocusGained", new Object[]{method, LuaObject.findLuaObjectFromObject(component)});
             }
           });
           break;
@@ -213,7 +221,7 @@ public abstract class LuaControl {
           component.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent event) {
-              LuaTools.invokeEvent(lua, "FocusLost", new Object[]{Apartment.findApartment(lua), method, LuaObject.findLuaObjectFromObject(component)});
+              LuaTools.invokeEvent(lua, "FocusLost", new Object[]{method, LuaObject.findLuaObjectFromObject(component)});
             }
           });
           break;
@@ -256,7 +264,7 @@ public abstract class LuaControl {
           component.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent event) {
-              LuaTools.invokeEvent(lua, "MouseHover", new Object[]{Apartment.findApartment(lua), method, LuaObject.findLuaObjectFromObject(component)});
+              LuaTools.invokeEvent(lua, "MouseHover", new Object[]{method, LuaObject.findLuaObjectFromObject(component)});
             }
           });
           break;
@@ -267,7 +275,7 @@ public abstract class LuaControl {
           component.addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent event) {
-              LuaTools.invokeEvent(lua, "MouseWheel", new Object[]{Apartment.findApartment(lua), method, LuaObject.findLuaObjectFromObject(component)});
+              LuaTools.invokeEvent(lua, "MouseWheel", new Object[]{method, LuaObject.findLuaObjectFromObject(component)});
             }
           });
           break;
@@ -281,7 +289,7 @@ public abstract class LuaControl {
           LuaButton.jButtonSelf(lua, 1).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-              LuaTools.invokeEvent(lua, "Click", new Object[]{Apartment.findApartment(lua), method, LuaObject.findLuaObjectFromObject(component)});
+              LuaTools.invokeEvent(lua, "Click", new Object[]{method, LuaObject.findLuaObjectFromObject(component)});
             }
           });
           break;
@@ -312,10 +320,13 @@ public abstract class LuaControl {
   }
 
   private static int constructor(Lua lua) {
-    JPanel jPanel = new JPanel();
-    jPanel.setLayout(null);
+  	Holder<JPanel> jPanel = new Holder<JPanel>();
+
+    LuaTools.invokeAndWait(lua, () -> jPanel.value = GuiFactory.buildBackgroundPanel(null));
+    lua.pushValue(1);
+    jPanel.value.putClientProperty(jComponentKey_luaObjectSelf, lua.get());
     LuaObject.ObjectInheritedConstructor(
-        lua, 1, jPanel, _newIndexMetaFunc, null
+        lua, 1, jPanel.value, _newIndexMetaFunc, null
     );
     return 1;
   }
@@ -339,9 +350,10 @@ public abstract class LuaControl {
   }
 
   private static int getParent(Lua lua) {
-    //Container container = LuaObject.objectSelf(lua, self, JComponent.class).getParent();
-    //container.getClientProperty();
-    return 1; //Turbine.luaValueFromObject(container);
+  	Component component = findComponentFromLuaObject(lua, 1);
+  	
+  	lua.push(LuaObject.findLuaObjectFromObject(component.getParent()), Conversion.NONE);
+    return 1;
   }
   
   private static int setParent(Lua lua) {
@@ -349,19 +361,18 @@ public abstract class LuaControl {
 
     if ((component != null)
         && (!(component instanceof JScrollBar))) {
-      Container container = LuaControl.findContainerFromLuaObject(lua, 2);
+    	Object objectContainer = LuaObject.objectSelf(lua, 2);
+      Container container = LuaControl.findContainerFromObject(lua, objectContainer);
 
       if (container != null) {
         if (container instanceof JScrollPane) {
-          JScrollPane scrollPane=(JScrollPane)container;
-          if (scrollPane.getViewport().getView() == null)
-          	SwingUtilities.invokeLater(() -> scrollPane.setViewportView(component));
-          else {
-            Component containerFromView = scrollPane.getViewport().getView();
-            if (containerFromView instanceof JComponent)
-            	SwingUtilities.invokeLater(() -> ((JComponent)containerFromView).add(component));
-          }
-        } else SwingUtilities.invokeLater(() -> container.add(component));
+          SwingUtilities.invokeLater(() -> ((JScrollPane)container).setViewportView(component));
+        } else SwingUtilities.invokeLater(() -> {
+        	container.add(component);
+        	if (objectContainer instanceof WindowController) {
+        		((WindowController)objectContainer).getWindow().pack();
+        	}
+        });
       }
     }
     return 1;

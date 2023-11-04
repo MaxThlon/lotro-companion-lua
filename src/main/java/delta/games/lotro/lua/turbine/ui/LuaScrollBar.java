@@ -1,6 +1,7 @@
 package delta.games.lotro.lua.turbine.ui;
 
 import javax.swing.JScrollBar;
+import javax.xml.ws.Holder;
 
 import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
@@ -10,7 +11,7 @@ import party.iroiro.luajava.Lua;
  * LuaScrollBar library for lua scripts.
  * @author MaxThlon
  */
-public abstract class LuaScrollBar {
+final class LuaScrollBar {
 
   public static Lua.LuaError add(Lua lua) {
   	Lua.LuaError error;
@@ -45,8 +46,10 @@ public abstract class LuaScrollBar {
   }
 
   private static int constructor(Lua lua) {
-    JScrollBar jScrollBar = new JScrollBar();
-    LuaControl.controlInheritedConstructor(lua, 1, jScrollBar);
+  	Holder<JScrollBar> jScrollBar = new Holder<JScrollBar>();
+
+    LuaTools.invokeAndWait(lua, () -> jScrollBar.value = new JScrollBar());
+    LuaControl.controlInheritedConstructor(lua, 1, jScrollBar.value);
     return 1;
   }
   

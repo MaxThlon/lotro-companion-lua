@@ -1,6 +1,7 @@
 package delta.games.lotro.lua.turbine.ui;
 
 import javax.swing.JButton;
+import javax.xml.ws.Holder;
 
 import delta.common.ui.swing.GuiFactory;
 import delta.games.lotro.lua.turbine.object.LuaObject;
@@ -11,7 +12,7 @@ import party.iroiro.luajava.Lua;
  * LuaButton library for lua scripts.
  * @author MaxThlon
  */
-public abstract class LuaButton {
+final class LuaButton {
 
   public static Lua.LuaError add(Lua lua) {
   	Lua.LuaError error;
@@ -27,9 +28,10 @@ public abstract class LuaButton {
   }
 
   private static int constructor(Lua lua) {
-    JButton jButton = GuiFactory.buildButton("meu");
-    
-    LuaControl.controlInheritedConstructor(lua, 1, jButton);
+    Holder<JButton> jButton = new Holder<JButton>();
+
+    LuaTools.invokeAndWait(lua, () -> jButton.value = GuiFactory.buildButton("meu"));
+    LuaControl.controlInheritedConstructor(lua, 1, jButton.value);
     return 1;
   }
 }

@@ -5,7 +5,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Arrays;
 
-import delta.games.lotro.lua.turbine.Apartment;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
 import party.iroiro.luajava.value.LuaValue;
@@ -32,35 +31,35 @@ public abstract class LuaMouseListener implements MouseListener {
         @Override
         public void mousePressed(MouseEvent  mouseEvent) {
           if (_luaMouseDown != null) {
-            LuaTools.invokeEvent(lua, "MouseDown", new Object[]{Apartment.findApartment(lua), _luaMouseDown, self});
+            LuaTools.invokeEvent(lua, "MouseDown", new Object[]{_luaMouseDown, self});
           }
         }
   
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
           if (_luaMouseClick != null) {
-            LuaTools.invokeEvent(lua, "MouseClick", new Object[]{Apartment.findApartment(lua), _luaMouseClick, self});
+            LuaTools.invokeEvent(lua, "MouseClick", new Object[]{_luaMouseClick, self});
           }
         }
   
         @Override
         public void mouseReleased(MouseEvent mouseEvent) {
           if (_luaMouseUp != null) {
-            LuaTools.invokeEvent(lua, "MouseUp", new Object[]{Apartment.findApartment(lua), _luaMouseUp, self});
+            LuaTools.invokeEvent(lua, "MouseUp", new Object[]{_luaMouseUp, self});
           }
         }
   
         @Override
         public void mouseEntered(MouseEvent mouseEvent) {
           if (_luaMouseEnter != null) {
-            LuaTools.invokeEvent(lua, "MouseEnter", new Object[]{Apartment.findApartment(lua), _luaMouseEnter, self});
+            LuaTools.invokeEvent(lua, "MouseEnter", new Object[]{_luaMouseEnter, self});
           }
         }
   
         @Override
         public void mouseExited(MouseEvent mouseEvent) {
           if (_luaMouseLeave != null) {
-            LuaTools.invokeEvent(lua, "MouseLeave", new Object[]{Apartment.findApartment(lua), _luaMouseLeave, self});
+            LuaTools.invokeEvent(lua, "MouseLeave", new Object[]{_luaMouseLeave, self});
           }
         }
       };

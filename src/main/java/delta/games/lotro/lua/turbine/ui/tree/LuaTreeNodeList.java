@@ -1,6 +1,7 @@
 package delta.games.lotro.lua.turbine.ui.tree;
 
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -79,17 +80,21 @@ public abstract class LuaTreeNodeList {
 
     if (jTree != null) {
       DefaultTreeModel treeModel = (DefaultTreeModel)jTree.getModel();
-      treeModel.insertNodeInto(
+      SwingUtilities.invokeLater(() -> {
+      	treeModel.insertNodeInto(
           node,
           rootNode,
           rootNode.getChildCount()
-      );
-      
-      jTree.expandPath(new TreePath(rootNode.getPath()));
+        );
+        
+        jTree.expandPath(new TreePath(rootNode.getPath()));
+      });
     } else {
-      rootNode.insert(
-          node,
-          rootNode.getChildCount()
+    	SwingUtilities.invokeLater(() ->
+        rootNode.insert(
+            node,
+            rootNode.getChildCount()
+        )
       );
     }
     return 1;

@@ -5,6 +5,7 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+import javax.xml.ws.Holder;
 
 import delta.common.ui.swing.GuiFactory;
 import delta.games.lotro.lua.turbine.object.LuaObject;
@@ -16,7 +17,7 @@ import party.iroiro.luajava.Lua.Conversion;
  * LuaListBox library for lua scripts.
  * @author MaxThlon
  */
-public abstract class LuaListBox {
+final class LuaListBox {
 
   public static Lua.LuaError add(Lua lua) {
   	Lua.LuaError error;
@@ -63,11 +64,14 @@ public abstract class LuaListBox {
 
   private static int constructor(Lua lua) {
     DefaultListModel<JComponent> model = new DefaultListModel<JComponent>();
-    JList<JComponent> jList = GuiFactory.buildList();
-    jList.setModel(model);
-    JScrollPane jScrollPane = GuiFactory.buildScrollPane(jList);
-
-    LuaControl.controlInheritedConstructor(lua, 1, jScrollPane);
+    Holder<JScrollPane> jScrollPane = new Holder<JScrollPane>();
+    
+    LuaTools.invokeAndWait(lua, () -> {
+    	JList<JComponent> jList = GuiFactory.buildList();
+    	jList.setModel(model);
+      jScrollPane.value = GuiFactory.buildScrollPane(jList);
+    });
+    LuaControl.controlInheritedConstructor(lua, 1, jScrollPane.value);
     
     return 1;
   }

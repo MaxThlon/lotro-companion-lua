@@ -5,7 +5,6 @@ import java.util.HashMap;
 import delta.games.lotro.common.enums.ItemClass;
 import delta.games.lotro.common.enums.LotroEnumsRegistry;
 import delta.games.lotro.lore.items.ItemQuality;
-import delta.games.lotro.lua.turbine.engine.Engine;
 import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.JFunction;

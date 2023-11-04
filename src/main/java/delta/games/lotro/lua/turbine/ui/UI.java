@@ -3,6 +3,7 @@ package delta.games.lotro.lua.turbine.ui;
 import java.awt.Color;
 import java.util.HashMap;
 
+import delta.games.lotro.lua.turbine.Turbine;
 import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeNode;
 import delta.games.lotro.lua.turbine.ui.tree.LuaTreeNodeList;
@@ -13,18 +14,18 @@ import party.iroiro.luajava.Lua;
  * UI library for lua scripts.
  * @author MaxThlon
  */
-public abstract class UI {
+public final class UI {
   @SuppressWarnings("boxing")
   public static Lua.LuaError openPackage(Lua lua, int globalsIndex) {
   	Lua.LuaError error;
 
-  	LuaTools.pushfenv(
+  	Turbine.pushfenv(
     		lua,
     		globalsIndex,
     		"Turbine.UI",
     		"Turbine", "UI"
     );
-  	LuaTools.pushModule(
+  	Turbine.pushModule(
   			lua,
   			LuaTools.relativizeIndex(globalsIndex, -1),
   			"Turbine", "UI"

@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.Buffer;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,8 +23,8 @@ import delta.common.framework.module.ModuleManager;
 import delta.common.utils.application.config.main.MainApplicationConfiguration;
 import delta.games.lotro.client.plugin.Plugin;
 import delta.games.lotro.client.plugin.io.xml.PluginXMLParser;
+import delta.games.lotro.lua.LuaLotro;
 import delta.games.lotro.lua.LuaModule;
-import delta.games.lotro.lua.utils.LuaTools;
 import delta.games.lotro.utils.events.EventsManager;
 
 /**
@@ -40,8 +39,10 @@ public class PluginManager
 
   private static final Logger LOGGER=Logger.getLogger(PluginManager.class);
 
+  private UUID _pluginModuleUuid;
   private PluginConfiguration _pluginConfiguration;
   private List<Plugin> _plugins;
+  
 
   /**
    * Get the sole instance of this class.
@@ -57,8 +58,14 @@ public class PluginManager
    */
   protected PluginManager()
   {
+  	_pluginModuleUuid = UUID.randomUUID();
     _pluginConfiguration=((PluginConfigurationHolder)MainApplicationConfiguration.getInstance()).getPluginConfiguration();
     _plugins=loadPluginList();
+    
+  }
+  
+  public UUID getModuleUuid() {
+  	return _pluginModuleUuid;
   }
   
   /**
@@ -104,8 +111,7 @@ public class PluginManager
           _pluginConfiguration.getPluginsPath(),
           FileSystems.getDefault().getPathMatcher("glob:**.plugin")
       ).map(path-> {
-        String apartmentName=path.getParent().getFileName().toString();
-        return new PluginXMLParser().parsePluginData(path.toFile(), apartmentName);
+        return new PluginXMLParser().parsePluginData(path.toFile());
       })
           .collect(Collectors.toList());
     }
@@ -136,48 +142,40 @@ public class PluginManager
   }
 
   public LuaModule addModule(UUID moduleUuid) {
-  	LuaModule luaModule = new LuaModule(moduleUuid, null, _pluginConfiguration.getPluginsPath());
+  	LuaModule luaModule = new LuaModule(moduleUuid, null, new LuaLotro(), _pluginConfiguration.getPluginsPath());
   	ModuleManager.getInstance().addModule(luaModule);
   	
     return luaModule;
   }
-  
-  public void bootstrapLotro(UUID moduleUuid, Buffer buffer, String name) {
-  	addModule(moduleUuid);
 
+  public void bootstrapLotro(Plugin plugin) {
+  	addModule(_pluginModuleUuid);
   	EventsManager.invokeEvent(new  ModuleEvent(
     		ModuleExecutor.ExecutorEvent.LOAD,
-    		moduleUuid,
+    		_pluginModuleUuid,
     		ModuleExecutor.ExecutorEvent.LOAD.name(),
-    		new Object[]{ LuaModule.LuaBootstrap.Lotro, buffer, name })
-    );
-  	EventsManager.invokeEvent(new  ModuleEvent(
+    		new Object[]{ LuaModule.LuaBootstrap.Lotro }
+    ));
+  	/*EventsManager.invokeEvent(new  ModuleEvent(
     		ModuleExecutor.ExecutorEvent.EXECUTE,
     		moduleUuid,
-    		ModuleExecutor.ExecutorEvent.EXECUTE.name(),
+    		"debug",
     		null
+    ));*/
+  	EventsManager.invokeEvent(new  ModuleEvent(
+    		ModuleExecutor.ExecutorEvent.EXECUTE,
+    		_pluginModuleUuid,
+    		"load",
+    		new Object[]{ plugin }
     ));
   }
   
-  public void bootstrapLotro(UUID moduleUuid, Plugin plugin) {
-  	try {
-			bootstrapLotro(
-					moduleUuid,
-					LuaTools.loadBuffer(pluginFindScriptFile(plugin)),
-					plugin._package
-			);
-		} catch (FileNotFoundException e) {
-			LOGGER.error(e);
-			
-		}
-  }
-  
-  public void bootstrapSandBoxedLotro(UUID moduleUuid) {
-  	addModule(moduleUuid);
+  public void bootstrapSandBoxedLotro() {
+  	addModule(_pluginModuleUuid);
 
   	EventsManager.invokeEvent(new  ModuleEvent(
     		ModuleExecutor.ExecutorEvent.LOAD,
-    		moduleUuid,
+    		_pluginModuleUuid,
     		ModuleExecutor.ExecutorEvent.LOAD.name(),
     		new Object[]{ LuaModule.LuaBootstrap.LotroSandBox }
     ));
@@ -185,15 +183,27 @@ public class PluginManager
 
   /**
    * execute plugin.
-   * @param moduleUuid .
    * @param plugin .
    */
-  public void loadPlugin(UUID moduleUuid, Plugin plugin) {
+  public void loadPlugin(Plugin plugin) {
   	EventsManager.invokeEvent(new  ModuleEvent(
     		ModuleExecutor.ExecutorEvent.LOAD,
-    		moduleUuid,
+    		_pluginModuleUuid,
     		ModuleExecutor.ExecutorEvent.LOAD.name(),
     		new Object[]{ plugin }
+    ));
+  }
+  
+  /**
+   * process command.
+   * @param input .
+   */
+  public void processCommand(String input) {
+  	EventsManager.invokeEvent(new ModuleEvent(
+    		ModuleExecutor.ExecutorEvent.EXECUTE,
+    		_pluginModuleUuid,
+    		"processCommand",
+    		new Object[]{ input }
     ));
   }
 }

@@ -5,7 +5,9 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.xml.ws.Holder;
 
+import delta.common.ui.swing.GuiFactory;
 import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
@@ -14,7 +16,7 @@ import party.iroiro.luajava.Lua;
  * LuaLabel library for lua scripts.
  * @author MaxThlon
  */
-public abstract class LuaLabel {
+final class LuaLabel {
 
   public static Lua.LuaError add(Lua lua) {
   	Lua.LuaError error;
@@ -58,9 +60,11 @@ public abstract class LuaLabel {
   }
 
   private static int constructor(Lua lua) {
+  	Holder<JLabel> label = new Holder<JLabel>();
     //MultilineLabel label = new MultilineLabel();
-    JLabel label = new JLabel();
-    LuaControl.controlInheritedConstructor(lua, 1, label);
+
+    LuaTools.invokeAndWait(lua, () -> label.value = GuiFactory.buildLabel(""));
+    LuaControl.controlInheritedConstructor(lua, 1, label.value);
 
     return 1;
   }

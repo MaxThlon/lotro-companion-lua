@@ -11,6 +11,7 @@ import delta.games.lotro.common.enums.LotroEnumsRegistry;
 import delta.games.lotro.lore.crafting.CraftingSystem;
 import delta.games.lotro.lore.crafting.Vocation;
 import delta.games.lotro.lore.items.EquipmentLocation;
+import delta.games.lotro.lua.turbine.Turbine;
 import delta.games.lotro.lua.turbine.gameplay.backpack.Backpack;
 import delta.games.lotro.lua.turbine.gameplay.bank.Bank;
 import delta.games.lotro.lua.turbine.gameplay.effect.Effect;
@@ -32,13 +33,13 @@ public class Gameplay {
   public static Lua.LuaError openPackage(Lua lua, int globalsIndex) {
   	Lua.LuaError error;
   	
-  	LuaTools.pushfenv(
+  	Turbine.pushfenv(
     		lua,
     		globalsIndex,
     		"Turbine.Gameplay",
     		"Turbine", "Gameplay"
     );
-    LuaTools.pushModule(
+  	Turbine.pushModule(
     		lua,
     		LuaTools.relativizeIndex(globalsIndex, -1),
     		"Turbine", "Gameplay"

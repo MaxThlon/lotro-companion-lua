@@ -2,6 +2,7 @@ package delta.games.lotro.lua.turbine.ui.lotro;
 
 import java.util.HashMap;
 
+import delta.games.lotro.lua.turbine.Turbine;
 import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
@@ -16,13 +17,13 @@ public abstract class UiLotro {
   public static Lua.LuaError openPackage(Lua lua, int globalsIndex) {
   	Lua.LuaError error;
  
-  	LuaTools.pushfenv(
+  	Turbine.pushfenv(
     		lua,
     		globalsIndex,
     		"Turbine.UI.Lotro",
     		"Turbine", "UI", "Lotro"
     );
-  	LuaTools.pushModule(
+  	Turbine.pushModule(
   			lua,
   			LuaTools.relativizeIndex(globalsIndex, -1),
   			"Turbine", "UI", "Lotro"

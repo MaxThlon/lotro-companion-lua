@@ -3,8 +3,8 @@ package delta.games.lotro.lua.turbine.ui;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
+import javax.xml.ws.Holder;
 
 import delta.common.ui.swing.GuiFactory;
 import delta.games.lotro.lua.turbine.object.LuaObject;
@@ -20,7 +20,7 @@ import party.iroiro.luajava.lua51.Lua51Consts;
  * LuaTreeView library for lua scripts.
  * @author MaxThlon
  */
-public abstract class LuaTreeView {
+final class LuaTreeView {
 
   public static Lua.LuaError add(Lua lua) {
   	Lua.LuaError error;
@@ -55,18 +55,20 @@ public abstract class LuaTreeView {
   }
 
   private static int constructor(Lua lua) {
-    DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("root");
-    JTree tree = new JTree (new DefaultTreeModel(rootNode));
-    tree.setCellRenderer(new LuaTreeViewTreeCellRenderer());
-    tree.setCellEditor(new LuaTreeCellEditor());
-    tree.addMouseListener(new LuaTreeMouseListener(tree));
-    tree.setEditable(true);
-    tree.setRootVisible(false);
-    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-    tree.setShowsRootHandles(true);
-
-    JScrollPane jScrollPane = GuiFactory.buildScrollPane(tree);
-    LuaScrollableControl.scrollableControlInheritedConstructor(lua, 1, jScrollPane);
+    Holder<JScrollPane> jScrollPane = new Holder<JScrollPane>();
+    
+    LuaTools.invokeAndWait(lua, () -> {
+    	JTree jTree = GuiFactory.buildTree(null);
+    	jTree.setCellRenderer(new LuaTreeViewTreeCellRenderer());
+    	jTree.setCellEditor(new LuaTreeCellEditor());
+    	jTree.addMouseListener(new LuaTreeMouseListener(jTree));
+    	jTree.setEditable(true);
+    	jTree.setRootVisible(false);
+    	jTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+    	jTree.setShowsRootHandles(true);
+      jScrollPane.value = GuiFactory.buildScrollPane(jTree);
+    });
+    LuaScrollableControl.scrollableControlInheritedConstructor(lua, 1, jScrollPane.value);
 
     return 1;
   }
@@ -98,7 +100,9 @@ public abstract class LuaTreeView {
   }
   
   private static int getSelectedNode(Lua lua) {
-    LuaObject.findLuaObjectFromObject(LuaTreeView.jTreeSelf(lua, 1).getLastSelectedPathComponent());
+  	LuaTools.invokeAndWait(lua, () ->
+    	LuaObject.findLuaObjectFromObject(LuaTreeView.jTreeSelf(lua, 1).getLastSelectedPathComponent())
+    );
     return 1;
   }
   

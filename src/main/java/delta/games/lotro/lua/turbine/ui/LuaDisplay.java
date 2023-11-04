@@ -13,7 +13,7 @@ import party.iroiro.luajava.Lua;
  * LuaDisplay library for lua scripts.
  * @author MaxThlon
  */
-public abstract class LuaDisplay {
+final class LuaDisplay {
 
   public static Lua.LuaError add(Lua lua) {
   	Lua.LuaError error;

@@ -1,6 +1,9 @@
 package delta.games.lotro.lua.turbine.ui.tree;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.xml.ws.Holder;
 
 import delta.common.ui.swing.GuiFactory;
 import delta.common.ui.swing.panels.AbstractPanelController;
@@ -37,7 +40,9 @@ public abstract class LuaTreeNode {
 
   private static int constructor(Lua lua) {
     AbstractPanelController panelController = new AbstractPanelController();
-    panelController.setPanel(GuiFactory.buildPanel(null));
+    Holder<JPanel> jPanel = new Holder<JPanel>();
+    LuaTools.invokeAndWait(lua, () -> jPanel.value = GuiFactory.buildPanel(null));
+    panelController.setPanel(jPanel.value);
     DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(panelController);
     LuaControl.controlInheritedConstructor(lua, 1, treeNode);
     return 1;

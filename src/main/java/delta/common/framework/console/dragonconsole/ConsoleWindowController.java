@@ -1,4 +1,4 @@
-package delta.common.framework.console;
+package delta.common.framework.console.dragonconsole;
 
 import java.awt.Dimension;
 
