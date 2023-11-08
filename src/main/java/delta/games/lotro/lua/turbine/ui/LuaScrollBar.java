@@ -12,34 +12,40 @@ import party.iroiro.luajava.Lua;
  * @author MaxThlon
  */
 final class LuaScrollBar {
-
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua ScrollBar package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "UI", "Control");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "Control");
   	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaScrollBar::constructor);
-  	LuaTools.setFunction(lua, -1, -3, "GetOrientation", LuaScrollBar::getOrientation);
-    LuaTools.setFunction(lua, -1, -3, "SetOrientation", LuaScrollBar::setOrientation);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaScrollBar::constructor);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetOrientation", LuaScrollBar::getOrientation);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetOrientation", LuaScrollBar::setOrientation);
     
-    LuaTools.setFunction(lua, -1, -3, "GetMinimum", LuaScrollBar::getMinimum);
-    LuaTools.setFunction(lua, -1, -3, "SetMinimum", LuaScrollBar::setMinimum);
-    LuaTools.setFunction(lua, -1, -3, "GetMaximum", LuaScrollBar::getMaximum);
-    LuaTools.setFunction(lua, -1, -3, "SetMaximum", LuaScrollBar::setMaximum);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMinimum", LuaScrollBar::getMinimum);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetMinimum", LuaScrollBar::setMinimum);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMaximum", LuaScrollBar::getMaximum);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetMaximum", LuaScrollBar::setMaximum);
 
-    LuaTools.setFunction(lua, -1, -3, "GetSmallChange", LuaScrollBar::getSmallChange);
-    LuaTools.setFunction(lua, -1, -3, "SetSmallChange", LuaScrollBar::setSmallChange);
-    LuaTools.setFunction(lua, -1, -3, "GetLargeChange", LuaScrollBar::getLargeChange);
-    LuaTools.setFunction(lua, -1, -3, "SetLargeChange", LuaScrollBar::setLargeChange);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetSmallChange", LuaScrollBar::getSmallChange);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetSmallChange", LuaScrollBar::setSmallChange);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetLargeChange", LuaScrollBar::getLargeChange);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetLargeChange", LuaScrollBar::setLargeChange);
 
-    LuaTools.setFunction(lua, -1, -3, "GetValue", LuaScrollBar::getValue);
-    LuaTools.setFunction(lua, -1, -3, "SetValue", LuaScrollBar::setValue);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetValue", LuaScrollBar::getValue);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetValue", LuaScrollBar::setValue);
 
-    LuaTools.setFunction(lua, -1, -3, "GetDecrementButton", LuaScrollBar::getDecrementButton);
-    LuaTools.setFunction(lua, -1, -3, "SetDecrementButton", LuaScrollBar::setDecrementButton);
-    LuaTools.setFunction(lua, -1, -3, "GetIncrementButton", LuaScrollBar::getIncrementButton);
-    LuaTools.setFunction(lua, -1, -3, "SetIncrementButton", LuaScrollBar::setIncrementButton);
-    LuaTools.setFunction(lua, -1, -3, "GetThumbButton", LuaScrollBar::getThumbButton);
-    LuaTools.setFunction(lua, -1, -3, "SetThumbButton", LuaScrollBar::setThumbButton);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetDecrementButton", LuaScrollBar::getDecrementButton);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetDecrementButton", LuaScrollBar::setDecrementButton);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetIncrementButton", LuaScrollBar::getIncrementButton);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetIncrementButton", LuaScrollBar::setIncrementButton);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetThumbButton", LuaScrollBar::getThumbButton);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetThumbButton", LuaScrollBar::setThumbButton);
 
     lua.setField(-2, "ScrollBar");
     return error;

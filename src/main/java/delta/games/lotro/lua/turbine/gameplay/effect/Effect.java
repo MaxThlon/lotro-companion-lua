@@ -1,6 +1,6 @@
 package delta.games.lotro.lua.turbine.gameplay.effect;
 
-import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.JFunction;
 import party.iroiro.luajava.Lua;
 
@@ -9,9 +9,16 @@ import party.iroiro.luajava.Lua;
  */
 public class Effect
 {
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua Effect package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object");
   	if (error != Lua.LuaError.OK) return error;
     lua.push((JFunction)Effect::constructor);
     lua.setField(-2, "Constructor");
@@ -37,52 +44,52 @@ public class Effect
     lua.setField(-2, "GetIcon");
     lua.setField(-2, "Effect");
     
-    error = EffectList.add(lua);
+    error = EffectList.add(lua, envIndex, errfunc);
     
     return error;
   }
   
-  public static int constructor(Lua lua) {
+  private static int constructor(Lua lua) {
     return 1;
   }
   
-  public static int getID(Lua lua) {
+  private static int getID(Lua lua) {
     return 1;
   }
   
-  public static int getName(Lua lua) {
+  private static int getName(Lua lua) {
     return 1;
   }
   
-  public static int getDescription(Lua lua) {
+  private static int getDescription(Lua lua) {
     return 1;
   }
   
-  public static int getCategory(Lua lua) {
+  private static int getCategory(Lua lua) {
     return 1;
   }
   
-  public static int isDebuff(Lua lua) {
+  private static int isDebuff(Lua lua) {
     return 1;
   }
   
-  public static int isCurable(Lua lua) {
+  private static int isCurable(Lua lua) {
     return 1;
   }
   
-  public static int isDispellable(Lua lua) {
+  private static int isDispellable(Lua lua) {
     return 1;
   }
   
-  public static int getDuration(Lua lua) {
+  private static int getDuration(Lua lua) {
     return 1;
   }
   
-  public static int getStartTime(Lua lua) {
+  private static int getStartTime(Lua lua) {
     return 1;
   }
   
-  public static int getIcon(Lua lua) {
+  private static int getIcon(Lua lua) {
     return 1;
   }
 }

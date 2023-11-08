@@ -1,6 +1,6 @@
 package delta.games.lotro.lua.turbine.gameplay.entity;
 
-import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.JFunction;
 import party.iroiro.luajava.Lua;
 
@@ -9,9 +9,16 @@ import party.iroiro.luajava.Lua;
  */
 public class Entity
 {
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua Entity package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object");
   	if (error != Lua.LuaError.OK) return error;
     lua.push((JFunction)Entity::constructor);
     lua.setField(-2, "Constructor");
@@ -25,15 +32,15 @@ public class Entity
     return error;
   }
   
-  public static int constructor(Lua lua) {
+  private static int constructor(Lua lua) {
     return 1;
   }
   
-  public static int getName(Lua lua) {
+  private static int getName(Lua lua) {
     return 1;
   }
   
-  public static int isLocalPlayer(Lua lua) {
+  private static int isLocalPlayer(Lua lua) {
     return 1;
   }
 }

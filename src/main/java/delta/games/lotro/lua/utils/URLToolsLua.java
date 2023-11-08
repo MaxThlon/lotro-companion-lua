@@ -5,8 +5,8 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import delta.common.framework.lua.LuaModule;
 import delta.common.utils.url.URLTools;
-import delta.games.lotro.lua.LuaModule;
 
 /**
  * Tool methods related to URLs management of lua requires.

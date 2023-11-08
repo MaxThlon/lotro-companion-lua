@@ -1,6 +1,5 @@
 package delta.games.lotro.lua.turbine.ui.tree;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.ws.Holder;
@@ -17,22 +16,28 @@ import party.iroiro.luajava.lua51.Lua51Consts;
  * LuaTreeNode library for lua scripts.
  * @author MaxThlon
  */
-public abstract class LuaTreeNode {
-
-  public static Lua.LuaError add(Lua lua) {
+public final class LuaTreeNode {
+  /**
+   * Initialize lua TreeNode package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "UI", "Control");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "Control");
   	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaTreeNode::constructor);
-  	LuaTools.setFunction(lua, -1, -3, "GetParentNode", LuaTreeNode::getParentNode);
-    LuaTools.setFunction(lua, -1, -3, "GetChildNodes", LuaTreeNode::getChildNodes);
-    LuaTools.setFunction(lua, -1, -3, "IsSelected", LuaTreeNode::isSelected);
-    LuaTools.setFunction(lua, -1, -3, "IsExpanded", LuaTreeNode::isExpanded);
-    LuaTools.setFunction(lua, -1, -3, "SetExpanded", LuaTreeNode::setExpanded);
-    LuaTools.setFunction(lua, -1, -3, "Expand", LuaTreeNode::expand);
-    LuaTools.setFunction(lua, -1, -3, "ExpandAll", LuaTreeNode::expandAll);
-    LuaTools.setFunction(lua, -1, -3, "Collapse", LuaTreeNode::collapse);
-    LuaTools.setFunction(lua, -1, -3, "CollapseAll", LuaTreeNode::collapseAll);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaTreeNode::constructor);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetParentNode", LuaTreeNode::getParentNode);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetChildNodes", LuaTreeNode::getChildNodes);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsSelected", LuaTreeNode::isSelected);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsExpanded", LuaTreeNode::isExpanded);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetExpanded", LuaTreeNode::setExpanded);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Expand", LuaTreeNode::expand);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "ExpandAll", LuaTreeNode::expandAll);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Collapse", LuaTreeNode::collapse);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "CollapseAll", LuaTreeNode::collapseAll);
 
     lua.setField(-2, "TreeNode");
     return error;

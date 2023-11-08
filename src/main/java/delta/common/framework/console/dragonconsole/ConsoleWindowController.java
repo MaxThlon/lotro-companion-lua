@@ -19,15 +19,19 @@ public class ConsoleWindowController extends DefaultWindowController
    */
   public static final String IDENTIFIER="PLUGIN";
 
+  DragonConsoleModule _dragonConsoleModuleImpl;
+
   // Controllers
   private ConsolePanelController _controller;
 
   /**
    * Constructor.
+   * @param dragonConsoleModuleImpl .
    */
-  public ConsoleWindowController()
+  public ConsoleWindowController(DragonConsoleModule dragonConsoleModuleImpl)
   {
     super();
+    _dragonConsoleModuleImpl=dragonConsoleModuleImpl;
     _controller=new ConsolePanelController(this);
   }
 
@@ -63,6 +67,9 @@ public class ConsoleWindowController extends DefaultWindowController
   @Override
   public void dispose()
   {
+  	if (_dragonConsoleModuleImpl != null) {
+  		_dragonConsoleModuleImpl.close();
+  	}
     if (_controller!=null)
     {
       _controller.dispose();

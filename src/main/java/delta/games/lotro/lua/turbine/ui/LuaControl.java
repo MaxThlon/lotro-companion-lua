@@ -49,7 +49,14 @@ public final class LuaControl {
   public static String jComponentKey_luaObjectSelf = "jComponentKey_luaObjectSelf";
   public static Object jComponentKey_luaEventsFunc = new Object();
 
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua Control package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
 		
   	/* Register luaNewIndexMetaFunc*/
@@ -59,49 +66,49 @@ public final class LuaControl {
   	lua.push((JFunction)LuaControl::indexMetaFunc);
   	_indexMetaFunc = lua.get();
   	
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object");
   	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaControl::constructor);
-  	LuaTools.setFunction(lua, -1, -3, "GetParent", LuaControl::getParent);
-  	LuaTools.setFunction(lua, -1, -3, "SetParent", LuaControl::setParent);
-  	LuaTools.setFunction(lua, -1, -3, "GetControls", LuaControl::getControls);
-  	LuaTools.setFunction(lua, -1, -3, "Focus", LuaControl::focus);
-  	LuaTools.setFunction(lua, -1, -3, "SetVisible", LuaControl::setVisible);
-    LuaTools.setFunction(lua, -1, -3, "IsVisible", LuaControl::isVisible);
-    LuaTools.setFunction(lua, -1, -3, "GetLeft", LuaControl::getLeft);
-    LuaTools.setFunction(lua, -1, -3, "SetLeft", LuaControl::setLeft);
-    LuaTools.setFunction(lua, -1, -3, "GetTop", LuaControl::getTop);
-    LuaTools.setFunction(lua, -1, -3, "SetTop", LuaControl::setTop);
-    LuaTools.setFunction(lua, -1, -3, "GetPosition", LuaControl::getPosition);
-    LuaTools.setFunction(lua, -1, -3, "SetPosition", LuaControl::setPosition);
-    LuaTools.setFunction(lua, -1, -3, "GetWidth", LuaControl::getWidth);
-    LuaTools.setFunction(lua, -1, -3, "SetWidth", LuaControl::setWidth);
-    LuaTools.setFunction(lua, -1, -3, "GetHeight", LuaControl::getHeight);
-    LuaTools.setFunction(lua, -1, -3, "SetHeight", LuaControl::setHeight);
-    LuaTools.setFunction(lua, -1, -3, "GetSize", LuaControl::getSize);
-    LuaTools.setFunction(lua, -1, -3, "SetSize", LuaControl::setSize);
-    LuaTools.setFunction(lua, -1, -3, "GetZOrder", LuaControl::getZOrder);
-    LuaTools.setFunction(lua, -1, -3, "SetZOrder", LuaControl::setZOrder);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaControl::constructor);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetParent", LuaControl::getParent);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetParent", LuaControl::setParent);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetControls", LuaControl::getControls);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Focus", LuaControl::focus);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetVisible", LuaControl::setVisible);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsVisible", LuaControl::isVisible);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetLeft", LuaControl::getLeft);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetLeft", LuaControl::setLeft);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetTop", LuaControl::getTop);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetTop", LuaControl::setTop);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetPosition", LuaControl::getPosition);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetPosition", LuaControl::setPosition);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetWidth", LuaControl::getWidth);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetWidth", LuaControl::setWidth);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetHeight", LuaControl::getHeight);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetHeight", LuaControl::setHeight);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetSize", LuaControl::getSize);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetSize", LuaControl::setSize);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetZOrder", LuaControl::getZOrder);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetZOrder", LuaControl::setZOrder);
 
-    LuaTools.setFunction(lua, -1, -3, "GetBlendMode", LuaControl::getBlendMode);
-    LuaTools.setFunction(lua, -1, -3, "SetBlendMode", LuaControl::setBlendMode);
-    LuaTools.setFunction(lua, -1, -3, "GetBackColor", LuaControl::getBackColor);
-    LuaTools.setFunction(lua, -1, -3, "SetBackColor", LuaControl::setBackColor);
-    LuaTools.setFunction(lua, -1, -3, "GetBackColorBlendMode", LuaControl::getBackColorBlendMode);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetBlendMode", LuaControl::getBlendMode);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetBlendMode", LuaControl::setBlendMode);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetBackColor", LuaControl::getBackColor);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetBackColor", LuaControl::setBackColor);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetBackColorBlendMode", LuaControl::getBackColorBlendMode);
 
-    LuaTools.setFunction(lua, -1, -3, "GetBackground", LuaControl::getBackground);
-    LuaTools.setFunction(lua, -1, -3, "SetBackground", LuaControl::setBackground);
-    LuaTools.setFunction(lua, -1, -3, "GetOpacity", LuaControl::getOpacity);
-    LuaTools.setFunction(lua, -1, -3, "SetOpacity", LuaControl::setOpacity);
-    LuaTools.setFunction(lua, -1, -3, "GetStretchMode", LuaControl::getStretchMode);
-    LuaTools.setFunction(lua, -1, -3, "SetMouseVisible", LuaControl::setMouseVisible);
-    LuaTools.setFunction(lua, -1, -3, "IsMouseVisible", LuaControl::isMouseVisible);
-    LuaTools.setFunction(lua, -1, -3, "GetMousePosition", LuaControl::getMousePosition);
-    LuaTools.setFunction(lua, -1, -3, "GetAllowDrop", LuaControl::getAllowDrop);
-    LuaTools.setFunction(lua, -1, -3, "GetWantsUpdates", LuaControl::getWantsUpdates);
-    LuaTools.setFunction(lua, -1, -3, "SetWantsUpdates", LuaControl::setWantsUpdates);
-    LuaTools.setFunction(lua, -1, -3, "GetWantsKeyEvents", LuaControl::getWantsKeyEvents);
-    LuaTools.setFunction(lua, -1, -3, "SetWantsKeyEvents", LuaControl::setWantsKeyEvents);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetBackground", LuaControl::getBackground);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetBackground", LuaControl::setBackground);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetOpacity", LuaControl::getOpacity);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetOpacity", LuaControl::setOpacity);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetStretchMode", LuaControl::getStretchMode);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetMouseVisible", LuaControl::setMouseVisible);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsMouseVisible", LuaControl::isMouseVisible);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMousePosition", LuaControl::getMousePosition);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetAllowDrop", LuaControl::getAllowDrop);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetWantsUpdates", LuaControl::getWantsUpdates);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetWantsUpdates", LuaControl::setWantsUpdates);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetWantsKeyEvents", LuaControl::getWantsKeyEvents);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetWantsKeyEvents", LuaControl::setWantsKeyEvents);
 
     lua.setField(-2, "Control");
     return error;
@@ -182,11 +189,8 @@ public final class LuaControl {
             public void componentMoved(ComponentEvent event) {
             	LuaTools.invokeEvent(
             			lua,
-              		"PositionChanged", 
-              		new Object[]{
-              				method,
-              				LuaObject.findLuaObjectFromObject(component)
-              		}
+              		method,
+              		LuaObject.findLuaObjectFromObject(component)
               );
             }
           });
@@ -195,7 +199,7 @@ public final class LuaControl {
         case "SizeChanged": {
           component.addComponentListener(new ComponentAdapter() {
               public void componentResized(ComponentEvent event) {
-                LuaTools.invokeEvent(lua, "SizeChanged", new Object[]{method, LuaObject.findLuaObjectFromObject(component)});
+                LuaTools.invokeEvent(lua, method, LuaObject.findLuaObjectFromObject(component));
               }
           });
           break;
@@ -203,7 +207,7 @@ public final class LuaControl {
         case "VisibleChanged": {
           component.addComponentListener(new ComponentAdapter() {
             public void componentShown(ComponentEvent event) {
-              LuaTools.invokeEvent(lua, "VisibleChanged", new Object[]{method, LuaObject.findLuaObjectFromObject(component)});
+              LuaTools.invokeEvent(lua, method, LuaObject.findLuaObjectFromObject(component));
             }
           });
           break;
@@ -212,7 +216,7 @@ public final class LuaControl {
           component.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent event) {
-              LuaTools.invokeEvent(lua, "FocusGained", new Object[]{method, LuaObject.findLuaObjectFromObject(component)});
+              LuaTools.invokeEvent(lua, method, LuaObject.findLuaObjectFromObject(component));
             }
           });
           break;
@@ -221,7 +225,7 @@ public final class LuaControl {
           component.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent event) {
-              LuaTools.invokeEvent(lua, "FocusLost", new Object[]{method, LuaObject.findLuaObjectFromObject(component)});
+              LuaTools.invokeEvent(lua, method, LuaObject.findLuaObjectFromObject(component));
             }
           });
           break;
@@ -264,7 +268,7 @@ public final class LuaControl {
           component.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent event) {
-              LuaTools.invokeEvent(lua, "MouseHover", new Object[]{method, LuaObject.findLuaObjectFromObject(component)});
+              LuaTools.invokeEvent(lua, method, LuaObject.findLuaObjectFromObject(component));
             }
           });
           break;
@@ -275,7 +279,7 @@ public final class LuaControl {
           component.addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent event) {
-              LuaTools.invokeEvent(lua, "MouseWheel", new Object[]{method, LuaObject.findLuaObjectFromObject(component)});
+              LuaTools.invokeEvent(lua, method, LuaObject.findLuaObjectFromObject(component));
             }
           });
           break;
@@ -289,7 +293,7 @@ public final class LuaControl {
           LuaButton.jButtonSelf(lua, 1).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-              LuaTools.invokeEvent(lua, "Click", new Object[]{method, LuaObject.findLuaObjectFromObject(component)});
+              LuaTools.invokeEvent(lua, method, LuaObject.findLuaObjectFromObject(component));
             }
           });
           break;
@@ -438,7 +442,7 @@ public final class LuaControl {
     	lua.push(component.getX());
     	lua.push(component.getY());
     });
-    return 1;
+    return 2;
   }
   
   private static int setPosition(Lua lua) {
@@ -517,7 +521,7 @@ public final class LuaControl {
     	lua.push(dimension.width);
     	lua.push(dimension.height);
     });
-    return 1;
+    return 2;
   }
 
   private static int setSize(Lua lua) {
@@ -617,7 +621,7 @@ public final class LuaControl {
       lua.push(point.x);
       lua.push(point.y);
     });
-    return 1;
+    return 2;
   }
 
   private static int getAllowDrop(Lua lua) {

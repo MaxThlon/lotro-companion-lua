@@ -3,6 +3,7 @@ package delta.games.lotro.lua;
 import static org.assertj.swing.finder.WindowFinder.findFrame;
 
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.UUID;
 
 import javax.swing.JDesktopPane;
@@ -17,14 +18,15 @@ import com.eleet.dragonconsole.CommandProcessor;
 import com.eleet.dragonconsole.DragonConsole;
 
 import delta.common.framework.console.ConsoleManager;
-import delta.common.framework.module.ModuleEvent;
+import delta.common.framework.lua.LuaModule;
 import delta.common.framework.module.ModuleExecutor;
 import delta.common.framework.module.ModuleManager;
+import delta.common.framework.module.command.ModuleExecutorCommand;
 import delta.common.ui.swing.GuiFactory;
 import delta.common.ui.swing.JFrame;
 import delta.games.lotro.client.plugin.Plugin;
-import delta.games.lotro.client.plugin.Plugin.Configuration;
 import delta.games.lotro.client.plugin.Plugin.Information;
+import delta.games.lotro.lua.command.LotroLMCNewThread;
 import delta.games.lotro.lua.utils.URLToolsLua;
 
 /**
@@ -43,7 +45,7 @@ public class MainTestLua extends AssertJSwingJUnitTestCase
   	return new Plugin(
   			new Information("", "", "", "", ""),
   			packageName,
-  			new Configuration(apartmentName)
+  			new HashMap<String, String>() {{ put("apartmentName", apartmentName); }}
   	);
   }
 
@@ -94,10 +96,10 @@ public class MainTestLua extends AssertJSwingJUnitTestCase
   }
   
   public static void scriptSimpleTest(CommandProcessor commandProcessor) {
-    LuaModule luaRunner = new LuaModule(
+    LuaModule luaRunner = new LotroLuaModule(
     		UUID.randomUUID(),
     		null,
-    		new LuaLotro(),
+    		null,
     		URLToolsLua.getFromClassPath("", MainTestLua.class)
     );
     try {
@@ -106,17 +108,17 @@ public class MainTestLua extends AssertJSwingJUnitTestCase
           "simple"
       );
       if (error != Lua.LuaError.OK) LuaTools.throwLuaError(luaRunner.getLua());*/
-      luaRunner.handleEvent(null);
+      luaRunner.execute(null);
     } catch (Exception exception){
       LOGGER.error("Exception Error: ", exception);
     }
   }
 
   public static void scriptTranslateTest(CommandProcessor commandProcessor) {
-    LuaModule luaRunner = new LuaModule(
+    LuaModule luaRunner = new LotroLuaModule(
     		UUID.randomUUID(),
     		null,
-    		new LuaLotro(),
+    		null,
     		URLToolsLua.getFromClassPath("", MainTestLua.class)
     );
     try {
@@ -124,7 +126,7 @@ public class MainTestLua extends AssertJSwingJUnitTestCase
           LuaTools.loadBuffer("translate-test", MainTestLua.class),
           "translate-test"
       );*/
-      luaRunner.handleEvent(null);
+      luaRunner.execute(null);
     } catch (Exception exception){
       LOGGER.error("Exception Error: ", exception);
     }
@@ -133,27 +135,23 @@ public class MainTestLua extends AssertJSwingJUnitTestCase
   @Test
   public void scriptUiTest() {
   	UUID moduleUuid = UUID.randomUUID();
-    LuaModule luaRunner = new LuaModule(
+    LuaModule luaRunner = new LotroLuaModule(
     		moduleUuid,
     		null,
-    		new LuaLotro(),
+    		null,
     		URLToolsLua.getFromClassPath("", MainTestLua.class),
     		Paths.get("target", "classes", "delta", "games", "lotro", "lua")
     );
     ModuleManager.getInstance().addModule(luaRunner);
-    luaRunner.handleEvent(new ModuleEvent(
-    		ModuleExecutor.ExecutorEvent.LOAD,
-    		moduleUuid,
-    		ModuleExecutor.ExecutorEvent.LOAD.name(),
-    		new Object[]{ LuaModule.LuaBootstrap.Lotro }
+    luaRunner.load(new ModuleExecutorCommand(
+    		ModuleExecutor.Command.LOAD,
+    		moduleUuid
+    		//LuaModule.LuaBootstrap.Lotro
     ));
 
-    luaRunner.handleEvent(new ModuleEvent(
-    		ModuleExecutor.ExecutorEvent.EXECUTE,
-    		moduleUuid,
-    		"load",
-    		new Object[]{ buildPlugin("Test.ui-test", "Test.ui-test") }
-    ));
+    Plugin plugin = buildPlugin("Test.ui-test", "Test.ui-test");
+    UUID threadUuid = UUID.randomUUID();
+    luaRunner.execute(new LotroLMCNewThread(threadUuid, plugin));
     
     /*luaRunner.handleEvent(new  ModuleEvent(
     		ModuleExecutor.ExecutorEvent.EXECUTE,
@@ -167,7 +165,7 @@ public class MainTestLua extends AssertJSwingJUnitTestCase
     		ModuleExecutor.ExecutorEvent.EXECUTE.name(),
     		null
     ));*/
-    FrameFixture debugWindow_Frame = findFrame("debugWindow").withTimeout(10000).using(robot());
+    FrameFixture debugWindow_Frame = findFrame("debugWindow").withTimeout(100009999).using(robot());
     debugWindow_Frame.requireTitle("Debug Console");
   }
 
@@ -182,16 +180,32 @@ public class MainTestLua extends AssertJSwingJUnitTestCase
     SwingUtilities.invokeLater(new Runnable() {
     	@Override
       public void run() {
-        buildUI();
-        CommandProcessor commandProcessor=new CommandProcessor();
-        commandProcessor.install(_dragonConsole);
-        //try {
-          //scriptTranslateTest();
-          //scriptUiTest(commandProcessor);
-        //} catch (IOException e) {
+    		GuiFactory.init();
+      	ConsoleManager.getInstance().activateByModuleLogger();
+      	
+        try {
+        	UUID moduleUuid = UUID.randomUUID();
+          LuaModule luaRunner = new LotroLuaModule(
+          		moduleUuid,
+          		null,
+          		null,
+          		URLToolsLua.getFromClassPath("", MainTestLua.class),
+          		Paths.get("target", "classes", "delta", "games", "lotro", "lua")
+          );
+          ModuleManager.getInstance().addModule(luaRunner);
+          luaRunner.load(new ModuleExecutorCommand(
+          		ModuleExecutor.Command.LOAD,
+          		moduleUuid
+          		//LuaModule.LuaBootstrap.Lotro
+          ));
+
+          Plugin plugin = buildPlugin("Test.ui-test", "Test.ui-test");
+          UUID threadUuid = UUID.randomUUID();
+          luaRunner.execute(new LotroLMCNewThread(threadUuid, plugin));
+        } catch (Exception e) {
           // TODO Auto-generated catch block
-          //LOGGER.erro(e);
-        //}
+          LOGGER.error(e);
+        }
       }
     });
   }

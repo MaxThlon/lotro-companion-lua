@@ -17,43 +17,49 @@ import party.iroiro.luajava.Lua;
  * @author MaxThlon
  */
 final class LuaLabel {
-
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua LuaLabel package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "UI", "ScrollableControl");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "ScrollableControl");
   	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaLabel::constructor);
-  	LuaTools.setFunction(lua, -1, -3, "IsMultiline", LuaLabel::isMultiline);
-  	LuaTools.setFunction(lua, -1, -3, "SetMultiline", LuaLabel::setMultiline);
-  	LuaTools.setFunction(lua, -1, -3, "IsMarkupEnabled", LuaLabel::isMarkupEnabled);
-  	LuaTools.setFunction(lua, -1, -3, "GetFont", LuaLabel::getFont);
-  	LuaTools.setFunction(lua, -1, -3, "SetFont", LuaLabel::setFont);
-  	LuaTools.setFunction(lua, -1, -3, "GetFontStyle", LuaLabel::getFontStyle);
-  	LuaTools.setFunction(lua, -1, -3, "SetFontStyle", LuaLabel::setFontStyle);
-  	LuaTools.setFunction(lua, -1, -3, "GetTextAlignment", LuaLabel::getTextAlignment);
-  	LuaTools.setFunction(lua, -1, -3, "SetTextAlignment", LuaLabel::setTextAlignment);
-  	LuaTools.setFunction(lua, -1, -3, "GetForeColor", LuaLabel::getForeColor);
-  	LuaTools.setFunction(lua, -1, -3, "SetForeColor", LuaLabel::setForeColor);
-  	LuaTools.setFunction(lua, -1, -3, "GetOutlineColor", LuaLabel::getOutlineColor);
-  	LuaTools.setFunction(lua, -1, -3, "SetOutlineColor", LuaLabel::setOutlineColor);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaLabel::constructor);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsMultiline", LuaLabel::isMultiline);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetMultiline", LuaLabel::setMultiline);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsMarkupEnabled", LuaLabel::isMarkupEnabled);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetFont", LuaLabel::getFont);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetFont", LuaLabel::setFont);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetFontStyle", LuaLabel::getFontStyle);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetFontStyle", LuaLabel::setFontStyle);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetTextAlignment", LuaLabel::getTextAlignment);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetTextAlignment", LuaLabel::setTextAlignment);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetForeColor", LuaLabel::getForeColor);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetForeColor", LuaLabel::setForeColor);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetOutlineColor", LuaLabel::getOutlineColor);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetOutlineColor", LuaLabel::setOutlineColor);
     
-  	LuaTools.setFunction(lua, -1, -3, "GetTextLength", LuaLabel::getTextLength);
-    LuaTools.setFunction(lua, -1, -3, "GetText", LuaLabel::getText);
-    LuaTools.setFunction(lua, -1, -3, "SetText", LuaLabel::setText);
-    LuaTools.setFunction(lua, -1, -3, "AppendText", LuaLabel::appendText);
-    LuaTools.setFunction(lua, -1, -3, "InsertText", LuaLabel::insertText);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetTextLength", LuaLabel::getTextLength);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetText", LuaLabel::getText);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetText", LuaLabel::setText);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "AppendText", LuaLabel::appendText);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "InsertText", LuaLabel::insertText);
     
-    LuaTools.setFunction(lua, -1, -3, "IsSelectable", LuaLabel::isSelectable);
-    LuaTools.setFunction(lua, -1, -3, "SetSelectable", LuaLabel::setSelectable);
-    LuaTools.setFunction(lua, -1, -3, "SelectAll", LuaLabel::selectAll);
-    LuaTools.setFunction(lua, -1, -3, "DeselectAll", LuaLabel::deselectAll);
-    LuaTools.setFunction(lua, -1, -3, "SetSelection", LuaLabel::setSelection);
-    LuaTools.setFunction(lua, -1, -3, "GetSelectedText", LuaLabel::getSelectedText);
-    LuaTools.setFunction(lua, -1, -3, "SetSelectedText", LuaLabel::setSelectedText);
-    LuaTools.setFunction(lua, -1, -3, "GetSelectionLength", LuaLabel::getSelectionLength);
-    LuaTools.setFunction(lua, -1, -3, "SetSelectionLength", LuaLabel::setSelectionLength);
-    LuaTools.setFunction(lua, -1, -3, "GetSelectionStart", LuaLabel::getSelectionStart);
-    LuaTools.setFunction(lua, -1, -3, "SetSelectionStart", LuaLabel::setSelectionStart);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsSelectable", LuaLabel::isSelectable);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetSelectable", LuaLabel::setSelectable);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SelectAll", LuaLabel::selectAll);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "DeselectAll", LuaLabel::deselectAll);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetSelection", LuaLabel::setSelection);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetSelectedText", LuaLabel::getSelectedText);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetSelectedText", LuaLabel::setSelectedText);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetSelectionLength", LuaLabel::getSelectionLength);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetSelectionLength", LuaLabel::setSelectionLength);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetSelectionStart", LuaLabel::getSelectionStart);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetSelectionStart", LuaLabel::setSelectionStart);
 
     lua.setField(-2, "Label");
     return error;

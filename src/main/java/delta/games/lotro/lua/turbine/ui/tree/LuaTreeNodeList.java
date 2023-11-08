@@ -17,21 +17,27 @@ import party.iroiro.luajava.Lua.Conversion;
  * LuaTreeNodeList library for lua scripts.
  * @author MaxThlon
  */
-public abstract class LuaTreeNodeList {
-
-  public static Lua.LuaError add(Lua lua) {
+public final class LuaTreeNodeList {
+  /**
+   * Initialize lua TreeNodeList package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object");
   	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaTreeNodeList::constructor);
-    LuaTools.setFunction(lua, -1, -3, "GetCount", LuaTreeNodeList::getCount);
-    LuaTools.setFunction(lua, -1, -3, "Add", LuaTreeNodeList::addNode);
-    LuaTools.setFunction(lua, -1, -3, "Get", LuaTreeNodeList::getNode);
-    LuaTools.setFunction(lua, -1, -3, "Contains", LuaTreeNodeList::contains);
-    LuaTools.setFunction(lua, -1, -3, "IndexOf", LuaTreeNodeList::indexOf);
-    LuaTools.setFunction(lua, -1, -3, "Remove", LuaTreeNodeList::remove);
-    LuaTools.setFunction(lua, -1, -3, "RemoveAt", LuaTreeNodeList::removeAt);
-    LuaTools.setFunction(lua, -1, -3, "Clear", LuaTreeNodeList::clear);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaTreeNodeList::constructor);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetCount", LuaTreeNodeList::getCount);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Add", LuaTreeNodeList::addNode);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Get", LuaTreeNodeList::getNode);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Contains", LuaTreeNodeList::contains);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IndexOf", LuaTreeNodeList::indexOf);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Remove", LuaTreeNodeList::remove);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "RemoveAt", LuaTreeNodeList::removeAt);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Clear", LuaTreeNodeList::clear);
 
     lua.setField(-2, "TreeNodeList");
     return error;

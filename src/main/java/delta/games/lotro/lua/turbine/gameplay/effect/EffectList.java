@@ -1,6 +1,6 @@
 package delta.games.lotro.lua.turbine.gameplay.effect;
 
-import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.JFunction;
 import party.iroiro.luajava.Lua;
 
@@ -9,9 +9,16 @@ import party.iroiro.luajava.Lua;
  */
 public class EffectList
 {
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua EffectList package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object");
   	if (error != Lua.LuaError.OK) return error;
     lua.push((JFunction)EffectList::constructor);
     lua.setField(-2, "Constructor");
@@ -28,23 +35,23 @@ public class EffectList
     return error;
   }
   
-  public static int constructor(Lua lua) {
+  private static int constructor(Lua lua) {
     return 1;
   }
   
-  public static int getCount(Lua lua) {
+  private static int getCount(Lua lua) {
     return 1;
   }
   
-  public static int get(Lua lua) {
+  private static int get(Lua lua) {
     return 1;
   }
   
-  public static int contains(Lua lua) {
+  private static int contains(Lua lua) {
     return 1;
   }
   
-  public static int indexOf(Lua lua) {
+  private static int indexOf(Lua lua) {
     return 1;
   }
 }

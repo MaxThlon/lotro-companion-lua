@@ -1,6 +1,6 @@
 package delta.games.lotro.lua.turbine.gameplay.player;
 
-import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.JFunction;
 import party.iroiro.luajava.Lua;
 
@@ -9,9 +9,16 @@ import party.iroiro.luajava.Lua;
  */
 public class LocalPlayer
 {
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua LocalPlayer package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "Gameplay", "Player");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Gameplay", "Player");
   	if (error != Lua.LuaError.OK) return error;
     lua.push((JFunction)LocalPlayer::constructor);
     lua.setField(-2, "Constructor");

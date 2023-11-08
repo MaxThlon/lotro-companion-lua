@@ -13,16 +13,22 @@ import party.iroiro.luajava.Lua;
  * @author MaxThlon
  */
 public abstract class Quickslot {
-
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua Quickslot package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "UI", "Control");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "Control");
   	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", Quickslot::constructor);
-    LuaTools.setFunction(lua, -1, -3, "GetShortcut", Quickslot::getShortcut);
-    LuaTools.setFunction(lua, -1, -3, "SetShortcut", Quickslot::setShortcut);
-    LuaTools.setFunction(lua, -1, -3, "IsUseOnRightClick", Quickslot::isUseOnRightClick);
-    LuaTools.setFunction(lua, -1, -3, "SetUseOnRightClick", Quickslot::setUseOnRightClick);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", Quickslot::constructor);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetShortcut", Quickslot::getShortcut);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetShortcut", Quickslot::setShortcut);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsUseOnRightClick", Quickslot::isUseOnRightClick);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetUseOnRightClick", Quickslot::setUseOnRightClick);
 
     lua.setField(-2, "Quickslot");
     return error;

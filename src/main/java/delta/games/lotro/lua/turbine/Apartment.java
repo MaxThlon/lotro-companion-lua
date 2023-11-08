@@ -1,19 +1,16 @@
 package delta.games.lotro.lua.turbine;
 
-import party.iroiro.luajava.Lua;
-
 /**
  * @author MaxThlon
  */
-public class Apartment
-{
-	Lua _thread;
+public class Apartment {
+	String[] _namespace;
 
-  public Apartment(Lua thread) {
-  	_thread = thread;
+  public Apartment(String[] namespace) {
+  	_namespace = namespace;
   }
 
-  public Lua getThread() {
-    return _thread;
+  public String[] getNamespace() {
+    return _namespace;
   }
 }

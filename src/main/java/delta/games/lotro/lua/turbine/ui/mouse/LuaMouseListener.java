@@ -31,35 +31,35 @@ public abstract class LuaMouseListener implements MouseListener {
         @Override
         public void mousePressed(MouseEvent  mouseEvent) {
           if (_luaMouseDown != null) {
-            LuaTools.invokeEvent(lua, "MouseDown", new Object[]{_luaMouseDown, self});
+            LuaTools.invokeEvent(lua, _luaMouseDown, self);
           }
         }
   
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
           if (_luaMouseClick != null) {
-            LuaTools.invokeEvent(lua, "MouseClick", new Object[]{_luaMouseClick, self});
+            LuaTools.invokeEvent(lua, _luaMouseClick, self);
           }
         }
   
         @Override
         public void mouseReleased(MouseEvent mouseEvent) {
           if (_luaMouseUp != null) {
-            LuaTools.invokeEvent(lua, "MouseUp", new Object[]{_luaMouseUp, self});
+            LuaTools.invokeEvent(lua, _luaMouseUp, self);
           }
         }
   
         @Override
         public void mouseEntered(MouseEvent mouseEvent) {
           if (_luaMouseEnter != null) {
-            LuaTools.invokeEvent(lua, "MouseEnter", new Object[]{_luaMouseEnter, self});
+            LuaTools.invokeEvent(lua, _luaMouseEnter, self);
           }
         }
   
         @Override
         public void mouseExited(MouseEvent mouseEvent) {
           if (_luaMouseLeave != null) {
-            LuaTools.invokeEvent(lua, "MouseLeave", new Object[]{_luaMouseLeave, self});
+            LuaTools.invokeEvent(lua, _luaMouseLeave, self);
           }
         }
       };

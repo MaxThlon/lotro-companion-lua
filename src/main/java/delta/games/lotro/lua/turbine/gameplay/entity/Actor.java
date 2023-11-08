@@ -1,6 +1,5 @@
 package delta.games.lotro.lua.turbine.gameplay.entity;
 
-import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
 
@@ -9,75 +8,82 @@ import party.iroiro.luajava.Lua;
  */
 public class Actor
 {
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua Actor package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "Gameplay", "Entity");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Gameplay", "Entity");
   	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", Actor::constructor);
-  	LuaTools.setFunction(lua, -1, -3, "GetLevel", Actor::getLevel);
-    LuaTools.setFunction(lua, -1, -3, "GetTarget", Actor::getTarget);
-    LuaTools.setFunction(lua, -1, -3, "GetEffects", Actor::getEffects);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", Actor::constructor);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetLevel", Actor::getLevel);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetTarget", Actor::getTarget);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetEffects", Actor::getEffects);
     
-    LuaTools.setFunction(lua, -1, -3, "GetMorale", Actor::getMorale);
-    LuaTools.setFunction(lua, -1, -3, "GetBaseMaxMorale", Actor::getBaseMaxMorale);
-    LuaTools.setFunction(lua, -1, -3, "GetTemporaryMorale", Actor::getTemporaryMorale);
-    LuaTools.setFunction(lua, -1, -3, "GetMaxTemporaryMorale", Actor::getMaxTemporaryMorale);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMorale", Actor::getMorale);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetBaseMaxMorale", Actor::getBaseMaxMorale);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetTemporaryMorale", Actor::getTemporaryMorale);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMaxTemporaryMorale", Actor::getMaxTemporaryMorale);
 
-    LuaTools.setFunction(lua, -1, -3, "GetPower", Actor::getPower);
-    LuaTools.setFunction(lua, -1, -3, "GetBaseMaxPower", Actor::getBaseMaxPower);
-    LuaTools.setFunction(lua, -1, -3, "GetTemporaryPower", Actor::getTemporaryPower);
-    LuaTools.setFunction(lua, -1, -3, "GetMaxTemporaryPower", Actor::getMaxTemporaryPower);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetPower", Actor::getPower);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetBaseMaxPower", Actor::getBaseMaxPower);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetTemporaryPower", Actor::getTemporaryPower);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMaxTemporaryPower", Actor::getMaxTemporaryPower);
     
     lua.setField(-2, "Actor");
     
     return error;
   }
   
-  public static int constructor(Lua lua) {
+  private static int constructor(Lua lua) {
     return 1;
   }
   
-  public static int getLevel(Lua lua) {
+  private static int getLevel(Lua lua) {
     return 1;
   }
   
-  public static int getTarget(Lua lua) {
+  private static int getTarget(Lua lua) {
     return 1;
   }
   
-  public static int getEffects(Lua lua) {
+  private static int getEffects(Lua lua) {
     return 1;
   }
   
-  public static int getMorale(Lua lua) {
+  private static int getMorale(Lua lua) {
     return 1;
   }
   
-  public static int getBaseMaxMorale(Lua lua) {
+  private static int getBaseMaxMorale(Lua lua) {
     return 1;
   }
   
-  public static int getTemporaryMorale(Lua lua) {
+  private static int getTemporaryMorale(Lua lua) {
     return 1;
   }
   
-  public static int getMaxTemporaryMorale(Lua lua) {
+  private static int getMaxTemporaryMorale(Lua lua) {
     return 1;
   }
   
-  public static int getPower(Lua lua) {
+  private static int getPower(Lua lua) {
     return 1;
   }
   
-  public static int getBaseMaxPower(Lua lua) {
+  private static int getBaseMaxPower(Lua lua) {
     return 1;
   }
   
-  public static int getTemporaryPower(Lua lua) {
+  private static int getTemporaryPower(Lua lua) {
     return 1;
   }
   
-  public static int getMaxTemporaryPower(Lua lua) {
+  private static int getMaxTemporaryPower(Lua lua) {
     return 1;
   }
 }

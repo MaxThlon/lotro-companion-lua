@@ -1,6 +1,5 @@
 package delta.games.lotro.lua.turbine.gameplay.wallet;
 
-import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
 
@@ -9,19 +8,26 @@ import party.iroiro.luajava.Lua;
  */
 public class WalletItem
 {
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua WalletItem package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
 
-  	if ((error = LuaObject.callInherit(lua, -3, "Turbine", "Object")) != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", WalletItem::constructor);
-    LuaTools.setFunction(lua, -1, -3, "GetName", WalletItem::getName);
-    LuaTools.setFunction(lua, -1, -3, "GetDescription", WalletItem::getDescription);
-    LuaTools.setFunction(lua, -1, -3, "IsAccountItem", WalletItem::isAccountItem);
-    LuaTools.setFunction(lua, -1, -3, "GetQuantity", WalletItem::getQuantity);
-    LuaTools.setFunction(lua, -1, -3, "GetMaxQuantity", WalletItem::getMaxQuantity);
+  	if ((error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object")) != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", WalletItem::constructor);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetName", WalletItem::getName);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetDescription", WalletItem::getDescription);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsAccountItem", WalletItem::isAccountItem);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetQuantity", WalletItem::getQuantity);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMaxQuantity", WalletItem::getMaxQuantity);
 
-    LuaTools.setFunction(lua, -1, -3, "GetImage", WalletItem::getImage);
-    LuaTools.setFunction(lua, -1, -3, "GetSmallImage", WalletItem::getSmallImage);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetImage", WalletItem::getImage);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetSmallImage", WalletItem::getSmallImage);
 
     lua.setField(-2, "WalletItem");
     return error;

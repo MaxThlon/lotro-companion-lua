@@ -1,10 +1,6 @@
 package delta.common.framework.plugin;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,22 +13,27 @@ import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 
-import delta.common.framework.module.ModuleEvent;
+import delta.common.framework.console.ConsoleCommandEvent;
+import delta.common.framework.lua.LuaModule;
+import delta.common.framework.lua.command.LuaMTCCommand;
 import delta.common.framework.module.ModuleExecutor;
 import delta.common.framework.module.ModuleManager;
+import delta.common.framework.module.command.ModuleExecutorCommand;
+import delta.common.framework.module.event.ModuleEvent;
 import delta.common.utils.application.config.main.MainApplicationConfiguration;
+import delta.games.lotro.character.CharacterFile;
 import delta.games.lotro.client.plugin.Plugin;
 import delta.games.lotro.client.plugin.io.xml.PluginXMLParser;
-import delta.games.lotro.lua.LuaLotro;
-import delta.games.lotro.lua.LuaModule;
+import delta.games.lotro.lua.LotroLuaModule;
+import delta.games.lotro.lua.command.LotroLMCNewThread;
 import delta.games.lotro.utils.events.EventsManager;
+import delta.games.lotro.utils.events.GenericEventsListener;
 
 /**
  * PluginManager.
  * @author MaxThlon
  */
-public class PluginManager 
-{
+public class PluginManager  implements GenericEventsListener<ModuleEvent> {
   private static class PluginManagerHolder {
     private static final PluginManager PLUGIN_MANAGER = new PluginManager();
   }
@@ -61,11 +62,21 @@ public class PluginManager
   	_pluginModuleUuid = UUID.randomUUID();
     _pluginConfiguration=((PluginConfigurationHolder)MainApplicationConfiguration.getInstance()).getPluginConfiguration();
     _plugins=loadPluginList();
-    
+    EventsManager.addListener(ModuleEvent.class, this); 
   }
   
+  /**
+   * @return module uuid.
+   */
   public UUID getModuleUuid() {
   	return _pluginModuleUuid;
+  }
+  
+  /**
+   * @return PluginConfiguration.
+   */
+  public PluginConfiguration getPluginConfiguration() {
+  	return _pluginConfiguration;
   }
   
   /**
@@ -85,7 +96,7 @@ public class PluginManager
   public Plugin getPlugin(String pluginName)
   {
     return _plugins.stream()
-        .filter(plugin -> pluginName.equals(plugin._information._name))
+        .filter(plugin -> pluginName.equals(plugin.getInformation()._name))
         .findAny()
         .orElse(null);
   }
@@ -121,89 +132,35 @@ public class PluginManager
       return new ArrayList<Plugin>();
     }
   }
-  
-  protected File pluginFindScriptFile(Plugin plugin) {
-    return _pluginConfiguration.getPluginsPath()
-    		.resolve(plugin._package.replace('.', File.separatorChar) + ".lua").toFile();
-  }
-  
-	protected InputStream pluginOpenScript(File scriptFile) {
-    FileInputStream inputStream;
-    try
-    {
-      inputStream=new FileInputStream(scriptFile);
-    }
-    catch (FileNotFoundException e)
-    {
-      LOGGER.error(e);
-      inputStream=null;
-    }
-    return inputStream;
-  }
 
-  public LuaModule addModule(UUID moduleUuid) {
-  	LuaModule luaModule = new LuaModule(moduleUuid, null, new LuaLotro(), _pluginConfiguration.getPluginsPath());
+  private Plugin _plugin;
+  public void bootstrapLotro(Plugin plugin, CharacterFile characterFile) {
+  	_plugin = plugin;
+  	LuaModule luaModule = new LotroLuaModule(
+  			_pluginModuleUuid,
+  			null,
+  			characterFile,
+  			_pluginConfiguration.getPluginsPath()
+  	);
   	ModuleManager.getInstance().addModule(luaModule);
-  	
-    return luaModule;
+  	EventsManager.addListener(ConsoleCommandEvent.class, luaModule);
   }
 
-  public void bootstrapLotro(Plugin plugin) {
-  	addModule(_pluginModuleUuid);
-  	EventsManager.invokeEvent(new  ModuleEvent(
-    		ModuleExecutor.ExecutorEvent.LOAD,
-    		_pluginModuleUuid,
-    		ModuleExecutor.ExecutorEvent.LOAD.name(),
-    		new Object[]{ LuaModule.LuaBootstrap.Lotro }
-    ));
-  	/*EventsManager.invokeEvent(new  ModuleEvent(
-    		ModuleExecutor.ExecutorEvent.EXECUTE,
-    		moduleUuid,
-    		"debug",
-    		null
-    ));*/
-  	EventsManager.invokeEvent(new  ModuleEvent(
-    		ModuleExecutor.ExecutorEvent.EXECUTE,
-    		_pluginModuleUuid,
-    		"load",
-    		new Object[]{ plugin }
-    ));
-  }
-  
-  public void bootstrapSandBoxedLotro() {
-  	addModule(_pluginModuleUuid);
-
-  	EventsManager.invokeEvent(new  ModuleEvent(
-    		ModuleExecutor.ExecutorEvent.LOAD,
-    		_pluginModuleUuid,
-    		ModuleExecutor.ExecutorEvent.LOAD.name(),
-    		new Object[]{ LuaModule.LuaBootstrap.LotroSandBox }
-    ));
-  }
-
-  /**
-   * execute plugin.
-   * @param plugin .
-   */
-  public void loadPlugin(Plugin plugin) {
-  	EventsManager.invokeEvent(new  ModuleEvent(
-    		ModuleExecutor.ExecutorEvent.LOAD,
-    		_pluginModuleUuid,
-    		ModuleExecutor.ExecutorEvent.LOAD.name(),
-    		new Object[]{ plugin }
-    ));
-  }
-  
-  /**
-   * process command.
-   * @param input .
-   */
-  public void processCommand(String input) {
-  	EventsManager.invokeEvent(new ModuleEvent(
-    		ModuleExecutor.ExecutorEvent.EXECUTE,
-    		_pluginModuleUuid,
-    		"processCommand",
-    		new Object[]{ input }
-    ));
-  }
+	@Override
+	public void eventOccurred(ModuleEvent event) {
+		if ((event.getType() == ModuleExecutor.MEvent.STARTED) && 
+				(event.getModule().getUuid() == _pluginModuleUuid)) {
+			ModuleManager.getInstance().offer(new ModuleExecutorCommand(
+	    		ModuleExecutor.Command.LOAD,
+	    		_pluginModuleUuid
+	    ));
+			UUID threadUuid = UUID.randomUUID();
+	  	ModuleManager.getInstance().offer(new ModuleExecutorCommand(
+	    		ModuleExecutor.Command.EXECUTE,
+	    		_pluginModuleUuid,
+	    		new LotroLMCNewThread(threadUuid, _plugin),
+	    		new LuaMTCCommand(threadUuid, "import", _plugin.getPackage())
+	    ));
+		}
+	}
 }

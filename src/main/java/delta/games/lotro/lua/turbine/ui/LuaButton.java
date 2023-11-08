@@ -13,12 +13,18 @@ import party.iroiro.luajava.Lua;
  * @author MaxThlon
  */
 final class LuaButton {
-
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua LuaButton package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "UI", "Label");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "Label");
   	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaButton::constructor);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaButton::constructor);
     lua.setField(-2, "Button");
     return error;
   }

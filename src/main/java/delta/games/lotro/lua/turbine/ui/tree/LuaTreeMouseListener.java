@@ -35,8 +35,8 @@ public class LuaTreeMouseListener implements MouseListener {
         if (luaNodeCallBackFunc != null) {
           LuaTools.invokeEvent(
           		luaNode.state(),
-              "MouseDown",
-              new Object[]{luaNodeCallBackFunc, luaNode});
+          		luaNodeCallBackFunc,
+              new LuaValue[]{ luaNode });
         }
       }
     }

@@ -15,22 +15,25 @@ import party.iroiro.luajava.Lua;
  * @author MaxThlon
  */
 public final class UI {
+  /**
+   * Initialize lua UI package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
   @SuppressWarnings("boxing")
-  public static Lua.LuaError openPackage(Lua lua, int globalsIndex) {
+  public static Lua.LuaError openPackage(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
 
   	Turbine.pushfenv(
     		lua,
-    		globalsIndex,
+    		envIndex,
     		"Turbine.UI",
     		"Turbine", "UI"
     );
-  	Turbine.pushModule(
-  			lua,
-  			LuaTools.relativizeIndex(globalsIndex, -1),
-  			"Turbine", "UI"
-  	);
-    lua.push(new HashMap<String, String>() {{
+
+  	lua.push(new HashMap<String, String>() {{
         put("Color", "Color");
         put("Normal", "Normal");
         put("Multiply", "Multiply");
@@ -88,24 +91,28 @@ public final class UI {
     }}, Lua.Conversion.FULL);
     lua.setField(-2, "VerticalLayout");
 
-    if ((error = LuaObject.callInherit(lua, -3, "Turbine", "Object")) != Lua.LuaError.OK) return error;
-    LuaTools.setFunction(lua, -1, -3, "Constructor", UI::ColorConstructor);
+    if ((error = LuaTools.pushClass(
+    		lua,
+    		LuaTools.relativizeIndex(errfunc, -1),
+    		"Turbine", "Object"
+    )) != Lua.LuaError.OK) return error;
+    LuaTools.setFunction(lua, -1, -2, "Constructor", UI::ColorConstructor);
     lua.setField(-2, "Color");
 
-    if ((error  = LuaControl.add(lua)) != Lua.LuaError.OK) return error;
-    if ((error  = LuaDisplay.add(lua)) != Lua.LuaError.OK) return error;
-    if ((error = LuaScrollableControl.add(lua)) != Lua.LuaError.OK) return error;
-    if ((error = LuaLabel.add(lua)) != Lua.LuaError.OK) return error;
-    if ((error = LuaTextBox.add(lua)) != Lua.LuaError.OK) return error;
-    if ((error = LuaButton.add(lua)) != Lua.LuaError.OK) return error;
-    if ((error = LuaWindow.add(lua)) != Lua.LuaError.OK) return error;
-    if ((error = LuaListBox.add(lua)) != Lua.LuaError.OK) return error;
-    if ((error = LuaScrollBar.add(lua)) != Lua.LuaError.OK) return error;
-    if ((error = LuaTreeNode.add(lua)) != Lua.LuaError.OK) return error;
-    if ((error = LuaTreeNodeList.add(lua)) != Lua.LuaError.OK) return error;
-    if ((error = LuaTreeView.add(lua)) != Lua.LuaError.OK) return error;
+    if ((error  = LuaControl.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error  = LuaDisplay.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = LuaScrollableControl.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = LuaLabel.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = LuaTextBox.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = LuaButton.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = LuaWindow.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = LuaListBox.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = LuaScrollBar.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = LuaTreeNode.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = LuaTreeNodeList.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = LuaTreeView.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
 
-    lua.pop(2); /* pop env, module */
+    lua.pop(1); /* pop env */
     return error;
   }
   

@@ -15,15 +15,22 @@ import party.iroiro.luajava.Lua;
  * @author MaxThlon
  */
 final class LuaScrollableControl {
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua ScrollableControl package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "UI", "Control");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "Control");
   	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaScrollableControl::constructor);
-  	LuaTools.setFunction(lua, -1, -3, "GetHorizontalScrollBar", LuaScrollableControl::getHorizontalScrollBar);
-  	LuaTools.setFunction(lua, -1, -3, "SetHorizontalScrollBar", LuaScrollableControl::setHorizontalScrollBar);
-    LuaTools.setFunction(lua, -1, -3, "GetVerticalScrollBar", LuaScrollableControl::getVerticalScrollBar);
-    LuaTools.setFunction(lua, -1, -3, "SetVerticalScrollBar", LuaScrollableControl::setVerticalScrollBar);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaScrollableControl::constructor);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetHorizontalScrollBar", LuaScrollableControl::getHorizontalScrollBar);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetHorizontalScrollBar", LuaScrollableControl::setHorizontalScrollBar);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetVerticalScrollBar", LuaScrollableControl::getVerticalScrollBar);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetVerticalScrollBar", LuaScrollableControl::setVerticalScrollBar);
     
     lua.setField(-2, "ScrollableControl");
     return error;

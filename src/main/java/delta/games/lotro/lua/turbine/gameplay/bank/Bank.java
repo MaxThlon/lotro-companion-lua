@@ -1,6 +1,5 @@
 package delta.games.lotro.lua.turbine.gameplay.bank;
 
-import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
 
@@ -9,22 +8,29 @@ import party.iroiro.luajava.Lua;
  */
 public class Bank
 {
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua Bank package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = BankItem.add(lua);
+  	error = BankItem.add(lua, envIndex, errfunc);
   	if (error != Lua.LuaError.OK) return error;
 
-    LuaObject.callInherit(lua, -1, "Turbine", "Object");
+    LuaTools.pushClass(lua, errfunc, "Turbine", "Object");
     if (error != Lua.LuaError.OK) return error;
-    LuaTools.setFunction(lua, -1, -3, "Constructor", Bank::constructor);
-    LuaTools.setFunction(lua, -1, -3, "IsAvailable", Bank::isAvailable);
-    LuaTools.setFunction(lua, -1, -3, "GetCapacity", Bank::getCapacity);
-    LuaTools.setFunction(lua, -1, -3, "GetCount", Bank::getCount);
-    LuaTools.setFunction(lua, -1, -3, "GetItem", Bank::getItem);
-    LuaTools.setFunction(lua, -1, -3, "GetChestCount", Bank::getChestCount);
-    LuaTools.setFunction(lua, -1, -3, "GetChestName", Bank::getChestName);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", Bank::constructor);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsAvailable", Bank::isAvailable);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetCapacity", Bank::getCapacity);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetCount", Bank::getCount);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetItem", Bank::getItem);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetChestCount", Bank::getChestCount);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetChestName", Bank::getChestName);
 
-    lua.pCall(0, 1);
+    LuaTools.pCall(lua, 0, 1, LuaTools.relativizeIndex(errfunc, -1));
     lua.setField(-2, "Bank");
     
     return error;

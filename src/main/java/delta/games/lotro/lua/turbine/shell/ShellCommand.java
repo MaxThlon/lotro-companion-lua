@@ -1,6 +1,5 @@
 package delta.games.lotro.lua.turbine.shell;
 
-import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
 
@@ -9,15 +8,21 @@ import party.iroiro.luajava.Lua;
  * @author MaxThlon
  */
 public abstract class ShellCommand {
-
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua ShellCommand package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
 
-  	if ((error  = LuaObject.callInherit(lua, -3, "Turbine", "Object")) != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", ShellCommand::constructor);
-    LuaTools.setFunction(lua, -1, -3, "Execute", ShellCommand::execute);
-    LuaTools.setFunction(lua, -1, -3, "GetHelp", ShellCommand::getHelp);
-    LuaTools.setFunction(lua, -1, -3, "GetShortHelp", ShellCommand::getShortHelp);
+  	if ((error  = LuaTools.pushClass(lua, errfunc, "Turbine", "Object")) != Lua.LuaError.OK) return error;
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", ShellCommand::constructor);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Execute", ShellCommand::execute);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetHelp", ShellCommand::getHelp);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetShortHelp", ShellCommand::getShortHelp);
 
     lua.setField(-2, "ShellCommand");
     return error;

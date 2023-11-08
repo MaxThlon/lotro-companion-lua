@@ -29,21 +29,24 @@ import party.iroiro.luajava.Lua;
  * @author MaxThlon
  */
 public class Gameplay {
+  /**
+   * Initialize lua Gameplay package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
   @SuppressWarnings("boxing")
-  public static Lua.LuaError openPackage(Lua lua, int globalsIndex) {
+  public static Lua.LuaError openPackage(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
   	
   	Turbine.pushfenv(
     		lua,
-    		globalsIndex,
+    		envIndex,
     		"Turbine.Gameplay",
     		"Turbine", "Gameplay"
     );
-  	Turbine.pushModule(
-    		lua,
-    		LuaTools.relativizeIndex(globalsIndex, -1),
-    		"Turbine", "Gameplay"
-    );
+
     lua.push(new HashMap<String, Integer>() {{
         put("Undefined", 0);
         put("FreePeople", 1);
@@ -148,27 +151,17 @@ public class Gameplay {
     }});
     lua.setField(-2, "Vocation");
     
-    error = Entity.add(lua);
-    if (error != Lua.LuaError.OK) return error;
-    error = Item.add(lua);
-    if (error != Lua.LuaError.OK) return error;
-    error = Backpack.add(lua);
-    if (error != Lua.LuaError.OK) return error;
-    error = Bank.add(lua);
-    if (error != Lua.LuaError.OK) return error;
+    if ((error = Entity.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = Item.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = Backpack.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = Bank.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = Skill.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = Effect.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = Actor.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = Player.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    if ((error = LocalPlayer.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
 
-    error = Skill.add(lua);
-    if (error != Lua.LuaError.OK) return error;
-    error = Effect.add(lua);
-    if (error != Lua.LuaError.OK) return error;
-    error = Actor.add(lua);
-    if (error != Lua.LuaError.OK) return error;
-    error = Player.add(lua);
-    if (error != Lua.LuaError.OK) return error;
-    error = LocalPlayer.add(lua);
-    if (error != Lua.LuaError.OK) return error;
-
-    lua.pop(2); /* pop env, module */
+    lua.pop(1); /* pop env */
     return error;
   }
 }

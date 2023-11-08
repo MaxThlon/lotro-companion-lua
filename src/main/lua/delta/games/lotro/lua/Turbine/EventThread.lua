@@ -1,14 +1,15 @@
-import "Turbine.Event"
+local function capture_args(...)
+  return {...}, select("#", ...)
+end
 
-return function(package)
-  local function capture_args(...)
-    return {...}, select("#", ...)
-  end
-
-  import(package)
-
-  while true do
-    local varargs, len = capture_args(coroutine.yield())
-    Turbine.Event.Fire(varargs[1], unpack(varargs, 2, len-1))
+while true do
+  local varargs, len = capture_args(coroutine.yield())
+  
+  if len ~= 0 then
+    if len == 1 then
+      Turbine.Event.Fire(varargs[1])
+    else
+      Turbine.Event.Fire(varargs[1], unpack(varargs, 2, len))
+    end
   end
 end

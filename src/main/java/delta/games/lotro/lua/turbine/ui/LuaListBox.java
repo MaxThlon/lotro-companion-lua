@@ -18,36 +18,42 @@ import party.iroiro.luajava.Lua.Conversion;
  * @author MaxThlon
  */
 final class LuaListBox {
-
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua LuaListBox package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "UI", "ScrollableControl");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "ScrollableControl");
   	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaListBox::constructor);
-    LuaTools.setFunction(lua, -1, -3, "AddItem", LuaListBox::addItem);
-    LuaTools.setFunction(lua, -1, -3, "InsertItem", LuaListBox::insertItem);
-    LuaTools.setFunction(lua, -1, -3, "RemoveItem", LuaListBox::removeItem);
-    LuaTools.setFunction(lua, -1, -3, "RemoveItemAt", LuaListBox::removeItemAt);
-    LuaTools.setFunction(lua, -1, -3, "GetItem", LuaListBox::getItem);
-    LuaTools.setFunction(lua, -1, -3, "SetItem", LuaListBox::setItem);
-    LuaTools.setFunction(lua, -1, -3, "ContainsItem", LuaListBox::containsItem);
-    LuaTools.setFunction(lua, -1, -3, "IndexOfItem", LuaListBox::indexOfItem);
-    LuaTools.setFunction(lua, -1, -3, "GetItemCount", LuaListBox::getItemCount);
-    LuaTools.setFunction(lua, -1, -3, "ClearItems", LuaListBox::clearItems);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaListBox::constructor);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "AddItem", LuaListBox::addItem);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "InsertItem", LuaListBox::insertItem);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "RemoveItem", LuaListBox::removeItem);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "RemoveItemAt", LuaListBox::removeItemAt);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetItem", LuaListBox::getItem);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetItem", LuaListBox::setItem);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "ContainsItem", LuaListBox::containsItem);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IndexOfItem", LuaListBox::indexOfItem);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetItemCount", LuaListBox::getItemCount);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "ClearItems", LuaListBox::clearItems);
 
-    LuaTools.setFunction(lua, -1, -3, "GetSelectedItem", LuaListBox::getSelectedItem);
-    LuaTools.setFunction(lua, -1, -3, "SetSelectedItem", LuaListBox::setSelectedItem);
-    LuaTools.setFunction(lua, -1, -3, "GetSelectedIndex", LuaListBox::getSelectedIndex);
-    LuaTools.setFunction(lua, -1, -3, "SetSelectedIndex", LuaListBox::setSelectedIndex);
-    LuaTools.setFunction(lua, -1, -3, "GetOrientation", LuaListBox::getOrientation);
-    LuaTools.setFunction(lua, -1, -3, "SetOrientation", LuaListBox::setOrientation);
-    LuaTools.setFunction(lua, -1, -3, "GetMaxItemsPerLine", LuaListBox::getMaxItemsPerLine);
-    LuaTools.setFunction(lua, -1, -3, "SetMaxItemsPerLine", LuaListBox::setMaxItemsPerLine);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetSelectedItem", LuaListBox::getSelectedItem);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetSelectedItem", LuaListBox::setSelectedItem);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetSelectedIndex", LuaListBox::getSelectedIndex);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetSelectedIndex", LuaListBox::setSelectedIndex);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetOrientation", LuaListBox::getOrientation);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetOrientation", LuaListBox::setOrientation);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMaxItemsPerLine", LuaListBox::getMaxItemsPerLine);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetMaxItemsPerLine", LuaListBox::setMaxItemsPerLine);
 
-    LuaTools.setFunction(lua, -1, -3, "GetReverseFill", LuaListBox::getReverseFill);
-    LuaTools.setFunction(lua, -1, -3, "SetReverseFill", LuaListBox::setReverseFill);
-    LuaTools.setFunction(lua, -1, -3, "Sort", LuaListBox::sort);
-    LuaTools.setFunction(lua, -1, -3, "EnsureVisible", LuaListBox::ensureVisible);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetReverseFill", LuaListBox::getReverseFill);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetReverseFill", LuaListBox::setReverseFill);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Sort", LuaListBox::sort);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "EnsureVisible", LuaListBox::ensureVisible);
 
     lua.setField(-2, "ListBox");
     return error;

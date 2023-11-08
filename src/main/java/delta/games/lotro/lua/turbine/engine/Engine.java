@@ -1,6 +1,5 @@
 package delta.games.lotro.lua.turbine.engine;
 
-import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
 
@@ -9,19 +8,26 @@ import party.iroiro.luajava.Lua;
  * @author MaxThlon
  */
 public class Engine {
-  public static Lua.LuaError openPackage(Lua lua) {
+  /**
+   * Initialize lua Engine package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError openPackage(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	if ((error = LuaObject.callInherit(lua, -3, "Turbine", "Object")) != Lua.LuaError.OK) return error;
-    LuaTools.setFunction(lua, -1, -3, "Constructor", Engine::constructor);
-    LuaTools.setFunction(lua, -1, -3, "GetCallStack", Engine::getCallStack);
-    LuaTools.setFunction(lua, -1, -3, "GetDate", Engine::getDate);
-    LuaTools.setFunction(lua, -1, -3, "GetGameTime", Engine::getGameTime);
-    LuaTools.setFunction(lua, -1, -3, "GetLanguage", Engine::getLanguage);
-    LuaTools.setFunction(lua, -1, -3, "GetLocale", Engine::getLocale);
-    LuaTools.setFunction(lua, -1, -3, "GetLocalTime", Engine::getLocalTime);
-    LuaTools.setFunction(lua, -1, -3, "GetScriptVersion", Engine::getScriptVersion);
-    LuaTools.setFunction(lua, -1, -3, "ScriptLog", Engine::scriptLog);
-    lua.pCall(0, 1);
+  	if ((error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object")) != Lua.LuaError.OK) return error;
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", Engine::constructor);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetCallStack", Engine::getCallStack);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetDate", Engine::getDate);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetGameTime", Engine::getGameTime);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetLanguage", Engine::getLanguage);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetLocale", Engine::getLocale);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetLocalTime", Engine::getLocalTime);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetScriptVersion", Engine::getScriptVersion);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "ScriptLog", Engine::scriptLog);
+    LuaTools.pCall(lua, 0, 1, LuaTools.relativizeIndex(errfunc, -1));
     lua.setField(-2, "Engine");
     return error;
   }

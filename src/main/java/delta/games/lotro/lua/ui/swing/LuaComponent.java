@@ -5,7 +5,6 @@ import java.awt.Component;
 import javax.swing.SwingUtilities;
 
 import delta.games.lotro.lua.turbine.Turbine;
-import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.turbine.ui.LuaControl;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
@@ -13,27 +12,33 @@ import party.iroiro.luajava.Lua;
 /**
  * @author MaxThlon
  */
-public class LuaComponent {
-	public static Lua.LuaError add(Lua lua, int globalsIndex) {
+public final class LuaComponent {
+  /**
+   * Initialize lua Component package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+	public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
 		Lua.LuaError error;
 		
 		Turbine.pushfenv(
     		lua,
-    		globalsIndex,
+    		envIndex,
     		"UI.Swing",
     		"UI", "Swing"
     );
-  	Turbine.pushModule(
-  			lua,
-  			LuaTools.relativizeIndex(globalsIndex, -1),
-  			"UI", "Swing"
-  	);
 
-  	if ((error = LuaObject.callInherit(lua, -3, "Turbine", "Object")) != Lua.LuaError.OK) return error;
-    LuaTools.setFunction(lua, -1, -3, "SetName", LuaComponent::setName);
+  	if ((error = LuaTools.pushClass(
+  			lua,
+  			LuaTools.relativizeIndex(errfunc, -1),
+  			"Turbine", "Object"
+  	)) != Lua.LuaError.OK) return error;
+    LuaTools.setFunction(lua, -1, -2, "SetName", LuaComponent::setName);
     lua.setField(-2, "Component");
     
-  	lua.pop(2); /* pop env, module */
+  	lua.pop(1); /* pop env */
   	return error;
 	}
 	

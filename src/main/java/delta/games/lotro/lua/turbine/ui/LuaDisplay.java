@@ -5,7 +5,6 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Toolkit;
 
-import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
 
@@ -14,21 +13,26 @@ import party.iroiro.luajava.Lua;
  * @author MaxThlon
  */
 final class LuaDisplay {
-
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua Display package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object");
   	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaDisplay::constructor);
-    LuaTools.setFunction(lua, -1, -3, "GetWidth", LuaDisplay::getWidth);
-    LuaTools.setFunction(lua, -1, -3, "GetHeight", LuaDisplay::GetHeight);
-    LuaTools.setFunction(lua, -1, -3, "GetSize", LuaDisplay::GetSize);
-    LuaTools.setFunction(lua, -1, -3, "GetMouseX", LuaDisplay::GetMouseX);
-    LuaTools.setFunction(lua, -1, -3, "GetMouseY", LuaDisplay::GetMouseY);
-    LuaTools.setFunction(lua, -1, -3, "GetMousePosition", LuaDisplay::GetMousePosition);
-
-    if ((error =lua.pCall(0, 1)) != Lua.LuaError.OK) return error;
-    lua.setField(-2, "Display");
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaDisplay::constructor);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetWidth", LuaDisplay::getWidth);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetHeight", LuaDisplay::GetHeight);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetSize", LuaDisplay::GetSize);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMouseX", LuaDisplay::GetMouseX);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMouseY", LuaDisplay::GetMouseY);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMousePosition", LuaDisplay::GetMousePosition);
+    if ((error = LuaTools.pCall(lua, 0, 1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    lua.setField(LuaTools.relativizeIndex(envIndex, -1), "Display");
     return error;
   }
 
@@ -50,7 +54,7 @@ final class LuaDisplay {
     Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
     lua.push(dimension.width);
     lua.push(dimension.height);
-    return 1;
+    return 2;
   }
   
   private static int GetMouseX(Lua lua) {
@@ -67,6 +71,6 @@ final class LuaDisplay {
     Point location = MouseInfo.getPointerInfo().getLocation();
     lua.push(location.x);
     lua.push(location.y);
-    return 1;
+    return 2;
   }
 }

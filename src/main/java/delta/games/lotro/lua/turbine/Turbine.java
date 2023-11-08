@@ -1,15 +1,7 @@
 package delta.games.lotro.lua.turbine;
 
-import java.nio.file.Paths;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
-
-import delta.common.framework.module.ModuleEvent;
-import delta.games.lotro.client.plugin.Plugin;
-import delta.games.lotro.lua.LuaLotro;
-import delta.games.lotro.lua.LuaModule;
-import delta.games.lotro.lua.LuaModuleImpl;
 import delta.games.lotro.lua.turbine.engine.Engine;
 import delta.games.lotro.lua.turbine.gameplay.Gameplay;
 import delta.games.lotro.lua.turbine.object.LuaObject;
@@ -20,19 +12,19 @@ import delta.games.lotro.lua.turbine.ui.lotro.UiLotro;
 import delta.games.lotro.lua.ui.swing.LuaComponent;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
-import party.iroiro.luajava.Lua.Conversion;
 import party.iroiro.luajava.lua51.Lua51Consts;
-import party.iroiro.luajava.value.LuaValue;
 
 /**
  * Turbine library for lua scripts.
  * @author MaxThlon
  */
 public final class Turbine {
-  private static Logger LOGGER=Logger.getLogger(Turbine.class);
+  //private static Logger LOGGER = Logger.getLogger(Turbine.class);
 
-  /*
-   * Initialize root environment
+  /**
+   * Initialize lua turbine package for root environment
+   * @param lua
+   * @return Lua.LuaError.
    */
   public static Lua.LuaError openRootPackage(Lua lua) {
   	Lua.LuaError error;
@@ -40,26 +32,42 @@ public final class Turbine {
     lua.register("import", Turbine::luaTurbineImport);
 
     Lua localLua = lua.newThread();
-    localLua.push("Turbine.Class");
+    localLua.push("Turbine.Enum");
     localLua.pushValue(Lua51Consts.LUA_GLOBALSINDEX);
     if ((error = require(localLua, true, true)) != Lua.LuaError.OK) return error;
-    localLua.pop(3); /* pop module, globals, "Turbine.Class" */
+    localLua.pop(3); /* pop "Turbine.Enum", globals , module  */
     localLua = null;
     lua.pop(1); /* pop Thread */
 
     return error;
   }
-  
-  /*
-   * Initialize environment
+
+  /**
+   * Initialize lua turbine package
+   * @param lua thread.
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
    */
   @SuppressWarnings("boxing")
-  public static Lua.LuaError openPackage(Lua lua) {
+  public static Lua.LuaError openPackage(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	pushModule(lua, -1, "Turbine"); /* push module */
+  	pushNamespace(lua, envIndex, "Turbine"); /* push namespace */
 
-  	LuaTools.setFunction(lua, -2, -2, "require", Turbine::require);
-  	LuaTools.setFunction(lua, -2, -2, "import", Turbine::luaTurbineImport);
+  	LuaTools.setFunction(
+  			lua,
+  			LuaTools.relativizeIndex(envIndex, -1),
+  			LuaTools.relativizeIndex(envIndex, -1),
+  			"require",
+  			Turbine::require
+  	);
+  	LuaTools.setFunction(
+  			lua,
+  			LuaTools.relativizeIndex(envIndex, -1),
+  			LuaTools.relativizeIndex(envIndex, -1),
+  			"import",
+  			Turbine::luaTurbineImport
+  	);
 
   	lua.push(new HashMap<String, Integer>() {{
       put("Invalid", 0);
@@ -70,13 +78,6 @@ public final class Turbine {
       put("Russian", 268435463);
     }}, Lua.Conversion.FULL);
     lua.setField(-2, "Language");
-
-    lua.push(new HashMap<String, Integer>() {{
-        put("Account", 1);
-        put("Server", 2);
-        put("Character", 3);
-    }}, Lua.Conversion.FULL);
-    lua.setField(-2, "DataScope");
     
     lua.push(new HashMap<String, Integer>() {{
         put("Undef", 0);
@@ -117,61 +118,83 @@ public final class Turbine {
     }}, Lua.Conversion.FULL);
     lua.setField(-2, "ChatType");
     
-    if ((error = LuaObject.openPackage(lua)) != Lua.LuaError.OK) return error;
-    if ((error = Engine.openPackage(lua)) != Lua.LuaError.OK) return error;
-    if ((error = LuaPlugin.add(lua)) != Lua.LuaError.OK) return error;
-    if ((error = Shell.add(lua)) != Lua.LuaError.OK) return error;
-    lua.pop(1); /* pop module */
+    if ((error = LuaObject.openPackage(
+    		lua,
+    		LuaTools.relativizeIndex(envIndex, -1),
+    		LuaTools.relativizeIndex(errfunc, -1)
+    )) != Lua.LuaError.OK) return error;
+    if ((error = Engine.openPackage(
+    		lua,
+    		LuaTools.relativizeIndex(envIndex, -1),
+    		LuaTools.relativizeIndex(errfunc, -1)
+    )) != Lua.LuaError.OK) return error;
+    if ((error = LuaPlugin.openPackage(
+    		lua,
+    		LuaTools.relativizeIndex(envIndex, -1),
+    		LuaTools.relativizeIndex(errfunc, -1)
+    )) != Lua.LuaError.OK) return error;
+    if ((error = Shell.add(
+    		lua,
+    		LuaTools.relativizeIndex(envIndex, -1),
+    		LuaTools.relativizeIndex(errfunc, -1)
+    )) != Lua.LuaError.OK) return error;
+    lua.pop(1); /* pop namespace */
     return error;
 	}
   
-  /*
-   * Push module table to stack
+  /**
+   * Push namespace table to stack
    * @param lua Lua thread
    * @param index globals index.
-   * @param modules modules list
+   * @param namespace namespaces list
    */
-  public static void pushModule(Lua lua, int index, String... modules) {
-  	//LuaTools.logEnvInfos(lua, index, "pushModule:" + String.join(".", modules));
-  	LuaTools.pushTables(lua, index, modules);
+  public static void pushNamespace(Lua lua, int index, String... namespace) {
+  	//LuaTools.logEnvInfos(lua, index, "pushNamespace:" + String.join(".", namespace));
+  	LuaTools.pushTables(lua, index, namespace);
   }
 
-  /*
+  /**
    * Push library env to stack with globals _G
-   * @param lua Lua thread
-   * @param modules modules list
+   * @param lua .
+   * @param globalsIndex .
+   * @param name .
+   * @param namespace namespaces list.
    */
-  public static void pushfenv(Lua lua, int globalsIndex, String name, String... modules) {
+  public static void pushfenv(Lua lua, int globalsIndex, String name, String... namespace) {
   	//LuaTools.logEnvInfos(lua, globalsIndex);
-  	pushModule(lua, globalsIndex, modules); /* push module */
+  	pushNamespace(lua, globalsIndex, namespace); /* push namespace */
   	lua.createTable(0, 0); /* new env */
   	LuaTools.setEnvInfos(lua, -1, name);
     lua.createTable(0, 0); /* new metatable */
     lua.push("__newindex");
-    lua.pushValue(-4); /* push module */
-    lua.rawSet(-3); /* metatable["__newindex"] = module */
+    lua.pushValue(-4); /* push namespace */
+    lua.rawSet(-3); /* metatable["__newindex"] = namespace */
     lua.push("__index");
     lua.push(Turbine::fenvIndexMetaFunc);
     pushfenvIndexMetaFuncEnv(lua, -5, LuaTools.relativizeIndex(globalsIndex, -5));
     LuaTools.setfenv(lua, -2); /* setfenv to fenvIndexMetaFunc */
     lua.rawSet(-3); /* metatable["__index"] = fenvIndexMetaFunc */
     lua.setMetatable(-2); /* set new env metatable */
-    lua.replace(-2); /* replace module <- new env */
+    lua.replace(-2); /* replace namespace <- new env */
     lua.push("_G"); /* key for new_env["_G"] */
     LuaTools.pushValueRelative(lua, globalsIndex, -1); /* push globals */
     lua.rawSet(-3); /* new_env["_G"] = globals */
   }
 
-  public static void pushGlobals(Lua lua, String... modules) {
+  /**
+   * @param lua .
+   * @param namespace .
+   */
+  public static void pushGlobals(Lua lua, String... namespace) {
   	lua.createTable(0, 0); /* new globals */
-  	LuaTools.setEnvInfos(lua, -1, String.join(".", modules));
+  	LuaTools.setEnvInfos(lua, -1, String.join(".", namespace));
     lua.createTable(0, 0); /* new metatable */
     lua.push("__index");
     lua.push(Turbine::fenvIndexMetaFunc);
-    pushModule(lua, -4, modules); /* push module */
+    pushNamespace(lua, -4, namespace); /* push namespace */
     pushfenvIndexMetaFuncEnv(lua, -1, Lua51Consts.LUA_GLOBALSINDEX);
     LuaTools.setfenv(lua, -3); /* setfenv to fenvIndexMetaFunc */
-    lua.pop(1); /* pop module */
+    lua.pop(1); /* pop namespace */
     lua.rawSet(-3); /* metatable["__index"] = fenvIndexMetaFunc */
     lua.setMetatable(-2); /* set new env metatable */
   	lua.push("_G");
@@ -179,8 +202,11 @@ public final class Turbine {
   	lua.rawSet(-3); /* globals["_G"] = globals */
   	
   	/* add package.loaded */
-  	LuaTools.pushTables(lua, -1, "package", "loaded");
-  	lua.pop(1);
+  	LuaTools.pushTables(lua, -1, "package");
+  	LuaTools.pushValue(lua, Lua51Consts.LUA_GLOBALSINDEX, "package", "loaders");
+  	lua.setField(-2, "loaders");
+  	LuaTools.pushTables(lua, -1, "loaded");
+  	lua.pop(2); /* pop package, loaded */
   }
 
   private static void pushfenvIndexMetaFuncEnv(Lua lua, int... indexs) {
@@ -192,8 +218,10 @@ public final class Turbine {
   	}
   }
 
-  /*
-   * __index function for fenv to lookup in module table then _G
+  /**
+   * __index function for fenv to lookup in tables inside LUA_ENVIRONINDEX
+   * @param lua .
+   * @return int.
    */
   private static int fenvIndexMetaFunc(Lua lua) {
   	lua.pushValue(Lua51Consts.LUA_ENVIRONINDEX); /* push fenvIndexMetaFuncEnv */
@@ -210,16 +238,33 @@ public final class Turbine {
   	}
   	return 0;
   }
+  
+  /**
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError pushLuaEvent(Lua lua, int envIndex, int errfunc) {
+    LuaTools.pushValue(lua, envIndex, "Turbine", "Event");
+  	return LuaTools.pCall(lua, envIndex, envIndex, LuaTools.relativizeIndex(errfunc, -1));
+  }
 
+  /**
+   * @param lua .
+   * @return int.
+   */
   public static int require(Lua lua) {
   	Lua.LuaError error;
 
   	lua.pushValue(Lua51Consts.LUA_ENVIRONINDEX);
+  	lua.getGlobal(LuaTools.PCALL_ERR_FUNC_NAME);
+  	
   	error = require(lua, false, true);
   	return (error == Lua.LuaError.OK)?1:-1;
   }
 
-  /*
+  /**
    * Internal require function, call with stack beginning with
    *   - Library name (1)
    *   - Globals (2)
@@ -229,6 +274,10 @@ public final class Turbine {
    *     isRequired -> throw error
    *     !isRequired -> true at top of stack
    *   if loaded -> module at top of stack
+   * @param lua .
+   * @param isImport .
+   * @param isRequired .
+   * @return Lua.LuaError.
    */
   public static Lua.LuaError require(Lua lua, boolean isImport, boolean isRequired) {
   	Lua.LuaError error;
@@ -252,7 +301,7 @@ public final class Turbine {
   	    	return Lua.LuaError.OK;
   	    }
   	    lua.pushValue(1); /* pass library name as argument */
-  	    if ((error = lua.pCall(1, 1)) != Lua.LuaError.OK) return error;  /* call it */
+  	    if ((error = LuaTools.pCall(lua, 1, 1, 3)) != Lua.LuaError.OK) return error;  /* call it */
   	    if (lua.isFunction(-1))  /* did it find module ? */
   	      break;  /* module loaded successfully */
   	    else if (lua.isString(-1))  /* loader returned error message? */
@@ -270,7 +319,7 @@ public final class Turbine {
       		lua,
       		2,
       		library,
-      		LuaTools.libraryNameSplit(lua, library, !(moduleFilename.endsWith("__init__.lua")))
+      		LuaTools.libraryNameSplit(library, !(moduleFilename.endsWith("__init__.lua")))
       );
   		LuaTools.setfenv(lua, -2); /* set module fenv */
 		} else {
@@ -278,7 +327,7 @@ public final class Turbine {
 			LuaTools.setfenv(lua, -2); /* set module fenv */
 		}
     lua.pushValue(1); /* pass name as argument to module */
-    if ((error = lua.pCall(1, 1)) != Lua.LuaError.OK) return error; /* run loaded module */
+    if ((error = LuaTools.pCall(lua, 1, 1, 3)) != Lua.LuaError.OK) return error; /* run loaded module */
 		if (!lua.isNil(-1)) { /* non-nil return? */
 			lua.pushValue(-1); /* duplicate module */
 			LuaTools.setLoadedModule(lua, 2); /* _LOADED[name] = returned value */
@@ -286,18 +335,23 @@ public final class Turbine {
 		return error;
   }
   
-  /*
+  /**
    * Lua import function
+   * @param lua .
+   * @return int.
    */
   private static int luaTurbineImport(Lua lua) {
   	lua.pushValue(Lua51Consts.LUA_ENVIRONINDEX);
+  	lua.getGlobal(LuaTools.PCALL_ERR_FUNC_NAME);
   	return turbineImport(lua);
   }
 
-  /*
+  /**
    * Internal import function, call with stack containing only
    *   - Library name (1)
    *   - Globals (2)
+   * @param lua .
+   * @return int.
    */
   public static int turbineImport(Lua lua) {
   	if (LuaTools.isLoadedModule(lua, 2)) {
@@ -307,19 +361,19 @@ public final class Turbine {
 
     switch (lua.toString(1)) {
       case "Turbine.Gameplay":
-        if (Gameplay.openPackage(lua, 2) != Lua.LuaError.OK) return -1;
+        if (Gameplay.openPackage(lua, 2, 3) != Lua.LuaError.OK) return -1;
         require(lua, true, false);
         break;
       case "Turbine.UI":
-      	if (UI.openPackage(lua, 2) != Lua.LuaError.OK) return -1;
+      	if (UI.openPackage(lua, 2, 3) != Lua.LuaError.OK) return -1;
       	require(lua, true, false);
         break;
       case "Turbine.UI.Lotro":
-      	if (UiLotro.openPackage(lua, 2) != Lua.LuaError.OK) return -1;
+      	if (UiLotro.openPackage(lua, 2, 3) != Lua.LuaError.OK) return -1;
       	require(lua, true, false);
         break;
       case "UI.Swing":
-      	if (LuaComponent.add(lua, 2) != Lua.LuaError.OK) return -1;
+      	if (LuaComponent.add(lua, 2, 3) != Lua.LuaError.OK) return -1;
       	require(lua, true, false);
         break;
       default:
@@ -327,102 +381,5 @@ public final class Turbine {
     }
 
     return 1;
-  }
-
-  public static Lua.LuaError processEvents(Lua lua, LuaModuleImpl luaModuleImpl, ModuleEvent event) {
-  	Lua.LuaError error;  	
-  	LuaLotro luaLotro = (LuaLotro)luaModuleImpl;
-
-    switch (event._name) {
-    	case "load": {
-    		Plugin plugin=(Plugin)event._args[0];
-    		Apartment apartment = luaLotro.pushApartmentThread(lua, plugin);
-    		Lua thread = apartment.getThread();
-
-    		pushGlobals(thread, LuaTools.libraryNameSplit(lua, plugin._package, true));
-    		error = Turbine.openPackage(thread);
-    		if (error != Lua.LuaError.OK) {
-    			LuaTools.handleLuaResult(thread, error);
-    			return error;
-    		}
-
-    		error = thread.load(
-    				LuaTools.loadBuffer(Paths.get("Turbine", "EventThread.lua"), LuaModule.class),
-    				"Turbine.EventThread"
-        );
-  			if (error != Lua.LuaError.OK) {
-    			LuaTools.handleLuaResult(thread, error);
-    			return error;
-    		}
-    		thread.pushValue(-2); /* globals */
-    		LuaTools.setfenv(thread, -2); /* set EventThread globals */
-        thread.replace(-2); /* globals <- chunk */
-        error = thread.pCall(0, 1); /* chunk <- EventThread */
-        if (error != Lua.LuaError.OK) {
-    			LuaTools.handleLuaResult(thread, error);
-    			return error;
-    		}
-        thread.push(plugin._package);
-        error = thread.resume(1);
-        if (error != Lua.LuaError.YIELD) {
-    			LuaTools.handleLuaResult(thread, error);
-    			return error;
-    		}
-        lua.pop(1); /* pop thread */
-    		break;
-    	}
-    	case "processCommand": {
-    		LOGGER.debug("Event name: "+event._name);
-
-    		String command = (String)event._args[0];
-    		String[] splits = command.split("/", 1);
-    		command = (splits.length == 1)?splits[0]:((splits.length == 2)?splits[1]:null);
-    		if (command != null) {
-    			splits = command.split(" ", 1);
-    			String commandName = (splits.length != 0)?splits[0]:null;
-    			String argumentText = (splits.length == 2)?splits[1]:null;
-    	    
-    			LuaValue luaCommand = luaLotro.findCommand(commandName);
-	    		if (luaCommand != null) {
-	    			Lua thread = luaCommand.state();
-	    			if (thread.status() != Lua.LuaError.YIELD) {
-	      			LuaTools.handleLuaResult(thread, thread.status());
-	      			return thread.status();
-	      		}
-	    			
-	    			/* Set stack to: ShellCommand.Execute, ShellCommand, argumentText  */
-	    			thread.push(luaCommand, Conversion.NONE);
-	    			thread.pushValue(-1);
-	    			thread.getField(-1, "Execute");
-	    			thread.replace(-3);
-	    			thread.push(argumentText);
-	    			error = thread.resume(3);
-	          if (error != Lua.LuaError.YIELD) {
-	      			LuaTools.handleLuaResult(thread, error);
-	      			return error;
-	      		}
-	    		}
-    		}
-    	}
-      default: {
-        LOGGER.debug("Event name: "+event._name);
-        Lua thread = ((LuaValue)event._args[0]).state();
-        if (thread.status() != Lua.LuaError.YIELD) {
-    			LuaTools.handleLuaResult(thread, thread.status());
-    			return thread.status();
-    		}
-
-        for (Object luaValue:event._args) {
-        	thread.push(luaValue, Conversion.NONE);
-        }
-        error = thread.resume(event._args.length);
-        if (error != Lua.LuaError.YIELD) {
-    			LuaTools.handleLuaResult(thread, error);
-    			return error;
-    		}
-        break;
-      }
-    }
-    return error;
   }
 }

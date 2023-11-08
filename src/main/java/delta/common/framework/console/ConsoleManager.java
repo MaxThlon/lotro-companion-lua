@@ -5,19 +5,20 @@ import java.util.UUID;
 import com.eleet.dragonconsole.CommandProcessor;
 
 import delta.common.framework.console.dragonconsole.ConsoleWindowController;
-import delta.common.framework.console.dragonconsole.DragonConsoleModuleImpl;
-import delta.common.framework.console.logger.LoggerConsoleModuleImpl;
-import delta.common.framework.module.ModuleEvent;
+import delta.common.framework.console.dragonconsole.DragonConsoleModule;
+import delta.common.framework.console.logger.LoggerConsoleModule;
 import delta.common.framework.module.ModuleExecutor;
 import delta.common.framework.module.ModuleManager;
-import delta.common.framework.plugin.PluginManager;
+import delta.common.framework.module.command.ModuleExecutorCommand;
+import delta.common.framework.module.event.ModuleEvent;
 import delta.games.lotro.utils.events.EventsManager;
+import delta.games.lotro.utils.events.GenericEventsListener;
 
 /**
  * PluginManager.
  * @author MaxThlon
  */
-public class ConsoleManager {
+public class ConsoleManager implements GenericEventsListener<ModuleEvent> {
   private static class ConsoleManagerHolder {
     private static final ConsoleManager CONSOLE_MANAGER = new ConsoleManager();
   }
@@ -44,10 +45,17 @@ public class ConsoleManager {
   		@Override
   		public void processCommand(String input) {
   			super.processCommand(input);
-  			PluginManager.getInstance().processCommand(input);
+  			
+  			input = input.trim();
+  			if (input.charAt(0) == '/') {
+  				String[] splits =  input.substring(1).split(" ", 2);
+  				if (splits[0].length() != 0) {
+  					EventsManager.invokeEvent(new ConsoleCommandEvent(splits[0], (splits.length == 2)?splits[1]:null));
+  				}
+  			}
   		}
   	};
-  	
+  	EventsManager.addListener(ModuleEvent.class, this);
   }
   
   public UUID getModuleUuid() {
@@ -60,32 +68,25 @@ public class ConsoleManager {
 
   public void activate() {
   	if (_consoleWindowController == null) {
-  		_consoleWindowController = new ConsoleWindowController();
+  		_consoleWindowController = new ConsoleWindowController(null);
   		_consoleWindowController.bringToFront();
   	}
   }
   
   public void activateByModule() {
-  	
-  	
-  	ModuleManager.getInstance().addModule(new ConsoleModule(_consoleModuleUuid, new DragonConsoleModuleImpl()));
-  	EventsManager.invokeEvent(new ModuleEvent(
-    		ModuleExecutor.ExecutorEvent.LOAD,
-    		_consoleModuleUuid,
-    		ModuleExecutor.ExecutorEvent.LOAD.name(),
-    		null
-    ));
+  	ModuleManager.getInstance().addModule(new DragonConsoleModule(_consoleModuleUuid));
   }
   
   public void activateByModuleLogger() {
-  	_consoleModuleUuid = UUID.randomUUID();
-  	
-  	ModuleManager.getInstance().addModule(new ConsoleModule(_consoleModuleUuid, new LoggerConsoleModuleImpl()));
-  	EventsManager.invokeEvent(new ModuleEvent(
-    		ModuleExecutor.ExecutorEvent.LOAD,
-    		_consoleModuleUuid,
-    		ModuleExecutor.ExecutorEvent.LOAD.name(),
-    		null
-    ));
+  	ModuleManager.getInstance().addModule(new LoggerConsoleModule(_consoleModuleUuid));
   }
+
+	@Override
+	public void eventOccurred(ModuleEvent event) {
+		if ((event.getType() == ModuleExecutor.MEvent.STARTED) && (event.getModule().getUuid() == _consoleModuleUuid)) {
+			ModuleManager.getInstance().offer(
+					new ModuleExecutorCommand(ModuleExecutor.Command.LOAD, _consoleModuleUuid, null, null)
+			);
+		}
+	}
 }

@@ -5,7 +5,6 @@ import java.util.HashMap;
 import delta.games.lotro.common.enums.ItemClass;
 import delta.games.lotro.common.enums.LotroEnumsRegistry;
 import delta.games.lotro.lore.items.ItemQuality;
-import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.JFunction;
 import party.iroiro.luajava.Lua;
@@ -15,8 +14,15 @@ import party.iroiro.luajava.Lua;
  */
 public class Item
 {
+  /**
+   * Initialize lua Item package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
   @SuppressWarnings("boxing")
-	public static Lua.LuaError add(Lua lua) {
+	public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
 
     lua.push(new HashMap<String, Integer>() {{
@@ -24,7 +30,7 @@ public class Item
         put(itemClass.getLabel(), itemClass.getCode());
       }
     }}, Lua.Conversion.FULL);
-    lua.setField(-2, "ItemCategory");
+    lua.setField(LuaTools.relativizeIndex(envIndex, -1), "ItemCategory");
 
     lua.push(new HashMap<String, Integer>() {{
         put("Undefined", 0);
@@ -36,14 +42,14 @@ public class Item
         put("Indestructible", 6);
         put("Weak", 7);
     }}, Lua.Conversion.FULL);
-    lua.setField(-2, "ItemDurability");
+    lua.setField(LuaTools.relativizeIndex(envIndex, -1), "ItemDurability");
 
     lua.push(new HashMap<String, Integer>() {{
       for (ItemQuality itemQuality:LotroEnumsRegistry.getInstance().get(ItemQuality.class).getAll()) {
         put(itemQuality.getKey(), itemQuality.getCode());
       }
     }}, Lua.Conversion.FULL);
-    lua.setField(-2, "ItemQuality");
+    lua.setField(LuaTools.relativizeIndex(envIndex, -1), "ItemQuality");
 
     lua.push(new HashMap<String, Integer>() {{
         put("Undefined", 0);
@@ -52,34 +58,34 @@ public class Item
         put("Damaged", 3);
         put("Broken", 4);
     }}, Lua.Conversion.FULL);
-    lua.setField(-2, "ItemWearState");
+    lua.setField(LuaTools.relativizeIndex(envIndex, -1), "ItemWearState");
 
-    error = ItemInfo.add(lua);
+    error = ItemInfo.add(lua, envIndex, errfunc);
     if (error != Lua.LuaError.OK) return error;
 
-    error = LuaObject.callInherit(lua, -3, "Turbine", "Gameplay", "Entity");
+    error = LuaTools.pushClass(lua, errfunc, "Turbine", "Gameplay", "Entity");
     if (error != Lua.LuaError.OK) return error;
-    LuaTools.setFunction(lua, -1, -3, "Constructor", Item::constructor);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", Item::constructor);
     lua.push((JFunction)Item::constructor);
-    lua.setField(-2, "Constructor");
-    LuaTools.setFunction(lua, -1, -3, "GetCategory", Item::getCategory);
-    LuaTools.setFunction(lua, -1, -3, "GetItemInfo", Item::getItemInfo);
-    LuaTools.setFunction(lua, -1, -3, "IsMagic", Item::isMagic);
-    LuaTools.setFunction(lua, -1, -3, "GetEffects", Item::getEffects);
-    LuaTools.setFunction(lua, -1, -3, "GetQuality", Item::getQuality);
-    LuaTools.setFunction(lua, -1, -3, "GetDurability", Item::getDurability);
-    LuaTools.setFunction(lua, -1, -3, "GetWearState", Item::getWearState);
+    lua.setField(LuaTools.relativizeIndex(envIndex, -1), "Constructor");
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetCategory", Item::getCategory);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetItemInfo", Item::getItemInfo);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsMagic", Item::isMagic);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetEffects", Item::getEffects);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetQuality", Item::getQuality);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetDurability", Item::getDurability);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetWearState", Item::getWearState);
     
-    LuaTools.setFunction(lua, -1, -3, "GetMaxStackSize", Item::getMaxStackSize);
-    LuaTools.setFunction(lua, -1, -3, "GetQuantity", Item::getQuantity);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMaxStackSize", Item::getMaxStackSize);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetQuantity", Item::getQuantity);
     
-    LuaTools.setFunction(lua, -1, -3, "GetIconImageID", Item::getIconImageID);
-    LuaTools.setFunction(lua, -1, -3, "GetBackgroundImageID", Item::getBackgroundImageID);
-    LuaTools.setFunction(lua, -1, -3, "GetQualityImageID", Item::getQualityImageID);
-    LuaTools.setFunction(lua, -1, -3, "GetUnderlayImageID", Item::getUnderlayImageID);
-    LuaTools.setFunction(lua, -1, -3, "GetShadowImageID", Item::getShadowImageID);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetIconImageID", Item::getIconImageID);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetBackgroundImageID", Item::getBackgroundImageID);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetQualityImageID", Item::getQualityImageID);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetUnderlayImageID", Item::getUnderlayImageID);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetShadowImageID", Item::getShadowImageID);
 
-    lua.setField(-2, "Item");
+    lua.setField(LuaTools.relativizeIndex(envIndex, -1), "Item");
     return error;
   }
   

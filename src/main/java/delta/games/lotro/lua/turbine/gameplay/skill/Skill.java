@@ -1,6 +1,6 @@
 package delta.games.lotro.lua.turbine.gameplay.skill;
 
-import delta.games.lotro.lua.turbine.object.LuaObject;
+import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.JFunction;
 import party.iroiro.luajava.Lua;
 
@@ -9,15 +9,19 @@ import party.iroiro.luajava.Lua;
  * @author MaxThlon
  */
 public class Skill {
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua Skill package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = SkillInfo.add(lua);
-  	if (error != Lua.LuaError.OK) return error;
-  	error = ActiveSkill.add(lua);
-    if (error != Lua.LuaError.OK) return error;
+  	if ((error = SkillInfo.add(lua, envIndex, errfunc)) != Lua.LuaError.OK) return error;
+  	if ((error = ActiveSkill.add(lua, envIndex, errfunc)) != Lua.LuaError.OK) return error;
     
-    error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
-    if (error != Lua.LuaError.OK) return error;
+  	if ((error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object")) != Lua.LuaError.OK) return error;
     lua.push((JFunction)Skill::constructor);
     lua.setField(-2, "Constructor");
     lua.push((JFunction)Skill::getSkillInfo);
@@ -27,7 +31,7 @@ public class Skill {
     return error;
   }
 
-  public static int constructor(Lua lua) {
+  private static int constructor(Lua lua) {
     return 1;
   }
 

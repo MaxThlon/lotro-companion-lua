@@ -2,6 +2,9 @@ package delta.common.framework.module;
 
 import java.util.UUID;
 
+import delta.common.framework.module.command.ModuleCommand;
+import delta.common.framework.module.command.ModuleExecutorCommand;
+
 /**
  * @author MaxThlon
  */
@@ -11,18 +14,26 @@ public interface Module {
 	
 	/**
    * can module accept this event.
-   * @param event .
+   * @param command .
 	 * @return true if can accept event.
    */
-	boolean canAccept(ModuleEvent event);
+	default boolean canAccept(ModuleExecutorCommand command) {
+		return true;
+	}
 
-	default ModuleEvent preOffer(ModuleEvent event) {
-		return event;
+	default ModuleExecutorCommand preOffer(ModuleExecutorCommand command) {
+		return command;
 	}
 	
-  /**
-   * module method to handle events.
-   * @param event .
+	/**
+   * load.
+   * @param command .
    */
-	void handleEvent(ModuleEvent event);
+	void load(ModuleExecutorCommand command);
+  /**
+   * execute command.
+   * @param command .
+   */
+	void execute(ModuleCommand command);
+	void unLoad();
 }

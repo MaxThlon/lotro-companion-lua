@@ -21,30 +21,36 @@ import party.iroiro.luajava.lua51.Lua51Consts;
  * @author MaxThlon
  */
 final class LuaTreeView {
-
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua TreeView package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "UI", "ScrollableControl");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "ScrollableControl");
   	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaTreeView::constructor);
-  	LuaTools.setFunction(lua, -1, -3, "GetIndentationWidth", LuaTreeView::getIndentationWidth);
-    LuaTools.setFunction(lua, -1, -3, "SetIndentationWidth", LuaTreeView::setIndentationWidth);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaTreeView::constructor);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetIndentationWidth", LuaTreeView::getIndentationWidth);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetIndentationWidth", LuaTreeView::setIndentationWidth);
 
-    LuaTools.setFunction(lua, -1, -3, "ExpandAll", LuaTreeView::expandAll);
-    LuaTools.setFunction(lua, -1, -3, "CollapseAll", LuaTreeView::collapseAll);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "ExpandAll", LuaTreeView::expandAll);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "CollapseAll", LuaTreeView::collapseAll);
 
-    LuaTools.setFunction(lua, -1, -3, "GetNodes", LuaTreeView::getNodes);
-    LuaTools.setFunction(lua, -1, -3, "GetSelectedNode", LuaTreeView::getSelectedNode);
-    LuaTools.setFunction(lua, -1, -3, "SetSelectedNode", LuaTreeView::setSelectedNode);
-    LuaTools.setFunction(lua, -1, -3, "GetItemAt", LuaTreeView::getItemAt);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetNodes", LuaTreeView::getNodes);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetSelectedNode", LuaTreeView::getSelectedNode);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetSelectedNode", LuaTreeView::setSelectedNode);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetItemAt", LuaTreeView::getItemAt);
 
-    LuaTools.setFunction(lua, -1, -3, "GetFilter", LuaTreeView::getFilter);
-    LuaTools.setFunction(lua, -1, -3, "SetFilter", LuaTreeView::setFilter);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetFilter", LuaTreeView::getFilter);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetFilter", LuaTreeView::setFilter);
 
-    LuaTools.setFunction(lua, -1, -3, "GetSortMethod", LuaTreeView::getSortMethod);
-    LuaTools.setFunction(lua, -1, -3, "SetSortMethod", LuaTreeView::setSortMethod);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetSortMethod", LuaTreeView::getSortMethod);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetSortMethod", LuaTreeView::setSortMethod);
 
-    LuaTools.setFunction(lua, -1, -3, "Refresh", LuaTreeView::refresh);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Refresh", LuaTreeView::refresh);
 
     lua.setField(-2, "TreeView");
     return error;

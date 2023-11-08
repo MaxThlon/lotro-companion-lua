@@ -15,33 +15,39 @@ import party.iroiro.luajava.Lua;
  * @author MaxThlon
  */
 final class LuaWindow {
-
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua Window package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "UI", "Control");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "Control");
   	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", LuaWindow::constructor);
-  	LuaTools.setFunction(lua, -1, -3, "Activate", LuaWindow::activate);
-    LuaTools.setFunction(lua, -1, -3, "Close", LuaWindow::close);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaWindow::constructor);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Activate", LuaWindow::activate);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Close", LuaWindow::close);
 
-    LuaTools.setFunction(lua, -1, -3, "GetMinimumWidth", LuaWindow::getMinimumWidth);
-    LuaTools.setFunction(lua, -1, -3, "SetMinimumWidth", LuaWindow::setMinimumWidth);
-    LuaTools.setFunction(lua, -1, -3, "GetMinimumHeight", LuaWindow::getMinimumHeight);
-    LuaTools.setFunction(lua, -1, -3, "SetMinimumHeight", LuaWindow::setMinimumHeight);
-    LuaTools.setFunction(lua, -1, -3, "GetMinimumSize", LuaWindow::getMinimumSize);
-    LuaTools.setFunction(lua, -1, -3, "SetMinimumSize", LuaWindow::setMinimumSize);
-    LuaTools.setFunction(lua, -1, -3, "GetMaximumWidth", LuaWindow::getMaximumWidth);
-    LuaTools.setFunction(lua, -1, -3, "SetMaximumWidth", LuaWindow::setMaximumWidth);
-    LuaTools.setFunction(lua, -1, -3, "GetMaximumHeight", LuaWindow::getMaximumHeight);
-    LuaTools.setFunction(lua, -1, -3, "SetMaximumHeight", LuaWindow::setMaximumHeight);
-    LuaTools.setFunction(lua, -1, -3, "GetMaximumSize", LuaWindow::getMaximumSize);
-    LuaTools.setFunction(lua, -1, -3, "SetMaximumSize", LuaWindow::setMaximumSize);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMinimumWidth", LuaWindow::getMinimumWidth);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetMinimumWidth", LuaWindow::setMinimumWidth);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMinimumHeight", LuaWindow::getMinimumHeight);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetMinimumHeight", LuaWindow::setMinimumHeight);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMinimumSize", LuaWindow::getMinimumSize);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetMinimumSize", LuaWindow::setMinimumSize);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMaximumWidth", LuaWindow::getMaximumWidth);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetMaximumWidth", LuaWindow::setMaximumWidth);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMaximumHeight", LuaWindow::getMaximumHeight);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetMaximumHeight", LuaWindow::setMaximumHeight);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMaximumSize", LuaWindow::getMaximumSize);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetMaximumSize", LuaWindow::setMaximumSize);
 
-    LuaTools.setFunction(lua, -1, -3, "GetRotation", LuaWindow::getRotation);
-    LuaTools.setFunction(lua, -1, -3, "SetRotation", LuaWindow::setRotation);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetRotation", LuaWindow::getRotation);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetRotation", LuaWindow::setRotation);
 
-    LuaTools.setFunction(lua, -1, -3, "GetText", LuaWindow::getText);
-    LuaTools.setFunction(lua, -1, -3, "SetText", LuaWindow::setText);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetText", LuaWindow::getText);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetText", LuaWindow::setText);
 
     lua.setField(-2, "Window");
     return error;

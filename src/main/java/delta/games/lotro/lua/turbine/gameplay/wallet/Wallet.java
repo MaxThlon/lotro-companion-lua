@@ -1,6 +1,5 @@
 package delta.games.lotro.lua.turbine.gameplay.wallet;
 
-import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
 
@@ -9,18 +8,25 @@ import party.iroiro.luajava.Lua;
  */
 public class Wallet
 {
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua Wallet package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = WalletItem.add(lua);
+  	error = WalletItem.add(lua, envIndex, errfunc);
   	if (error != Lua.LuaError.OK) return error;
 
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object");
   	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", Wallet::constructor);
-    LuaTools.setFunction(lua, -1, -3, "GetSize", Wallet::getSize);
-    LuaTools.setFunction(lua, -1, -3, "GetItem", Wallet::getItem);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", Wallet::constructor);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetSize", Wallet::getSize);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetItem", Wallet::getItem);
 
-    if ((error = lua.pCall(1, 1)) != Lua.LuaError.OK) return error;
+    if ((error = LuaTools.pCall(lua, 1, 1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
     lua.setField(-2, "Wallet");
     return error;
   }

@@ -5,73 +5,69 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
-import delta.common.framework.console.ConsoleManager;
-import delta.common.framework.jobs.JobImpl;
-import delta.common.framework.jobs.JobState;
-import delta.common.framework.jobs.JobSupport;
+import delta.common.framework.module.command.ModuleCommand;
+import delta.common.framework.module.command.ModuleExecutorCommand;
+import delta.common.framework.module.event.ModuleEvent;
+import delta.common.framework.module.event.ModuleExecutorEvent;
 import delta.games.lotro.utils.events.EventsManager;
-import delta.games.lotro.utils.events.GenericEventsListener;
 
 /**
  * @author MaxThlon
  */
-public class ModuleExecutor implements JobImpl, GenericEventsListener<ModuleEvent>
+public class ModuleExecutor implements Runnable
 {
-  public enum ExecutorEvent {
+  public enum Command {
     LOAD,
     EXECUTE,
     UNLOAD,
-    ABORT,
-    ERROR
+    //ABORT,
+    //ERROR,
+    SHUTDOWN
   }
-  public enum ExecutorState {
+  public enum State {
   	UNLOADED,
   	LOADING,
   	PENNDING,
     RUNNING,
     UNLOADING,
+    INTERRUPTED
+  }
+  public enum MEvent {
+  	STARTED,
+  	INTERRUPTED
   }
   
-  static final List<ExecutorState> ACCEPT_EVENT_EXECUTOR_STATE = Collections.unmodifiableList(Arrays.asList(
-  		ExecutorState.UNLOADED,
-  		ExecutorState.LOADING,
-  		ExecutorState.PENNDING,
-  		ExecutorState.RUNNING
+  static final List<State> ACCEPT_COMMAND_STATE = Collections.unmodifiableList(Arrays.asList(
+  		State.UNLOADED,
+  		State.LOADING,
+  		State.PENNDING,
+  		State.RUNNING
   ));
-  static final List<ExecutorState> ACCEPT_UNLOAD_EXECUTOR_STATE = Collections.unmodifiableList(Arrays.asList(
-  		ExecutorState.LOADING,
-  		ExecutorState.PENNDING,
-  		ExecutorState.RUNNING
+  static final List<State> ACCEPT_UNLOAD_STATE = Collections.unmodifiableList(Arrays.asList(
+  		State.LOADING,
+  		State.PENNDING,
+  		State.RUNNING
   ));
 
   private static Logger LOGGER = Logger.getLogger(ModuleExecutor.class);
   private static final int QUEUE_LIMIT = 256;
-  
+
   private Module _module;
+  private State _state;
+
   /**
-   * Whether the plugin is currently on. This is set to false when a shutdown starts, or when turning on completes
-   * (but just before the plugin is started).
-   *
-   * @see #_isStateLock
-   */
-  private volatile ExecutorState _state;
-  /**
-   * The lock to acquire when you need to modify the "state" of a the executor.
-   */
-  private final ReentrantLock _isStateLock;
-  /**
-   * A lock used for any changes to {@link #_eventQueue}. This will be
+   * A lock used for any changes to {@link #_commandQueue}. This will be
    * used on the main thread, so locks should be kept as brief as possible.
    */
   private final Object _queueLock;
   /**
-   * The queue of events which should be executed when this plugin is on.
+   * The queue of {@link ModuleExecutorCommand} which should be executed when this executor is running.
    */
-  private final Queue<ModuleEvent> _eventQueue;
+  private final Queue<ModuleExecutorCommand> _commandQueue;
+  private final Object _idleLock = new Object();
 
   /**
    * Constructor.
@@ -79,16 +75,10 @@ public class ModuleExecutor implements JobImpl, GenericEventsListener<ModuleEven
    */
   public ModuleExecutor(Module module) {
     _module = module;
-    _state = ExecutorState.UNLOADED;
-    _isStateLock = new ReentrantLock();
+    _state = State.UNLOADED;
+    //_isStateLock = new ReentrantLock();
     _queueLock = new Object();
-    _eventQueue = new ArrayDeque<>(4);
-  }
-
-  @Override
-  public String getLabel()
-  {
-    return _module.getName();
+    _commandQueue = new ArrayDeque<>(4);
   }
   
   public Module getModule()
@@ -96,119 +86,110 @@ public class ModuleExecutor implements JobImpl, GenericEventsListener<ModuleEven
     return _module;
   }
   
-  private void setState(ExecutorState state) throws InterruptedException {
-  	_isStateLock.lockInterruptibly();
+  private void setState(State state) {
+  	//_isStateLock.lockInterruptibly();
     _state = state;
-    _isStateLock.unlock();
+    //_isStateLock.unlock();
   }
-  
-  /**
-   * The main jobImpl function, called by {@link delta.common.framework.jobs.Job}.
-   */
+
   @Override
-  public void doIt(JobSupport support) {
-    while (support.getState() == JobState.RUNNING) try {
-      ModuleEvent event = null;
-      synchronized (_queueLock) {
-      	event = _eventQueue.poll();
+  public void run() {
+  	EventsManager.invokeEvent(new ModuleExecutorEvent(MEvent.STARTED, this));
+  	EventsManager.invokeEvent(new ModuleEvent(MEvent.STARTED, _module));
+  	ModuleExecutorCommand command;
+
+    while ((!Thread.interrupted()) && (_state != State.INTERRUPTED)) try {
+    	synchronized (_queueLock) {
+      	command = _commandQueue.poll();
       }
-      
-      if (event != null)
-    	switch (event._executorEvent) {
+    	
+    	if (command == null) synchronized (_idleLock) {
+    		_idleLock.wait();
+    	} else switch (command.getExecutorEvent()) {
         case LOAD:
-          if (_state == ExecutorState.UNLOADED) {
-          	setState(ExecutorState.LOADING);
-            //clear();
-          	_module.handleEvent(event);
-          	setState(ExecutorState.PENNDING);
+          if (_state == State.UNLOADED) {
+          	setState(State.LOADING);
+          	_module.load(command);
+          	setState(State.PENNDING);
           }
           break;
         case EXECUTE:
-        	if (_state == ExecutorState.PENNDING) {
-          	setState(ExecutorState.RUNNING);
-          	_module.handleEvent(event);
-          	setState(ExecutorState.PENNDING);
+        	if (_state == State.PENNDING) {
+          	setState(State.RUNNING);
+          	for (ModuleCommand handler:command.getHandlers()) {
+          		_module.execute(handler);
+          	}
+          	setState(State.PENNDING);
         	}
         	break;
         case UNLOAD:
-        	if (ACCEPT_UNLOAD_EXECUTOR_STATE.contains(_state)) {
-        		setState(ExecutorState.UNLOADING);
-            _module.handleEvent(event);
-          	clear();
-          	setState(ExecutorState.UNLOADED);
+        	if (ACCEPT_UNLOAD_STATE.contains(_state)) {
+        		setState(State.UNLOADING);
+            _module.unLoad();
+          	setState(State.UNLOADED);
         	}
           break;
-        case ERROR:
-        	if (_state != ExecutorState.UNLOADED) {
-        		EventsManager.invokeEvent(new ModuleEvent(
-          			ExecutorEvent.EXECUTE,
-          			ConsoleManager.getInstance().getModuleUuid(),
-          			ExecutorEvent.ERROR.name(),    			
-          			event._args
-            ));
-        		clear();
-        	}
-          break;
-        case ABORT:
-        	if (_state != ExecutorState.UNLOADED) {
-        		_module.handleEvent(event);
-        		clear();
-        	}
+        case SHUTDOWN:
+        	setState(State.INTERRUPTED);
+        	clear();
+        	_module.unLoad();
         	break;
       }
     } catch (Exception error) {
     	LOGGER.error("Main module thread: ", error);
-    	EventsManager.invokeEvent(new ModuleEvent(
+    	/*ModuleManager.getInstance().offer(new ModuleExecutorCommand(
     			ExecutorEvent.ERROR,
     			_module.getUuid(),
-    			ExecutorEvent.ERROR.name(),    			
-    			new Object[] { "Main module thread: ", error }
-      ));
+    			new Object[] { "Main module thread: ", error },
+    			null
+      ));*/
     }
-  }
-  
-  @Override
-  public boolean interrupt()
-  {
-  	if (_state != ExecutorState.UNLOADED) {
-    	queueEvent(new ModuleEvent(ExecutorEvent.UNLOAD, _module.getUuid(), ExecutorEvent.UNLOAD.name(), null));
-      return true;
+    clear();
+    if (ACCEPT_UNLOAD_STATE.contains(_state)) {
+    	_module.unLoad();
     }
-    return false;
+    EventsManager.invokeEvent(new ModuleEvent(MEvent.INTERRUPTED, _module));
+    EventsManager.invokeEvent(new ModuleExecutorEvent(MEvent.INTERRUPTED, this));
+  	_module = null;
   }
   
   private void clear() {
   	synchronized (_queueLock) {
-      _eventQueue.clear();
+      _commandQueue.clear();
     }
   }
   
-  /**
-   * Handle plugin events.
-   * @param event Source event.
-   */
-  @Override
-  public void eventOccurred(ModuleEvent event) {
-  	if (canAccept(event)) {
-  		queueEvent(event);
-  	}
+  public void resume() {
+    synchronized (_idleLock) {
+    	_idleLock.notifyAll(); // Unblocks thread
+    }
   }
 
-  protected boolean canAccept(ModuleEvent event) {
-  	return _module.canAccept(event);
-  }
-  
   /**
-   * Queue an event if the executor state is in ACCEPT_EVENT_EXECUTOR_STATE.
-   * @param event an module event;
+   * If the module can accept this command
+   * @param command 
+   * @return true if can accept this command.
    */
-  private void queueEvent(ModuleEvent event) {
-  	if (ACCEPT_EVENT_EXECUTOR_STATE.contains(_state)) {
-      synchronized (_queueLock) {
-        if (_eventQueue.size() < QUEUE_LIMIT) {
-        	_eventQueue.offer(_module.preOffer(event));
+  private boolean canAccept(ModuleExecutorCommand command) {
+  	return ACCEPT_COMMAND_STATE.contains(_state) && _module.canAccept(command);
+  }
+
+  /**
+   * Called when an {@link ModuleExecutorCommand } event occurred.
+   * Queue an command if the executor state is in ACCEPT_COMMAND_EXECUTOR_STATE.
+   * @param command command data.
+   */
+  public void offer(ModuleExecutorCommand command) {
+  	boolean queued = false;
+  	//if (canAccept(command)) {
+  		synchronized (_queueLock) {
+        if (_commandQueue.size() < QUEUE_LIMIT) {
+        	_commandQueue.offer(_module.preOffer(command));
+        	queued = true;
         }
       }
-  	}
+  		
+  		if (queued) resume();
+  	//}
   }
 }

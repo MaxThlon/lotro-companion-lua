@@ -3,7 +3,6 @@ package delta.games.lotro.lua.turbine.ui.lotro;
 import java.util.HashMap;
 
 import delta.games.lotro.lua.turbine.Turbine;
-import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
 import party.iroiro.luajava.lua51.Lua51Consts;
@@ -13,21 +12,25 @@ import party.iroiro.luajava.lua51.Lua51Consts;
  * @author MaxThlon
  */
 public abstract class UiLotro {
+	
+  /**
+   * Initialize lua UiLotro package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
   @SuppressWarnings("boxing")
-  public static Lua.LuaError openPackage(Lua lua, int globalsIndex) {
+  public static Lua.LuaError openPackage(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
  
   	Turbine.pushfenv(
     		lua,
-    		globalsIndex,
+    		envIndex,
     		"Turbine.UI.Lotro",
     		"Turbine", "UI", "Lotro"
     );
-  	Turbine.pushModule(
-  			lua,
-  			LuaTools.relativizeIndex(globalsIndex, -1),
-  			"Turbine", "UI", "Lotro"
-  	);
+
     lua.push(new HashMap<String, String>() {{
       put("Verdana12", "Verdana12");
       put("BookAntiqua12", "BookAntiqua12");
@@ -378,18 +381,22 @@ public abstract class UiLotro {
     LuaTools.pushValue(lua, Lua51Consts.LUA_ENVIRONINDEX, "Turbine", "UI" , "Window");
     lua.setField(-2, "Window");
 
-    if ((error = Quickslot.add(lua)) != Lua.LuaError.OK) return error;
+    if ((error = Quickslot.add(lua, envIndex, errfunc)) != Lua.LuaError.OK) return error;
 
     /* LotroUI */
-    if ((error = LuaObject.callInherit(lua, -3, "Turbine", "Object")) != Lua.LuaError.OK) return error;
-    LuaTools.setFunction(lua, -1, -3, "Constructor", UiLotro::constructor);
-    LuaTools.setFunction(lua, -1, -3, "IsEnabled", UiLotro::isEnabled);
-    LuaTools.setFunction(lua, -1, -3, "SetEnabled", UiLotro::setEnabled);
-    LuaTools.setFunction(lua, -1, -3, "Reset", UiLotro::reset);
-    if ((error = lua.pCall(0, 1)) != Lua.LuaError.OK) return error;
+    if ((error = LuaTools.pushClass(
+    		lua,
+    		LuaTools.relativizeIndex(errfunc, -1),
+    		"Turbine", "Object"
+    )) != Lua.LuaError.OK) return error;
+    LuaTools.setFunction(lua, -1, -2, "Constructor", UiLotro::constructor);
+    LuaTools.setFunction(lua, -1, -2, "IsEnabled", UiLotro::isEnabled);
+    LuaTools.setFunction(lua, -1, -2, "SetEnabled", UiLotro::setEnabled);
+    LuaTools.setFunction(lua, -1, -2, "Reset", UiLotro::reset);
+    if ((error = LuaTools.pCall(lua, 0, 1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
     lua.setField(-2, "LotroUI");
 
-    lua.pop(2); /* pop env, module */
+    lua.pop(1); /* pop env */
     return error;
   }
   

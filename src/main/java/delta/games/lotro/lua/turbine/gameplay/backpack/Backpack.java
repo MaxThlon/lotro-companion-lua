@@ -1,6 +1,5 @@
 package delta.games.lotro.lua.turbine.gameplay.backpack;
 
-import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
 
@@ -9,15 +8,22 @@ import party.iroiro.luajava.Lua;
  */
 public class Backpack
 {
-  public static Lua.LuaError add(Lua lua) {
+  /**
+   * Initialize lua Backpack package
+   * @param lua .
+   * @param envIndex .
+   * @param errfunc .
+   * @return Lua.LuaError.
+   */
+  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
   	Lua.LuaError error;
-  	error = LuaObject.callInherit(lua, -3, "Turbine", "Object");
+  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object");
   	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, -3, "Constructor", Backpack::constructor);
-    LuaTools.setFunction(lua, -1, -3, "GetSize", Backpack::getSize);
-    LuaTools.setFunction(lua, -1, -3, "GetItem", Backpack::getItem);
-    LuaTools.setFunction(lua, -1, -3, "PerformItemDrop", Backpack::performItemDrop);
-    LuaTools.setFunction(lua, -1, -3, "PerformShortcutDrop", Backpack::performShortcutDrop);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", Backpack::constructor);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetSize", Backpack::getSize);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetItem", Backpack::getItem);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "PerformItemDrop", Backpack::performItemDrop);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "PerformShortcutDrop", Backpack::performShortcutDrop);
 
     lua.setField(-2, "Backpack");
     
