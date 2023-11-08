@@ -1,6 +1,5 @@
 package delta.games.lotro.lua.utils;
 
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,10 +13,8 @@ import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -76,9 +73,7 @@ public final class LuaTools {
   	if ((error = lua.load("local library = ... return debug.getinfo(library, 'S').source")) != Lua.LuaError.OK)
   		return error;
     _getModuleFilename = lua.get();
-    
-    if ((error = lua.run("require 'tabletools'")) != Lua.LuaError.OK)
-  		return error;
+
     if ((error = lua.run("metalua_compiler = require 'metalua.compiler'.new()")) != Lua.LuaError.OK)
   		return error;
 		

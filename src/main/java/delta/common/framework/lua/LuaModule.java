@@ -32,7 +32,6 @@ import delta.games.lotro.lua.utils.URLToolsLua;
 import delta.games.lotro.utils.events.GenericEventsListener;
 import party.iroiro.luajava.ExternalLoader;
 import party.iroiro.luajava.Lua;
-import party.iroiro.luajava.Lua.Conversion;
 import party.iroiro.luajava.Lua.LuaType;
 import party.iroiro.luajava.lua51.Lua51;
 import party.iroiro.luajava.lua51.Lua51Consts;

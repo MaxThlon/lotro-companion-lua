@@ -3,7 +3,6 @@ package delta.games.lotro.lua.command;
 import java.util.UUID;
 
 import delta.common.framework.lua.LuaModule;
-import delta.common.framework.lua.command.LuaModuleCommand;
 import delta.common.framework.lua.command.LuaModuleThreadCommand;
 import delta.games.lotro.client.plugin.Plugin;
 

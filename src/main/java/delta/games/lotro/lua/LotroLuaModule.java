@@ -29,7 +29,6 @@ import delta.games.lotro.lua.turbine.Apartment;
 import delta.games.lotro.lua.turbine.Turbine;
 import delta.games.lotro.lua.turbine.plugin.DataScope;
 import delta.games.lotro.lua.utils.LuaTools;
-import party.iroiro.luajava.Consts;
 import party.iroiro.luajava.ExternalLoader;
 import party.iroiro.luajava.Lua;
 import party.iroiro.luajava.Lua.Conversion;
