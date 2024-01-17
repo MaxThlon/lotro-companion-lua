@@ -21,17 +21,14 @@ final class LuaLabel {
    * Initialize lua LuaLabel package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "ScrollableControl");
-  	if (error != Lua.LuaError.OK) return error;
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "UI", "ScrollableControl");
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaLabel::constructor);
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsMultiline", LuaLabel::isMultiline);
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetMultiline", LuaLabel::setMultiline);
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsMarkupEnabled", LuaLabel::isMarkupEnabled);
+  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetMarkupEnabled", LuaLabel::setMarkupEnabled);
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetFont", LuaLabel::getFont);
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetFont", LuaLabel::setFont);
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetFontStyle", LuaLabel::getFontStyle);
@@ -61,8 +58,7 @@ final class LuaLabel {
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetSelectionStart", LuaLabel::getSelectionStart);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetSelectionStart", LuaLabel::setSelectionStart);
 
-    lua.setField(-2, "Label");
-    return error;
+    lua.setField(LuaTools.relativizeIndex(envIndex, -1), "Label");
   }
 
   private static int constructor(Lua lua) {
@@ -80,13 +76,16 @@ final class LuaLabel {
   }
   
   private static int setMultiline(Lua lua) {
-    return 1;
+    return 0;
   }
 
   private static int isMarkupEnabled(Lua lua) {
     return 1;
   }
   
+  private static int setMarkupEnabled(Lua lua) {
+    return 0;
+  }
   
   private static int getFont(Lua lua) {  
     return 1;
@@ -95,7 +94,7 @@ final class LuaLabel {
   private static int setFont(Lua lua) {
     //MultilineLabel2 multilineLabel = self.metatag(lua, valueOf("objectSelf")).checkUserdata(MultilineLabel2.class);
     //multilineLabel.getDefaultStyle().getFont().    
-    return 1;
+    return 0;
   }
   
   private static int getFontStyle(Lua lua) {
@@ -103,7 +102,7 @@ final class LuaLabel {
   }
   
   private static int setFontStyle(Lua lua) { 
-    return 1;
+    return 0;
   }
   
   private static int getTextAlignment(Lua lua) {
@@ -111,7 +110,7 @@ final class LuaLabel {
   }
   
   private static int setTextAlignment(Lua lua) {
-    return 1;
+    return 0;
   }
   
   private static int getForeColor(Lua lua) {
@@ -119,7 +118,7 @@ final class LuaLabel {
   }
   
   private static int setForeColor(Lua lua) {
-    return 1;
+    return 0;
   }
   
   private static int getOutlineColor(Lua lua) {
@@ -127,7 +126,7 @@ final class LuaLabel {
   }
   
   private static int setOutlineColor(Lua lua) {
-    return 1;
+    return 0;
   }
 
   
@@ -154,10 +153,10 @@ final class LuaLabel {
 
     if (JLabel.class.isAssignableFrom(jComponent.getClass())) {    	
     	SwingUtilities.invokeLater(() -> ((JLabel)jComponent).setText(value));
-      return 1;
+      return 0;
     } else if (JButton.class.isAssignableFrom(jComponent.getClass())) {
     	SwingUtilities.invokeLater(() -> ((JButton)jComponent).setText(value));
-      return 1;
+      return 0;
     }
 
     lua.push("Type error in LuaLabel:SetText");
@@ -165,11 +164,11 @@ final class LuaLabel {
   }
   
   private static int appendText(Lua lua) {
-    return 1;
+    return 0;
   }
   
   private static int insertText(Lua lua) {
-    return 1;
+    return 0;
   }  
   
   private static int isSelectable(Lua lua) {
@@ -177,19 +176,19 @@ final class LuaLabel {
   }
   
   private static int setSelectable(Lua lua) {
-    return 1;
+    return 0;
   }
   
   private static int selectAll(Lua lua) {
-    return 1;
+    return 0;
   }
   
   private static int deselectAll(Lua lua) {
-    return 1;
+    return 0;
   }
   
   private static int setSelection(Lua lua) {
-    return 1;
+    return 0;
   }
   
   private static int getSelectedText(Lua lua) {
@@ -197,7 +196,7 @@ final class LuaLabel {
   }
   
   private static int setSelectedText(Lua lua) {
-    return 1;
+    return 0;
   }
   
   private static int getSelectionLength(Lua lua) {
@@ -205,7 +204,7 @@ final class LuaLabel {
   }
   
   private static int setSelectionLength(Lua lua) {
-    return 1;
+    return 0;
   }
 
   private static int getSelectionStart(Lua lua) {
@@ -213,6 +212,6 @@ final class LuaLabel {
   }
   
   private static int setSelectionStart(Lua lua) {
-    return 1;
+    return 0;
   }
 }

@@ -9,19 +9,29 @@ import delta.common.framework.module.command.ModuleCommand;
  * @author MaxThlon
  */
 public class ConsoleCommand implements ModuleCommand {
-	private ConsoleModule.Command _command;
+	private ConsoleModule.Command _type;
 	private @Nullable Object[] _args;
 
-  public ConsoleCommand(ConsoleModule.Command command,
+  /**
+   * @param type .
+   * @param args .
+   */
+  public ConsoleCommand(ConsoleModule.Command type,
 			 								  Object... args) {
-  	_command = command;
+  	_type = type;
   	_args = args;
   }
 	
+	/**
+	 * @return command type.
+	 */
 	public ConsoleModule.Command getCommand() {
-		return _command;
+		return _type;
 	}
 	
+	/**
+	 * @return args .
+	 */
 	public @Nullable Object[] getArgs() {
 		return _args;
 	}

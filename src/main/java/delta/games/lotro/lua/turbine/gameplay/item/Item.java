@@ -18,12 +18,9 @@ public class Item
    * Initialize lua Item package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
   @SuppressWarnings("boxing")
-	public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
+	public static void add(Lua lua, int envIndex) {
 
     lua.push(new HashMap<String, Integer>() {{
       for (ItemClass itemClass:LotroEnumsRegistry.getInstance().get(ItemClass.class).getAll()) {
@@ -60,11 +57,9 @@ public class Item
     }}, Lua.Conversion.FULL);
     lua.setField(LuaTools.relativizeIndex(envIndex, -1), "ItemWearState");
 
-    error = ItemInfo.add(lua, envIndex, errfunc);
-    if (error != Lua.LuaError.OK) return error;
+    ItemInfo.add(lua, envIndex);
 
-    error = LuaTools.pushClass(lua, errfunc, "Turbine", "Gameplay", "Entity");
-    if (error != Lua.LuaError.OK) return error;
+    LuaTools.pushClass(lua, "Turbine", "Gameplay", "Entity");
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", Item::constructor);
     lua.push((JFunction)Item::constructor);
     lua.setField(LuaTools.relativizeIndex(envIndex, -1), "Constructor");
@@ -86,7 +81,6 @@ public class Item
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetShadowImageID", Item::getShadowImageID);
 
     lua.setField(LuaTools.relativizeIndex(envIndex, -1), "Item");
-    return error;
   }
   
   private static int constructor(Lua lua) {

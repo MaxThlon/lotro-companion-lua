@@ -1,5 +1,5 @@
 import "Turbine.Type"
-import "Turbine"
+-- import "Turbine"
 
 require "metalua.compiler.globals"
 local pp = require 'metalua.pprint'
@@ -9,7 +9,8 @@ local inspect = import "inspect"
 
 Translate = class();
 
-function Translate:Constructor()
+function Translate:Constructor(...)
+  _multilocalesTranslator = localizedPlugin:InitMultilocalesTranslator(...)
 end
 
 function Translate:readFile(fileName)
@@ -30,44 +31,49 @@ function Translate:Save(data)
   file:close()
 end
 
-function Translate:Parse(fileName)
-  print("load: " .. fileName)
-  local script, err = self:readFile(fileName)
+function Translate:Parse(fileName, locale)
+  local fullFileName = localizedPlugin:GetPluginsPath() .. fileName
+  print("load: " .. fullFileName)
+  local script, err = self:readFile(fullFileName)
   if not script then
     print("err: " .. err)
+    return
   end
 
   -- Check code validity
   local status, err = loadstring(script, "isCodeValid")
   if not status then
     print("err: " .. err)
+    return
   end
 
   local metaluaCompiler = require "metalua.compiler".new()
 
   local ast = metaluaCompiler:src_to_ast(script)
-  
-  LotroCompanion.Activate({Turbine.Language.English, Turbine.Language.French, Turbine.Language.German})
-  self:PopulateTreeView(script, ast)
 
+  self:ParseAst(script, ast, locale)
   -- local formatter = require 'FormatLua.formatter'
   
   -- print(formatter.indentcode(script, ast, '\n', true, '    '))
   -- print(metaluaCompiler:ast_to_src(ast))
 end
 
-function Translate:PopulateTreeView(script, ast)
-  --print(inspect(ast))
+function Translate:ParseAst(script, ast, locale)
   local treeQuery = require "metalua.treequery"
   treeQuery.debug = true
   
+  local translator = _multilocalesTranslator:GetTranslator(locale)
+
   treeQuery(ast):filter "Set":foreach(function (node, x_parent)
      pp.printf("traverse %s", node)
      match node with
-      | `Set{ { `Index{refTable, `String{translateId}}} , {`String{translateValue}} } -> 
-          --print(refTable[1].."["..translateId.."] = "..translateValue)
-          LotroCompanion.AddTranslation(Turbine.Language.English, translateId, translateValue)
-      | _ -> assert(false) -- impossible, pred filtered those out
+      | `Set{ { `Index{refTable, `String{translateKey}}} , {`String{translateValue}} } -> 
+          -- print(refTable[1].."["..translateKey.."] = "..translateValue)
+          if (node.lineinfo.first.comments ~= nil) then
+            translator:SetComment(translateKey, node.lineinfo.first.comments[1][1])
+          end
+          translator:SetTranslation(translateKey, translateValue)
+      | _ -> print("no match") -- assert(false) -- impossible, pred filtered those out
       end
   end) 
   

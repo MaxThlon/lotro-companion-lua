@@ -13,14 +13,10 @@ public class Entity
    * Initialize lua Entity package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object");
-  	if (error != Lua.LuaError.OK) return error;
-    lua.push((JFunction)Entity::constructor);
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "Gameplay", "EntityReference");
+  	lua.push((JFunction)Entity::constructor);
     lua.setField(-2, "Constructor");
     lua.push((JFunction)Entity::getName);
     lua.setField(-2, "GetName");
@@ -28,8 +24,6 @@ public class Entity
     lua.setField(-2, "IsLocalPlayer");
 
     lua.setField(-2, "Entity");
-    
-    return error;
   }
   
   private static int constructor(Lua lua) {

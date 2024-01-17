@@ -9,14 +9,22 @@ import delta.games.lotro.client.plugin.Plugin;
 /**
  * @author MaxThlon
  */
-public class LotroLMCLoadThread extends LuaModuleThreadCommand {
-	Plugin _plugin;
-	
-	public LotroLMCLoadThread(UUID threadUuid, Plugin plugin) {
-		super(LuaModule.Command.EVENT, threadUuid);
+public class LuaMTCLoadPlugin extends LuaModuleThreadCommand {
+	private Plugin _plugin;
+
+	/**
+	 * @param threadUuid .
+	 * @param plugin .
+	 */
+	public LuaMTCLoadPlugin(UUID threadUuid,
+													Plugin plugin) {
+		super(LuaModule.Command.COMMAND, threadUuid);
 		_plugin = plugin;
 	}
 
+	/**
+	 * @return a plugin.
+	 */
 	public Plugin getPlugin() {
 		return _plugin;
 	}

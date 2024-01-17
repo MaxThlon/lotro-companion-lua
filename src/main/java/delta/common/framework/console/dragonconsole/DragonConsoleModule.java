@@ -2,6 +2,8 @@ package delta.common.framework.console.dragonconsole;
 
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import org.apache.log4j.Logger;
 
 import com.eleet.dragonconsole.CommandProcessor;
@@ -10,10 +12,7 @@ import delta.common.framework.console.ConsoleManager;
 import delta.common.framework.console.ConsoleModule;
 import delta.common.framework.console.command.ConsoleCommand;
 import delta.common.framework.console.logger.LoggerConsoleModule;
-import delta.common.framework.module.ModuleExecutor;
-import delta.common.framework.module.ModuleManager;
 import delta.common.framework.module.command.ModuleCommand;
-import delta.common.framework.module.command.ModuleExecutorCommand;
 
 /**
  * @author MaxThlon
@@ -33,7 +32,7 @@ public class DragonConsoleModule extends ConsoleModule {
 	ConsoleWindowController _consoleWindowController;
 
 	@Override
-	public void load(ModuleExecutorCommand command) {
+	public void load(@Nullable ModuleCommand[] commands) {
 		_consoleWindowController = new ConsoleWindowController(this);
 		_consoleWindowController.bringToFront();
 	}
@@ -66,19 +65,16 @@ public class DragonConsoleModule extends ConsoleModule {
 	public void unLoad() {
 		if (!_isClosed) {
 			_isClosed = true;
-			_consoleWindowController.dispose();
-			_consoleWindowController = null;
+			if( _consoleWindowController != null) {
+  			_consoleWindowController.dispose();
+  			_consoleWindowController = null;
+			}
 		}
 	}
 	
-	public void close() {
-		if (!_isClosed) {
-  		_isClosed = true;
-      _consoleWindowController = null;
-      ModuleManager.getInstance().offer(new ModuleExecutorCommand(
-      		ModuleExecutor.Command.SHUTDOWN,
-    			ConsoleManager.getInstance().getModuleUuid()
-      ));
-		}
+
+	@Override
+	public void dispose() {
+		unLoad();
 	}
 }

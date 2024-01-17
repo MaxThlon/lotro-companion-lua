@@ -16,6 +16,9 @@ public class LuaTreeCellEditor extends AbstractCellEditor implements TreeCellEdi
 
   private JPanel jPanel=null;
 
+  /**
+   * Constructor.
+   */
   public LuaTreeCellEditor() {
   }
 

@@ -10,12 +10,19 @@ import delta.common.framework.lua.LuaModule;
 public class LuaModuleThreadCommand extends LuaModuleCommand {
 	private UUID _threadUuid;
 	
+	/**
+	 * @param type .
+	 * @param threadUuid .
+	 */
 	public LuaModuleThreadCommand(LuaModule.Command type,
 																UUID threadUuid) {
 		super(type);
 		_threadUuid = threadUuid;
 	}
 
+	/**
+	 * @return thread uuid.
+	 */
 	public UUID getThreadUuid() {
 		return _threadUuid;
 	}

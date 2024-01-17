@@ -21,13 +21,9 @@ public final class LuaTreeNode {
    * Initialize lua TreeNode package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "Control");
-  	if (error != Lua.LuaError.OK) return error;
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "UI", "Control");
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaTreeNode::constructor);
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetParentNode", LuaTreeNode::getParentNode);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetChildNodes", LuaTreeNode::getChildNodes);
@@ -40,7 +36,6 @@ public final class LuaTreeNode {
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "CollapseAll", LuaTreeNode::collapseAll);
 
     lua.setField(-2, "TreeNode");
-    return error;
   }
 
   private static int constructor(Lua lua) {

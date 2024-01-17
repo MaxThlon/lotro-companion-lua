@@ -13,14 +13,10 @@ public class ActiveSkill {
    * Initialize lua ActiveSkill package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object");
-  	if (error != Lua.LuaError.OK) return error;
-    lua.push((JFunction)ActiveSkill::constructor);
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "Object");
+  	lua.push((JFunction)ActiveSkill::constructor);
     lua.setField(-2, "Constructor");
     lua.push((JFunction)ActiveSkill::isUsable);
     lua.setField(-2, "IsUsable");
@@ -32,7 +28,6 @@ public class ActiveSkill {
     lua.setField(-2, "GetResetTime");
 
     lua.setField(-2, "ActiveSkill");
-    return error;
   }
   
   private static int constructor(Lua lua) {

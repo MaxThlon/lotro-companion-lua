@@ -12,16 +12,17 @@ import delta.games.lotro.lore.crafting.CraftingSystem;
 import delta.games.lotro.lore.crafting.Vocation;
 import delta.games.lotro.lore.items.EquipmentLocation;
 import delta.games.lotro.lua.turbine.Turbine;
+import delta.games.lotro.lua.turbine.gameplay.attribute.ClassAttributes;
 import delta.games.lotro.lua.turbine.gameplay.backpack.Backpack;
 import delta.games.lotro.lua.turbine.gameplay.bank.Bank;
 import delta.games.lotro.lua.turbine.gameplay.effect.Effect;
 import delta.games.lotro.lua.turbine.gameplay.entity.Actor;
 import delta.games.lotro.lua.turbine.gameplay.entity.Entity;
+import delta.games.lotro.lua.turbine.gameplay.entity.EntityReference;
 import delta.games.lotro.lua.turbine.gameplay.item.Item;
 import delta.games.lotro.lua.turbine.gameplay.player.LocalPlayer;
 import delta.games.lotro.lua.turbine.gameplay.player.Player;
 import delta.games.lotro.lua.turbine.gameplay.skill.Skill;
-import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
 
 /**
@@ -33,13 +34,9 @@ public class Gameplay {
    * Initialize lua Gameplay package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
   @SuppressWarnings("boxing")
-  public static Lua.LuaError openPackage(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	
+  public static void openPackage(Lua lua, int envIndex) {
   	Turbine.pushfenv(
     		lua,
     		envIndex,
@@ -151,18 +148,19 @@ public class Gameplay {
     }});
     lua.setField(-2, "Vocation");
     
-    if ((error = Entity.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
-    if ((error = Item.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
-    if ((error = Backpack.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
-    if ((error = Bank.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
-    if ((error = Skill.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
-    if ((error = Effect.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
-    if ((error = Actor.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
-    if ((error = Player.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
-    if ((error = LocalPlayer.add(lua, -1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    EntityReference.add(lua, -1);
+    Entity.add(lua, -1);
+    ClassAttributes.add(lua, -1);
+    Item.add(lua, -1);
+    Backpack.add(lua, -1);
+    Bank.add(lua, -1);
+    Skill.add(lua, -1);
+    Effect.add(lua, -1);
+    Actor.add(lua, -1);
+    Player.add(lua, -1);
+    LocalPlayer.add(lua, -1);
 
     lua.pop(1); /* pop env */
-    return error;
   }
 }
 

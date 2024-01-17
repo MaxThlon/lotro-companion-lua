@@ -21,21 +21,39 @@ public abstract class URLToolsLua
     }));
   }*/
   
+  /**
+   * @param name
+   * @return a path as string.
+   */
   public static String getFromClassPath(String name)
   {
     return URLToolsLua.getFromClassPath(name, LuaModule.class).toString();
   }
   
+  /**
+   * @param name
+   * @return a InputStream.
+   */
   public static InputStream getFromClassPathAsStream(String name)
   {
     return getFromClassPathAsStream(name, LuaModule.class);
   }
   
+  /**
+   * @param name .
+   * @param clazz .
+   * @return aInputStream.
+   */
   public static InputStream getFromClassPathAsStream(String name, Class<?> clazz)
   {
     return clazz.getResourceAsStream(name);
   }
   
+  /**
+   * @param name .
+   * @param clazz .
+   * @return a path.
+   */
   public static Path getFromClassPath(String name, Class<?> clazz)
   {
     try

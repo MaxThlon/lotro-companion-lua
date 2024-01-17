@@ -1,8 +1,15 @@
 package delta.games.lotro.lua.turbine.gameplay.player;
 
+import delta.games.lotro.character.CharacterFile;
+import delta.games.lotro.lua.LotroLuaModule;
+import delta.games.lotro.lua.turbine.gameplay.attribute.Attributes;
+import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.JFunction;
 import party.iroiro.luajava.Lua;
+import party.iroiro.luajava.Lua.Conversion;
+import party.iroiro.luajava.lua51.Lua51Consts;
+import party.iroiro.luajava.value.LuaValue;
 
 /**
  * @author MaxThlon
@@ -13,14 +20,10 @@ public class LocalPlayer
    * Initialize lua LocalPlayer package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Gameplay", "Player");
-  	if (error != Lua.LuaError.OK) return error;
-    lua.push((JFunction)LocalPlayer::constructor);
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "Gameplay", "Player");
+  	lua.push((JFunction)LocalPlayer::constructor);
     lua.setField(-2, "Constructor");
     lua.push((JFunction)LocalPlayer::getInstance);
     lua.setField(-2, "GetInstance");
@@ -54,18 +57,54 @@ public class LocalPlayer
     lua.setField(-2, "IsInCombat");
 
     lua.setField(-2, "LocalPlayer");
-    return error;
   }
   
+  /**
+   * Push a already existing or new lua plugin instance.
+   * @param lua .
+   * @param characterFile .
+   */
+  public static void pushLocalPlayer(Lua lua, CharacterFile characterFile) {
+  	LuaValue luaLocalPLayer = LuaObject.findLuaObjectFromObject(characterFile);
+  	
+  	if (luaLocalPLayer != null) {
+  		lua.push(luaLocalPLayer, Conversion.NONE);
+  	} else {
+    	lua.pushValue(Lua51Consts.LUA_ENVIRONINDEX);
+    	LuaTools.newClassInstance(lua, -1, (relativeEnvIndex) -> {
+    		LuaTools.pushValue(lua, relativeEnvIndex.intValue(), "Turbine", "Gameplay", "Player");
+    	});
+      LuaObject.ObjectInheritedConstructor(
+          lua,
+          -1,
+          luaLocalPLayer,
+          null,
+          null
+      );
+      lua.pushValue(-1);
+      //luaLocalPLayer.getContext().setValue(LuaControl.jComponentKey_luaObjectSelf, lua.get());
+      lua.replace(-1); /* env <- instance */
+  	}
+  }
+
   private static int constructor(Lua lua) {
     return 1;
   }
   
   private static int getInstance(Lua lua) {
-    return 1;
+  	LotroLuaModule luaLotro = (LotroLuaModule)LuaTools.getJavaLuaModule(lua);
+
+  	pushLocalPlayer(lua, luaLotro.getCharacterFile());
+  	return 1;
   }
   
   private static int getRaceAttributes(Lua lua) {
+  	//LotroLuaModule luaLotro = (LotroLuaModule)LuaTools.getJavaLuaModule(lua);
+  	//CharacterData toon = luaLotro.getCharacterFile().getInfosManager().getCurrentData();
+  	//toon.getRace()
+  	lua.getGlobal(LuaTools.PCALL_ERR_FUNC_NAME);
+  	lua.pushValue(Lua51Consts.LUA_ENVIRONINDEX);
+  	Attributes.pushAttributes(lua, -1, -2);
     return 1;
   }
   

@@ -11,7 +11,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
-import party.iroiro.luajava.Lua.Conversion;
 
 /**
  * LuaTreeNodeList library for lua scripts.
@@ -22,13 +21,9 @@ public final class LuaTreeNodeList {
    * Initialize lua TreeNodeList package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object");
-  	if (error != Lua.LuaError.OK) return error;
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "Object");
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaTreeNodeList::constructor);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetCount", LuaTreeNodeList::getCount);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Add", LuaTreeNodeList::addNode);
@@ -40,21 +35,38 @@ public final class LuaTreeNodeList {
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Clear", LuaTreeNodeList::clear);
 
     lua.setField(-2, "TreeNodeList");
-    return error;
   }
 
+  /**
+   * @param lua .
+   * @param envIndex .
+   * @param jtree .
+   * @param rootNode .
+   * @return int.
+   */
   public static int newLuaTreeNodeList(Lua lua, int envIndex, JTree jtree, DefaultMutableTreeNode rootNode) {
-    LuaTools.pushValue(lua, envIndex, "Turbine", "UI", "TreeNodeList");
-    lua.push(jtree, Conversion.NONE);
-    lua.push(rootNode, Conversion.NONE);
-    lua.pCall(2, 1);
+  	LuaTools.newClassInstance(lua, envIndex, (relativeEnvIndex) -> {
+  		LuaTools.pushValue(lua, relativeEnvIndex.intValue(), "Turbine", "UI", "TreeNodeList");
+  		//lua.push(jtree, Conversion.NONE);
+  		//lua.push(rootNode, Conversion.NONE);
+  	});
     return 1;
   }
 
+  /**
+   * @param lua .
+   * @param index .
+   * @return a JTree.
+   */
   public static JTree jTreeSelf(Lua lua, int index) {
     return (JTree)LuaObject.objectSelf(lua, index, ImmutablePair.class).left;
   }
 
+  /**
+   * @param lua .
+   * @param index .
+   * @return a DefaultMutableTreeNode.
+   */
   public static DefaultMutableTreeNode rootNodeSelf(Lua lua, int index) {
     return (DefaultMutableTreeNode)LuaObject.objectSelf(lua, index, ImmutablePair.class).right;
   }
@@ -103,7 +115,7 @@ public final class LuaTreeNodeList {
         )
       );
     }
-    return 1;
+    return 0;
   }
   
   @SuppressWarnings("cast")
@@ -115,22 +127,24 @@ public final class LuaTreeNodeList {
   }
   
   private static int contains(Lua lua) {
+  	lua.push(false);
     return 1;
   }
   
   private static int indexOf(Lua lua) {
+  	lua.push(1);
     return 1;
   }
   
   private static int remove(Lua lua) {
-    return 1;
+    return 0;
   }
   
   private static int removeAt(Lua lua) {
-    return 1;
+    return 0;
   }
   
   private static int clear(Lua lua) {
-    return 1;
+    return 0;
   }
 }

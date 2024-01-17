@@ -17,13 +17,9 @@ public abstract class Quickslot {
    * Initialize lua Quickslot package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "Control");
-  	if (error != Lua.LuaError.OK) return error;
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "UI", "Control");
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", Quickslot::constructor);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetShortcut", Quickslot::getShortcut);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetShortcut", Quickslot::setShortcut);
@@ -31,9 +27,13 @@ public abstract class Quickslot {
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetUseOnRightClick", Quickslot::setUseOnRightClick);
 
     lua.setField(-2, "Quickslot");
-    return error;
   }
   
+  /**
+   * @param lua .
+   * @param index .
+   * @return a corresponding JButton instance.
+   */
   public static JButton jButtonSelf(Lua lua, int index) {
     return LuaObject.objectSelf(lua, index, JButton.class);
   }

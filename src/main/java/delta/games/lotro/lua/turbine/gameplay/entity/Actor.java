@@ -12,13 +12,9 @@ public class Actor
    * Initialize lua Actor package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Gameplay", "Entity");
-  	if (error != Lua.LuaError.OK) return error;
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "Gameplay", "Entity");
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", Actor::constructor);
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetLevel", Actor::getLevel);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetTarget", Actor::getTarget);
@@ -33,10 +29,7 @@ public class Actor
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetBaseMaxPower", Actor::getBaseMaxPower);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetTemporaryPower", Actor::getTemporaryPower);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetMaxTemporaryPower", Actor::getMaxTemporaryPower);
-    
-    lua.setField(-2, "Actor");
-    
-    return error;
+    lua.setField(LuaTools.relativizeIndex(envIndex, -1), "Actor");
   }
   
   private static int constructor(Lua lua) {

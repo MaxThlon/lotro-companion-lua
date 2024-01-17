@@ -1,5 +1,6 @@
 package delta.games.lotro.lua.turbine.engine;
 
+import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
 
@@ -12,13 +13,10 @@ public class Engine {
    * Initialize lua Engine package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError openPackage(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	if ((error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object")) != Lua.LuaError.OK) return error;
-    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", Engine::constructor);
+  public static void openPackage(Lua lua, int envIndex) {
+  	lua.createTable(0, 10);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsA", LuaObject::isA);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetCallStack", Engine::getCallStack);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetDate", Engine::getDate);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetGameTime", Engine::getGameTime);
@@ -27,15 +25,9 @@ public class Engine {
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetLocalTime", Engine::getLocalTime);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetScriptVersion", Engine::getScriptVersion);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "ScriptLog", Engine::scriptLog);
-    LuaTools.pCall(lua, 0, 1, LuaTools.relativizeIndex(errfunc, -1));
     lua.setField(-2, "Engine");
-    return error;
   }
-  
-  private static int constructor(Lua lua) {
-    return 1;
-  }
-  
+
   private static int getCallStack(Lua lua) {
     return 1;
   }

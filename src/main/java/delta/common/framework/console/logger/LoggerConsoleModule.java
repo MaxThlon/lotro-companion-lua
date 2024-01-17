@@ -2,12 +2,13 @@ package delta.common.framework.console.logger;
 
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import org.apache.log4j.Logger;
 
 import delta.common.framework.console.ConsoleModule;
 import delta.common.framework.console.command.ConsoleCommand;
 import delta.common.framework.module.command.ModuleCommand;
-import delta.common.framework.module.command.ModuleExecutorCommand;
 
 /**
  * @author MaxThlon
@@ -24,7 +25,7 @@ public class LoggerConsoleModule extends ConsoleModule {
 	}
 
 	@Override
-	public void load(ModuleExecutorCommand command) {
+	public void load(@Nullable ModuleCommand[] commands) {
 		/* empty */
 	}
 	
@@ -44,6 +45,11 @@ public class LoggerConsoleModule extends ConsoleModule {
 
 	@Override
 	public void unLoad() {
+		/* empty */
+	}
+
+	@Override
+	public void dispose() {
 		/* empty */
 	}
 }

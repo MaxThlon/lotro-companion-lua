@@ -13,13 +13,9 @@ public class ItemInfo {
    * Initialize lua ItemInfo package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object");
-  	if (error != Lua.LuaError.OK) return error;
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "Object");
     lua.push((JFunction)ItemInfo::constructor);
     lua.setField(-2, "Constructor");
     lua.push((JFunction)ItemInfo::getName);
@@ -55,7 +51,6 @@ public class ItemInfo {
     lua.setField(-2, "GetShadowImageID");
 
     lua.setField(-2, "ItemInfo");
-    return error;
   }
 
   private static int constructor(Lua lua) {

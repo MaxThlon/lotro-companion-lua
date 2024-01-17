@@ -18,6 +18,10 @@ import party.iroiro.luajava.value.LuaValue;
 public class LuaTreeMouseListener implements MouseListener {
   private JTree _tree;
 
+  /**
+   * Constructor.
+   * @param tree .
+   */
   public LuaTreeMouseListener(JTree tree) {
     _tree = tree;
   }

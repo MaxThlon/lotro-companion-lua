@@ -16,8 +16,17 @@ public class PluginConfiguration
   private static final String PLUGIN_CONFIGURATION="Plugin";
   private static final Path PLUGINS_PATH=Paths.get("plugins");
   protected static final Path PLUGIN_DATA_PATH=Paths.get("PluginData");
+  /**
+   * 
+   */
   public static final String PLUGIN_DATA_FILE_EXT = ".plugindata";
+  /**
+   * 
+   */
   public static final String PLUGIN_DATA_PATH_SERVER_ALL="AllServers";
+  /**
+   * 
+   */
   public static final String PLUGIN_DATA_PATH_CHARACTER_ALL="AllCharacters";
   
   protected ApplicationPathConfiguration _appPathConfig;

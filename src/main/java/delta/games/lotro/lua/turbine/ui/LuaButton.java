@@ -9,26 +9,23 @@ import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
 
 /**
- * LuaButton library for lua scripts.
+ * Button library for lua scripts.
+ * 
  * @author MaxThlon
  */
 final class LuaButton {
   /**
-   * Initialize lua LuaButton package
+   * Initialize lua Button package
+   * 
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "Label");
-  	if (error != Lua.LuaError.OK) return error;
-  	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaButton::constructor);
-    lua.setField(-2, "Button");
-    return error;
+  public static void add(Lua lua, int envIndex) {
+    LuaTools.pushClass(lua, "Turbine", "UI", "Label");
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaButton::constructor);
+    lua.setField(LuaTools.relativizeIndex(envIndex, -1), "Button");
   }
-  
+
   public static JButton jButtonSelf(Lua lua, int index) {
     return LuaObject.objectSelf(lua, index, JButton.class);
   }
@@ -38,6 +35,6 @@ final class LuaButton {
 
     LuaTools.invokeAndWait(lua, () -> jButton.value = GuiFactory.buildButton("meu"));
     LuaControl.controlInheritedConstructor(lua, 1, jButton.value);
-    return 1;
+    return 0;
   }
 }

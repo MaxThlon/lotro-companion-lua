@@ -13,14 +13,10 @@ public class Player
    * Initialize lua Player package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Gameplay", "Actor");
-  	if (error != Lua.LuaError.OK) return error;
-    lua.push((JFunction)Player::constructor);
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "Gameplay", "Actor");
+  	lua.push((JFunction)Player::constructor);
     lua.setField(-2, "Constructor");
     lua.push((JFunction)Player::getLotroClass);
     lua.setField(-2, "GetClass");
@@ -45,7 +41,6 @@ public class Player
     lua.setField(-2, "GetPet");
 
     lua.setField(-2, "Player");
-    return error;
   }
   
   private static int constructor(Lua lua) {

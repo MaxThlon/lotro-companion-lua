@@ -6,6 +6,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nullable;
+
 import delta.common.framework.module.ModuleExecutor.Command;
 import delta.common.framework.module.command.ModuleExecutorCommand;
 import delta.common.framework.module.event.ModuleExecutorEvent;
@@ -17,8 +19,8 @@ import delta.games.lotro.utils.events.GenericEventsListener;
  * @author MaxThlon
  */
 public class ModuleManager implements GenericEventsListener<ModuleExecutorEvent> {
-  private static class RunnerManagerHolder {
-    private static final ModuleManager RUNNER_MANAGER = new ModuleManager();
+  private static class ModuleManagerHolder {
+    private static final ModuleManager MODULE_MANAGER = new ModuleManager();
   }
   //private static final Logger LOGGER=Logger.getLogger(ModuleManager.class);
 
@@ -31,7 +33,7 @@ public class ModuleManager implements GenericEventsListener<ModuleExecutorEvent>
    */
   public static ModuleManager getInstance()
   {
-    return RunnerManagerHolder.RUNNER_MANAGER;
+    return ModuleManagerHolder.MODULE_MANAGER;
   }
   
   /**
@@ -48,6 +50,9 @@ public class ModuleManager implements GenericEventsListener<ModuleExecutorEvent>
     }
   }
   
+  /**
+   * Stop all modules, moules threads and clear ModuleManager data.
+   */
   public void closeThreadPoolExecutor() {
     if (_threadPoolExecutor != null) {
     	_threadPoolExecutor.shutdown(); // Disable new tasks from being submitted
@@ -72,41 +77,89 @@ public class ModuleManager implements GenericEventsListener<ModuleExecutorEvent>
   }
 
   /**
-   * add moduleExecutor.
+   * add moduleExecutor with uuid as reference, if uuid is not already used.
+   * @param moduleUuid .
    * @param moduleExecutor .
    */
-  public void addModuleExecutor(ModuleExecutor moduleExecutor) {
+  public void addModuleExecutor(UUID moduleUuid, ModuleExecutor moduleExecutor) {
   	initThreadPoolExecutor();
-  	_threadPoolExecutor.submit(moduleExecutor);
+  	if (!containModule(moduleUuid)) {
+    	_moduleExecutors.put(moduleUuid, moduleExecutor);
+    	_threadPoolExecutor.submit(moduleExecutor);
+  	}
   }
   
+  /**
+   * @param moduleUuid
+   * @return true if module is loaded.
+   */
+  public boolean containModule(UUID moduleUuid) {
+  	return (_moduleExecutors != null) && (_moduleExecutors.get(moduleUuid) != null);
+  }
+
   /**
    * add module.
    * @param module .
    */
   public void addModule(Module module) {
-    addModuleExecutor(new ModuleExecutor(module));
+  	UUID moduleUuid=module.getUuid();
+  	if (!containModule(moduleUuid)) {
+  		addModuleExecutor(moduleUuid, new ModuleExecutor(module));
+  	}
   }
-
+  
+  /**
+   * find module by uuid.
+   * @param moduleUuid .
+   * @return return corresponding module.
+   */
+  public @Nullable Module findModule(UUID moduleUuid) {
+  	if (_moduleExecutors != null) {
+  		ModuleExecutor moduleExecutor = _moduleExecutors.get(moduleUuid);
+  		if (moduleExecutor != null) {
+  			return moduleExecutor.getModule();
+  		}
+  	}
+  	return null;
+  }
+  
+  /**
+   * offer a command to a moduleExecutor with same uuid.
+   * @param command .
+   */
   public void offer(ModuleExecutorCommand command) {
-  	ModuleExecutor moduleExecutor = _moduleExecutors.get(command.getModuleUuid());
-  	if (moduleExecutor != null) {
-  		moduleExecutor.offer(command);
+  	if (_moduleExecutors != null) {
+    	ModuleExecutor moduleExecutor = _moduleExecutors.get(command.getModuleUuid());
+    	if (moduleExecutor != null) {
+    		moduleExecutor.offer(command);
+    	}
   	}
   }
   
 	@Override
 	public void eventOccurred(ModuleExecutorEvent event) {
 		ModuleExecutor moduleExecutor = event.getModuleExecutor();
-		UUID moduleUuid = moduleExecutor.getModule().getUuid();
-
-		switch (event.getType()) {
-			case STARTED:
-				_moduleExecutors.put(moduleUuid, moduleExecutor);
-				break;
-			case INTERRUPTED:
-				_moduleExecutors.remove(moduleUuid);
-				break;
+		if (moduleExecutor != null) {
+  		UUID moduleUuid = moduleExecutor.getModule().getUuid();
+  
+  		switch (event.getType()) {
+  			case STARTED:
+  				//_moduleExecutors.put(moduleUuid, moduleExecutor);
+  				break;
+  			case TERMINATED: {
+  				_moduleExecutors.remove(moduleUuid);
+  				break;
+  			}
+  		}
 		}
 	}
+	
+	/**
+   * Release all managed resources.
+   */
+  public void dispose()
+  {
+  	closeThreadPoolExecutor();
+  	EventsManager.removeListener(ModuleExecutorEvent.class, this);
+  }
 }

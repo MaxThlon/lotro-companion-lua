@@ -13,14 +13,10 @@ public class Effect
    * Initialize lua Effect package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object");
-  	if (error != Lua.LuaError.OK) return error;
-    lua.push((JFunction)Effect::constructor);
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "Object");
+  	lua.push((JFunction)Effect::constructor);
     lua.setField(-2, "Constructor");
     lua.push((JFunction)Effect::getID);
     lua.setField(-2, "GetID");
@@ -44,9 +40,7 @@ public class Effect
     lua.setField(-2, "GetIcon");
     lua.setField(-2, "Effect");
     
-    error = EffectList.add(lua, envIndex, errfunc);
-    
-    return error;
+    EffectList.add(lua, envIndex);
   }
   
   private static int constructor(Lua lua) {

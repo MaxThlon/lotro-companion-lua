@@ -13,22 +13,18 @@ public class Skill {
    * Initialize lua Skill package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	if ((error = SkillInfo.add(lua, envIndex, errfunc)) != Lua.LuaError.OK) return error;
-  	if ((error = ActiveSkill.add(lua, envIndex, errfunc)) != Lua.LuaError.OK) return error;
+  public static void add(Lua lua, int envIndex) {
+  	SkillInfo.add(lua, envIndex);
+  	ActiveSkill.add(lua, envIndex);
     
-  	if ((error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object")) != Lua.LuaError.OK) return error;
+  	LuaTools.pushClass(lua, "Turbine", "Object");
     lua.push((JFunction)Skill::constructor);
     lua.setField(-2, "Constructor");
     lua.push((JFunction)Skill::getSkillInfo);
     lua.setField(-2, "GetSkillInfo");
     
     lua.setField(-2, "Skill");
-    return error;
   }
 
   private static int constructor(Lua lua) {

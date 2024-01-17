@@ -14,13 +14,34 @@ import party.iroiro.luajava.value.LuaValue;
  * @author MaxThlon
  */
 public abstract class LuaMouseListener implements MouseListener {
+
+  /**
+   * Event.
+   */
+  public LuaValue _luaMouseDown = null;
+  /**
+   * Event.
+   */
+  public LuaValue _luaMouseClick = null;
+  /**
+   * Event.
+   */
+  public LuaValue _luaMouseUp = null;
+  /**
+   * Event.
+   */
+  public LuaValue _luaMouseEnter = null;
+  /**
+   * Event.
+   */
+  public LuaValue _luaMouseLeave = null;
   
-  public LuaValue _luaMouseDown = null,
-                  _luaMouseClick = null,
-                  _luaMouseUp = null,
-                  _luaMouseEnter = null,
-                  _luaMouseLeave = null;
-  
+  /**
+   * @param lua .
+   * @param component .
+   * @param self .
+   * @return a LuaMouseListener.
+   */
   public static LuaMouseListener luaIndexMetaFunc(Lua lua, Component component, LuaValue self) {
     
     return Arrays.stream(component.getMouseListeners())

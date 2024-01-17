@@ -19,13 +19,9 @@ final class LuaScrollableControl {
    * Initialize lua ScrollableControl package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "Control");
-  	if (error != Lua.LuaError.OK) return error;
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "UI", "Control");
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaScrollableControl::constructor);
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetHorizontalScrollBar", LuaScrollableControl::getHorizontalScrollBar);
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetHorizontalScrollBar", LuaScrollableControl::setHorizontalScrollBar);
@@ -33,7 +29,6 @@ final class LuaScrollableControl {
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetVerticalScrollBar", LuaScrollableControl::setVerticalScrollBar);
     
     lua.setField(-2, "ScrollableControl");
-    return error;
   }
 
   private static int constructor(Lua lua) {

@@ -14,6 +14,11 @@ public class ModuleExecutorCommand {
 	private UUID _moduleUuid;
 	private @Nullable ModuleCommand[] _handlers;
 
+  /**
+   * @param command .
+   * @param moduleUuid .
+   * @param handlers .
+   */
   public ModuleExecutorCommand(ModuleExecutor.Command command,
   														 UUID moduleUuid,
   														 ModuleCommand... handlers) {
@@ -22,14 +27,23 @@ public class ModuleExecutorCommand {
     _handlers = handlers;
   }
   
+  /**
+   * @return handled command type.
+   */
   public ModuleExecutor.Command getExecutorEvent() {
   	return _command;
   }
 
+  /**
+   * @return module uuid.
+   */
   public UUID getModuleUuid() {
   	return _moduleUuid;
   }
   
+  /**
+   * @return module command handlers.
+   */
   public @Nullable ModuleCommand[] getHandlers() {
   	return _handlers;
   }

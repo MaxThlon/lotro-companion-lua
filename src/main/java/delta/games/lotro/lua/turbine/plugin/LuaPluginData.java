@@ -1,6 +1,7 @@
 package delta.games.lotro.lua.turbine.plugin;
 
 import delta.games.lotro.lua.LotroLuaModule;
+import delta.games.lotro.lua.turbine.object.LuaObject;
 import delta.games.lotro.lua.utils.LuaTools;
 import party.iroiro.luajava.Lua;
 
@@ -13,22 +14,18 @@ public final class LuaPluginData
    * Initialize lua PluginData package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-
-  	if ((error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object")) != Lua.LuaError.OK) return error;
+  public static void add(Lua lua, int envIndex) {
+  	lua.createTable(0, 0);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Load", LuaPluginData::load);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Save", LuaPluginData::save);
+    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsA", LuaObject::isA);
     lua.setField(-2, "PluginData");
-    return error;
   }
 
   private static int load(Lua lua) {
   	Lua.LuaError error;
-  	DataScope dataScope = DataScope.valueOfNumber((Integer)lua.toObject(1));
+  	DataScope dataScope = DataScope.valueOfNumber(Integer.valueOf((int)lua.toNumber(1)));
   	String key  = lua.toString(2);
   	LotroLuaModule luaLotro = (LotroLuaModule)LuaTools.getJavaLuaModule(lua);
   	

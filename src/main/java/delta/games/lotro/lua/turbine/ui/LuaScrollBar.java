@@ -16,13 +16,9 @@ final class LuaScrollBar {
    * Initialize lua ScrollBar package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "Control");
-  	if (error != Lua.LuaError.OK) return error;
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "UI", "Control");
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaScrollBar::constructor);
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetOrientation", LuaScrollBar::getOrientation);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetOrientation", LuaScrollBar::setOrientation);
@@ -48,7 +44,6 @@ final class LuaScrollBar {
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetThumbButton", LuaScrollBar::setThumbButton);
 
     lua.setField(-2, "ScrollBar");
-    return error;
   }
 
   private static int constructor(Lua lua) {

@@ -17,13 +17,9 @@ public abstract class UiLotro {
    * Initialize lua UiLotro package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
   @SuppressWarnings("boxing")
-  public static Lua.LuaError openPackage(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
- 
+  public static void openPackage(Lua lua, int envIndex) {
   	Turbine.pushfenv(
     		lua,
     		envIndex,
@@ -369,6 +365,8 @@ public abstract class UiLotro {
     }}, Lua.Conversion.FULL);
     lua.setField(-2, "Action");
 
+    LuaLotroDragDropInfo.add(lua, -1);
+    
     LuaTools.pushValue(lua, Lua51Consts.LUA_ENVIRONINDEX, "Turbine", "UI" , "TextBox");
     lua.setField(-2, "TextBox");
 
@@ -381,23 +379,19 @@ public abstract class UiLotro {
     LuaTools.pushValue(lua, Lua51Consts.LUA_ENVIRONINDEX, "Turbine", "UI" , "Window");
     lua.setField(-2, "Window");
 
-    if ((error = Quickslot.add(lua, envIndex, errfunc)) != Lua.LuaError.OK) return error;
+    Quickslot.add(lua, envIndex);
 
     /* LotroUI */
-    if ((error = LuaTools.pushClass(
-    		lua,
-    		LuaTools.relativizeIndex(errfunc, -1),
-    		"Turbine", "Object"
-    )) != Lua.LuaError.OK) return error;
-    LuaTools.setFunction(lua, -1, -2, "Constructor", UiLotro::constructor);
-    LuaTools.setFunction(lua, -1, -2, "IsEnabled", UiLotro::isEnabled);
-    LuaTools.setFunction(lua, -1, -2, "SetEnabled", UiLotro::setEnabled);
-    LuaTools.setFunction(lua, -1, -2, "Reset", UiLotro::reset);
-    if ((error = LuaTools.pCall(lua, 0, 1, LuaTools.relativizeIndex(errfunc, -1))) != Lua.LuaError.OK) return error;
+    LuaTools.newClassInstance(lua, -1, (relativeEnvIndex) -> {
+      LuaTools.pushClass(lua, "Turbine", "Object");
+      LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(relativeEnvIndex.intValue(), -1), "Constructor", UiLotro::constructor);
+      LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(relativeEnvIndex.intValue(), -1), "IsEnabled", UiLotro::isEnabled);
+      LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(relativeEnvIndex.intValue(), -1), "SetEnabled", UiLotro::setEnabled);
+      LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(relativeEnvIndex.intValue(), -1), "Reset", UiLotro::reset);
+    });
     lua.setField(-2, "LotroUI");
 
     lua.pop(1); /* pop env */
-    return error;
   }
   
   private static int constructor(Lua lua) {

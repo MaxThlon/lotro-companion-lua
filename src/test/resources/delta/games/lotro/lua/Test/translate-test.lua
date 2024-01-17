@@ -1,9 +1,9 @@
-import "metalua.loader"
-import "Translate"
+require "metalua.loader"
+require "Translate"
 -- require('mobdebug').start()
 
 local translate = Translate()
-local fileName = URLToolsLua.getFromClassPath("test/translate/GlobalsEN.lua")
+local fileName = "target\\test-classes\\delta\\games\\lotro\\lua\\translate\\GlobalsEN.lua"
 
 translate:Parse(fileName)
 

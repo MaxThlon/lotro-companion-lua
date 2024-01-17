@@ -12,28 +12,20 @@ public class Bank
    * Initialize lua Bank package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = BankItem.add(lua, envIndex, errfunc);
-  	if (error != Lua.LuaError.OK) return error;
-
-    LuaTools.pushClass(lua, errfunc, "Turbine", "Object");
-    if (error != Lua.LuaError.OK) return error;
-    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", Bank::constructor);
-    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "IsAvailable", Bank::isAvailable);
-    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetCapacity", Bank::getCapacity);
-    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetCount", Bank::getCount);
-    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetItem", Bank::getItem);
-    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetChestCount", Bank::getChestCount);
-    LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetChestName", Bank::getChestName);
-
-    LuaTools.pCall(lua, 0, 1, LuaTools.relativizeIndex(errfunc, -1));
-    lua.setField(-2, "Bank");
-    
-    return error;
+  public static void add(Lua lua, int envIndex) {
+  	BankItem.add(lua, envIndex);
+    LuaTools.newClassInstance(lua, envIndex, (relativeEnvIndex) -> {
+    	LuaTools.pushClass(lua, "Turbine", "Object");
+      LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(relativeEnvIndex.intValue(), -1), "Constructor", Bank::constructor);
+      LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(relativeEnvIndex.intValue(), -1), "IsAvailable", Bank::isAvailable);
+      LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(relativeEnvIndex.intValue(), -1), "GetCapacity", Bank::getCapacity);
+      LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(relativeEnvIndex.intValue(), -1), "GetCount", Bank::getCount);
+      LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(relativeEnvIndex.intValue(), -1), "GetItem", Bank::getItem);
+      LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(relativeEnvIndex.intValue(), -1), "GetChestCount", Bank::getChestCount);
+      LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(relativeEnvIndex.intValue(), -1), "GetChestName", Bank::getChestName);
+    });
+    lua.setField(LuaTools.relativizeIndex(envIndex, -1), "Bank");
   }
   
   private static int constructor(Lua lua) {

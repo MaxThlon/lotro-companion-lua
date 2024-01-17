@@ -15,29 +15,73 @@ import delta.common.framework.module.event.ModuleExecutorEvent;
 import delta.games.lotro.utils.events.EventsManager;
 
 /**
+ * ModuleExecutor class.
  * @author MaxThlon
  */
 public class ModuleExecutor implements Runnable
 {
+  /**
+   *
+   */
   public enum Command {
+    /**
+     * LOAD
+     */
     LOAD,
+    /**
+     * EXECUTE
+     */
     EXECUTE,
+    /**
+     * UNLOAD
+     */
     UNLOAD,
-    //ABORT,
-    //ERROR,
+    /**
+     * 
+     */
     SHUTDOWN
   }
+  /**
+   *
+   */
   public enum State {
+  	/**
+  	 * 
+  	 */
   	UNLOADED,
+  	/**
+  	 * 
+  	 */
   	LOADING,
+  	/**
+  	 * 
+  	 */
   	PENNDING,
+    /**
+     * 
+     */
     RUNNING,
+    /**
+     * 
+     */
     UNLOADING,
-    INTERRUPTED
+    /**
+     * 
+     */
+    TERMINATED
   }
+  /**
+   *
+   */
   public enum MEvent {
+  	/**
+  	 * 
+  	 */
   	STARTED,
-  	INTERRUPTED
+  	/**
+  	 * 
+  	 */
+  	TERMINATED
   }
   
   static final List<State> ACCEPT_COMMAND_STATE = Collections.unmodifiableList(Arrays.asList(
@@ -81,15 +125,16 @@ public class ModuleExecutor implements Runnable
     _commandQueue = new ArrayDeque<>(4);
   }
   
+  /**
+   * @return handled module.
+   */
   public Module getModule()
   {
     return _module;
   }
   
   private void setState(State state) {
-  	//_isStateLock.lockInterruptibly();
     _state = state;
-    //_isStateLock.unlock();
   }
 
   @Override
@@ -98,7 +143,7 @@ public class ModuleExecutor implements Runnable
   	EventsManager.invokeEvent(new ModuleEvent(MEvent.STARTED, _module));
   	ModuleExecutorCommand command;
 
-    while ((!Thread.interrupted()) && (_state != State.INTERRUPTED)) try {
+    while ((!Thread.interrupted()) && (_state != State.TERMINATED)) try {
     	synchronized (_queueLock) {
       	command = _commandQueue.poll();
       }
@@ -109,7 +154,7 @@ public class ModuleExecutor implements Runnable
         case LOAD:
           if (_state == State.UNLOADED) {
           	setState(State.LOADING);
-          	_module.load(command);
+          	_module.load(command.getHandlers());
           	setState(State.PENNDING);
           }
           break;
@@ -130,7 +175,7 @@ public class ModuleExecutor implements Runnable
         	}
           break;
         case SHUTDOWN:
-        	setState(State.INTERRUPTED);
+        	setState(State.TERMINATED);
         	clear();
         	_module.unLoad();
         	break;
@@ -148,8 +193,8 @@ public class ModuleExecutor implements Runnable
     if (ACCEPT_UNLOAD_STATE.contains(_state)) {
     	_module.unLoad();
     }
-    EventsManager.invokeEvent(new ModuleEvent(MEvent.INTERRUPTED, _module));
-    EventsManager.invokeEvent(new ModuleExecutorEvent(MEvent.INTERRUPTED, this));
+    EventsManager.invokeEvent(new ModuleEvent(MEvent.TERMINATED, _module));
+    EventsManager.invokeEvent(new ModuleExecutorEvent(MEvent.TERMINATED, this));
   	_module = null;
   }
   
@@ -159,6 +204,9 @@ public class ModuleExecutor implements Runnable
     }
   }
   
+  /**
+   * resume paused executor.
+   */
   public void resume() {
     synchronized (_idleLock) {
     	_idleLock.notifyAll(); // Unblocks thread
@@ -169,10 +217,10 @@ public class ModuleExecutor implements Runnable
    * If the module can accept this command
    * @param command 
    * @return true if can accept this command.
-   */
+   /
   private boolean canAccept(ModuleExecutorCommand command) {
   	return ACCEPT_COMMAND_STATE.contains(_state) && _module.canAccept(command);
-  }
+  }*/
 
   /**
    * Called when an {@link ModuleExecutorCommand } event occurred.

@@ -12,13 +12,9 @@ public class WalletItem
    * Initialize lua WalletItem package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-
-  	if ((error = LuaTools.pushClass(lua, errfunc, "Turbine", "Object")) != Lua.LuaError.OK) return error;
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "Object");
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", WalletItem::constructor);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetName", WalletItem::getName);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetDescription", WalletItem::getDescription);
@@ -30,7 +26,6 @@ public class WalletItem
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetSmallImage", WalletItem::getSmallImage);
 
     lua.setField(-2, "WalletItem");
-    return error;
   }
   
   private static int constructor(Lua lua) {

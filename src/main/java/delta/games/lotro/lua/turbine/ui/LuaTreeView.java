@@ -25,13 +25,9 @@ final class LuaTreeView {
    * Initialize lua TreeView package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "ScrollableControl");
-  	if (error != Lua.LuaError.OK) return error;
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "UI", "ScrollableControl");
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaTreeView::constructor);
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "GetIndentationWidth", LuaTreeView::getIndentationWidth);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetIndentationWidth", LuaTreeView::setIndentationWidth);
@@ -53,7 +49,6 @@ final class LuaTreeView {
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Refresh", LuaTreeView::refresh);
 
     lua.setField(-2, "TreeView");
-    return error;
   }
 
   public static JTree jTreeSelf(Lua lua, int index) {

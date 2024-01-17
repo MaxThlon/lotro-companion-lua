@@ -5,6 +5,10 @@ import java.awt.Dimension;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import delta.common.framework.console.ConsoleManager;
+import delta.common.framework.module.ModuleExecutor;
+import delta.common.framework.module.ModuleManager;
+import delta.common.framework.module.command.ModuleExecutorCommand;
 import delta.common.ui.swing.JFrame;
 import delta.common.ui.swing.windows.DefaultWindowController;
 
@@ -68,7 +72,11 @@ public class ConsoleWindowController extends DefaultWindowController
   public void dispose()
   {
   	if (_dragonConsoleModuleImpl != null) {
-  		_dragonConsoleModuleImpl.close();
+  		ModuleManager.getInstance().offer(new ModuleExecutorCommand(
+      		ModuleExecutor.Command.SHUTDOWN,
+    			ConsoleManager.getInstance().getModuleUuid()
+      ));
+  		_dragonConsoleModuleImpl = null;
   	}
     if (_controller!=null)
     {

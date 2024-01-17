@@ -16,8 +16,17 @@ import party.iroiro.luajava.value.LuaValue;
 public class LuaTreeSelectionListener implements TreeSelectionListener  {
   private JTree _jTree;
   private LuaValue _luaTreeview;
+  /**
+   * Event.
+   */
   public LuaValue _luaSelectedNodeChanged;
 
+  /**
+   * Constructor.
+   * @param jTree .
+   * @param luaTreeview .
+   * @param luaSelectedNodeChanged .
+   */
   public LuaTreeSelectionListener(JTree jTree, LuaValue luaTreeview, LuaValue luaSelectedNodeChanged) {
     _jTree = jTree;
     _luaTreeview = luaTreeview;

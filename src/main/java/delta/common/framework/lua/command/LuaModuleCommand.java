@@ -9,10 +9,16 @@ import delta.common.framework.module.command.ModuleCommand;
 public class LuaModuleCommand implements ModuleCommand {
 	private LuaModule.Command _type;
 	
+	/**
+	 * @param type .
+	 */
 	public LuaModuleCommand(LuaModule.Command type) {
 		_type = type;
 	}
 	
+	/**
+	 * @return command type.
+	 */
 	public LuaModule.Command getType() {
 		return _type;
 	}

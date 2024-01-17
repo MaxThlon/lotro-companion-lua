@@ -11,13 +11,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 import javax.swing.SwingUtilities;
@@ -34,6 +38,7 @@ import delta.common.framework.lua.event.LuaModuleEvent;
 import delta.common.framework.module.ModuleExecutor;
 import delta.common.framework.module.ModuleManager;
 import delta.common.framework.module.command.ModuleExecutorCommand;
+import delta.games.lotro.lua.turbine.object.LuaObject;
 import party.iroiro.luajava.ClassPathLoader.BufferOutputStream;
 import party.iroiro.luajava.JFunction;
 import party.iroiro.luajava.Lua;
@@ -160,7 +165,9 @@ public final class LuaTools {
 				writer.write("nil");
 				break;
 			case NUMBER:
-				writer.write(Double.toString(lua.toNumber(index)));
+				DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.FRENCH));
+				df.setMinimumFractionDigits(6);
+				writer.write(df.format(lua.toNumber(index)));
 				break;
 			case STRING:
 				 writer.write("\"" + lua.toString(index) + "\"");
@@ -336,24 +343,50 @@ public final class LuaTools {
   /**
    * Push a inherited class on stack.
    * @param lua .
-   * @param errfunc .
    * @param parentClassName .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError pushClass(Lua lua, int errfunc, @Nullable String... parentClassName) {
-    Lua.LuaError error;
-    lua.getGlobal("class");
+  public static void pushClass(Lua lua, @Nullable String... parentClassName) {
+    lua.createTable(0, 0); /* class table */
     if ((parentClassName != null) && (parentClassName.length != 0)) {
-    	if ((error = LuaTools.pushValue(lua, Lua51Consts.LUA_GLOBALSINDEX, parentClassName)) != Lua.LuaError.OK) {
-    		return error;
-    	}
-    	error = pCall(lua, 1, 1, relativizeIndex(errfunc, -2));
+    	lua.createTable(0, 2); /* metatable */
+    	LuaTools.pushValue(lua, Lua51Consts.LUA_GLOBALSINDEX, parentClassName);
+    	lua.setField(-2, "__index");
+    	LuaTools.setFunction(lua, -1, "__call", LuaTools::newClassInstance);
+    	lua.setMetatable(-2);
     } else {
-    	error = pCall(lua, 0, 1, relativizeIndex(errfunc, -1));
+    	lua.createTable(0, 1); /* metatable */
+      LuaTools.setFunction(lua, -1, "__call", LuaTools::newClassInstance);
+      lua.setMetatable(-2);
+      LuaTools.setFunction(lua, -1, "IsA", LuaObject::isA);
     }
-    return error;
   }
   
+  /**
+   * @param lua
+   * @return 1.
+   */
+  public static int newClassInstance(Lua lua) {
+  	lua.createTable(0, 0); /* instance */
+  	lua.createTable(0, 1); /* metatable */
+  	lua.pushValue(1); /* parent class */
+  	lua.setField(-2, "__index");
+  	lua.setMetatable(-2);
+  	return 1;
+  }
+  
+  /**
+   * @param lua
+   * @param envIndex .
+   * @param parentClassConsumer .
+   */
+  public static void newClassInstance(Lua lua, int envIndex, Consumer<Integer> parentClassConsumer) {
+  	lua.createTable(0, 0); /* instance */
+  	lua.createTable(0, 1); /* metatable */
+  	parentClassConsumer.accept(Integer.valueOf(LuaTools.relativizeIndex(envIndex, -2))); /* parent class */
+  	lua.setField(-2, "__index");
+  	lua.setMetatable(-2);
+  }
+
   /**
    * Set a function to a class instance or array.
    * @param lua .
@@ -366,6 +399,18 @@ public final class LuaTools {
   	lua.push(function);
   	pushValueRelative(lua, envIndex, -1);
   	setfenv(lua, -2);
+  	lua.setField(relativizeIndex(index, -1), name);
+  }
+  
+  /**
+   * Set a function to a class instance or array.
+   * @param lua .
+   * @param index .
+   * @param name .
+   * @param function .
+   */
+  public static void setFunction(Lua lua, int index, String name, JFunction function) {
+  	lua.push(function);
   	lua.setField(relativizeIndex(index, -1), name);
   }
 
@@ -418,15 +463,13 @@ public final class LuaTools {
    * @param lua .
    * @param envIndex .
    * @param names names list.
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError pushValue(Lua lua, int envIndex, String... names) {
+  public static void pushValue(Lua lua, int envIndex, String... names) {
   	lua.pushValue(envIndex);
   	for (String name:names) {
   		lua.getField(-1, name);
   		lua.replace(-2);
     }
-  	return Lua.LuaError.OK;
   }
   
   /**
@@ -515,7 +558,7 @@ public final class LuaTools {
     lua.pushValue(1); /* library name */
     lua.getTable(-2); /* loaded library */
     Lua.LuaType type = lua.type(-1);
-    lua.pop(1); /* pop module */
+    lua.pop(1); /* pop tested value */
     if ((type == Lua.LuaType.NIL) || (type == Lua.LuaType.BOOLEAN)) { /* no loaded library */
     	lua.pushValue(1); /* library name */
     	lua.pushValue(-3); /* library value from caller */
@@ -668,12 +711,19 @@ public final class LuaTools {
    * @param name .
    */
   public static void setEnvInfos(Lua lua, int index, String name) {
-  	lua.push("_");
-  	lua.createTable(0, 0);
-  	lua.push("Name");
-  	lua.push(name);
-  	lua.rawSet(-3);
-  	lua.rawSet(relativizeIndex(index, -2));
+  	lua.getField(index, "_");
+  	if (lua.isNil(-1)) {
+  		lua.pop(1);
+  		lua.push("_");
+  		lua.createTable(0, 0);
+  		lua.push(name);
+  		lua.setField(-2, "Name");
+  		lua.rawSet(relativizeIndex(index, -2));
+  	} else {
+  		lua.push(name);
+  		lua.setField(-2, "Name");
+  		lua.pop(1);
+  	}
   }
   
   /**
@@ -752,34 +802,4 @@ public final class LuaTools {
   public static void mobdebugStart() {
   	_mobdebug.get("start").call();
   }*/
-  
-  /**
-   * @param lua .
-   * @param index .
-   * @return Lua.LuaError.
-   */
-  public static Lua.LuaError metaluaCompiler_src_to_ast(Lua lua, int index) {
-  	lua.getGlobal(LuaTools.PCALL_ERR_FUNC_NAME);
-  	lua.getGlobal("metalua_compiler");
-  	lua.pushValue(-1);
-  	lua.getField(-1, "src_to_ast");
-  	lua.replace(-3);
-  	pushValueRelative(lua, index, -2);
-  	return pCall(lua, 2, 1, -4);
-  }
-  
-  /**
-   * @param lua .
-   * @param index .
-   * @param errfunc .
-   * @return Lua.LuaError.
-   */
-  public static Lua.LuaError metaluaCompiler_function_to_src(Lua lua, int index, int errfunc) {
-  	lua.getGlobal("metalua_compiler");
-  	lua.pushValue(-1);
-  	lua.getField(-1, "bytecode_to_ast");
-  	lua.replace(-3);
-  	pushValueRelative(lua, index, -2);
-  	return pCall(lua, 2, 1, relativizeIndex(errfunc, -3));
-  }
 }

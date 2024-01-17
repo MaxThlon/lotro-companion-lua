@@ -19,13 +19,9 @@ final class LuaWindow {
    * Initialize lua Window package
    * @param lua .
    * @param envIndex .
-   * @param errfunc .
-   * @return Lua.LuaError.
    */
-  public static Lua.LuaError add(Lua lua, int envIndex, int errfunc) {
-  	Lua.LuaError error;
-  	error = LuaTools.pushClass(lua, errfunc, "Turbine", "UI", "Control");
-  	if (error != Lua.LuaError.OK) return error;
+  public static void add(Lua lua, int envIndex) {
+  	LuaTools.pushClass(lua, "Turbine", "UI", "Control");
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Constructor", LuaWindow::constructor);
   	LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Activate", LuaWindow::activate);
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "Close", LuaWindow::close);
@@ -50,7 +46,6 @@ final class LuaWindow {
     LuaTools.setFunction(lua, -1, LuaTools.relativizeIndex(envIndex, -1), "SetText", LuaWindow::setText);
 
     lua.setField(-2, "Window");
-    return error;
   }
 
   public static DefaultWindowController windowControllerSelf(Lua lua, int index) {
@@ -72,14 +67,15 @@ final class LuaWindow {
     };
     
     LuaTools.invokeAndWait(lua, () -> windowController.getWindow());
-    return LuaControl.controlInheritedConstructor(lua, 1, windowController);
+    LuaControl.controlInheritedConstructor(lua, 1, windowController);
+    return 0;
   }
   
   private static int activate(Lua lua) {
     DefaultWindowController windowController = windowControllerSelf(lua, 1);
     
     SwingUtilities.invokeLater(() -> windowController.bringToFront());
-    return 1;
+    return 0;
   }
 
   private static int close(Lua lua) {
@@ -89,7 +85,7 @@ final class LuaWindow {
     } catch (PropertyVetoException e) {
       e.printStackTrace();
     }*/
-    return 1;
+    return 0;
   }
 
   private static int getMinimumWidth(Lua lua) {
@@ -105,7 +101,7 @@ final class LuaWindow {
     
     dimension.width = (int)lua.toNumber(2);
     SwingUtilities.invokeLater(() -> frame.setMinimumSize(dimension));
-    return 1;
+    return 0;
   }
   
   private static int getMinimumHeight(Lua lua) {
@@ -121,7 +117,7 @@ final class LuaWindow {
 
     dimension.height = (int)lua.toNumber(2);
     SwingUtilities.invokeLater(() -> frame.setMinimumSize(dimension));
-    return 1;
+    return 0;
   }
   
   private static int getMinimumSize(Lua lua) {
@@ -129,7 +125,7 @@ final class LuaWindow {
     Dimension dimension = frame.getMinimumSize();
     lua.push(dimension.width);
     lua.push(dimension.height);
-    return 1;
+    return 2;
   }
   
   private static int setMinimumSize(Lua lua) {
@@ -138,7 +134,7 @@ final class LuaWindow {
     dimension.width = (int)lua.toNumber(2);
     dimension.height = (int)lua.toNumber(3);
     SwingUtilities.invokeLater(() -> frame.setMinimumSize(dimension));
-    return 1;
+    return 0;
   }
 
   private static int getMaximumWidth(Lua lua) {
@@ -154,7 +150,7 @@ final class LuaWindow {
     dimension.width = (int)lua.toNumber(2);
 
     SwingUtilities.invokeLater(() -> frame.setMaximumSize(dimension));
-    return 1;
+    return 0;
   }
   
   private static int getMaximumHeight(Lua lua) {
@@ -167,7 +163,7 @@ final class LuaWindow {
     Dimension dimension = frame.getMaximumSize();
     dimension.height = (int)lua.toNumber(2);
     SwingUtilities.invokeLater(() -> frame.setMaximumSize(dimension));
-    return 1;
+    return 0;
   }
   
   private static int getMaximumSize(Lua lua) {
@@ -176,7 +172,7 @@ final class LuaWindow {
     
     lua.push(dimension.width);
     lua.push(dimension.height);
-    return 1;
+    return 2;
   }
   
   private static int setMaximumSize(Lua lua) {
@@ -185,15 +181,16 @@ final class LuaWindow {
     dimension.width = (int)lua.toNumber(2);
     dimension.height = (int)lua.toNumber(3);
     SwingUtilities.invokeLater(() -> frame.setMaximumSize(dimension));
-    return 1;
+    return 0;
   }
   
   private static int getRotation(Lua lua) {
+  	lua.push(0);
     return 1;
   }
   
   private static int setRotation(Lua lua) {
-    return 1;
+    return 0;
   }
   
   private static int getText(Lua lua) {
@@ -205,6 +202,6 @@ final class LuaWindow {
   	JFrame frame = windowControllerSelf(lua, 1).getFrame();
   	String title = lua.toString(2);
   	SwingUtilities.invokeLater(() -> frame.setTitle(title));
-    return 1;
+    return 0;
   }
 }
